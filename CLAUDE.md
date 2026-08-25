@@ -62,11 +62,17 @@ Always identify:
 Use Case Analysis:
 requirements/
 
+MVP Scope:
+requirements/mvp/
+
 User Flow:
 ux/user-flows/
 
 Screen Specification:
 ux/screen-specifications/
+
+Stitch Prompt (UI/UX Design brief):
+ux/stitch-prompts/
 
 API Contracts:
 api/contracts/
