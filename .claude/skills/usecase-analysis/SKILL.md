@@ -55,6 +55,20 @@ Generate:
 
 # MVP Scope
 
+## Output Location
+
+Save the result to:
+
+requirements/
+
+Use the naming format:
+
+<feature-name>.md
+
+Example:
+
+register-traveler-account.md
+
 ## Rules
 
 - Do not generate application code.
