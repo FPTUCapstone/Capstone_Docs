@@ -1,6 +1,6 @@
 # Explore Points of Interest MVP
 
-Status: **APPROVED FOR IMPLEMENTATION PLANNING - D1-D6 approved on 2026-09-12**
+Status: **DELIVERED / COMPLETED AND VERIFIED (Backend TM-58 / PR #14) - 2026-09-13**
 
 Jira: TM-58
 
@@ -23,7 +23,9 @@ one Active POI -> view its stored details.
 
 - Flutter Mobile and responsive Next.js Web can consume the same read-only backend contract.
 - Only `Active` POIs appear in public results or detail responses.
-- Search is applied to the POI name after the client submits criteria.
+- Search is applied to the POI name as a literal contains match (LIKE wildcard characters `%`, `_`,
+  `[`, `]` and escape character `\` are escaped literally, not evaluated as pattern wildcards) under
+  case-insensitive collation.
 - Category, distance from an origin, and opening-now filters are supported.
 - CR-01 behavior starts at 20 records per page and returns the total count.
 - List items contain POI identity, category, coordinates, address, visit duration, shelter,
@@ -100,9 +102,9 @@ an additional product decision.
 - Treating screen-only ticket-price examples as persisted data would invent fields absent from SQL
   v7.
 
-# Implementation Gate
+# Delivery and Verification Summary
 
-The requirement and D1-D6 contract decisions are approved. TM-98 is merged and the TM-58 branch is
-synchronized with that dependency. Preparation of an atomic implementation plan is authorized;
-production code remains blocked until that plan receives separate approval and the complete
-baseline, including SQL Server tests, is green.
+The requirement and D1-D6 contract decisions are fully delivered and verified in Backend PR #14
+(Jira TM-58). Implementation completed under TDD with 0 warnings, 0 errors, 0 skips, and 0
+vulnerabilities across the entire test suite (including all SQL Server integration tests).
+

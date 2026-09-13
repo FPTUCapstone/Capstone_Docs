@@ -1,6 +1,6 @@
 # POI Exploration API Contract
 
-Status: **APPROVED FOR IMPLEMENTATION PLANNING - 2026-09-12**
+Status: **DELIVERED / COMPLETED AND VERIFIED (Backend TM-58 / PR #14) - 2026-09-13**
 
 Jira: TM-58
 
@@ -21,11 +21,11 @@ RFC 7807 errors follow the canonical decision in `api/contracts/api-response-sta
 
 | Query parameter | Type | Default | Validation and behavior |
 |---|---|---|---|
-| `search` | string nullable | `null` | Trim before use; at most 200 characters after trimming; case-insensitive contains match on POI name. |
+| `search` | string nullable | `null` | Trim before use; at most 200 characters after trimming; case-insensitive literal contains match on POI name (SQL LIKE wildcards `%`, `_`, `[`, `]` and `\` are escaped literally). |
 | `categoryId` | integer nullable | `null` | Greater than zero when supplied; unknown ID returns an empty page. |
 | `originLatitude` | decimal nullable | `null` | Supply with longitude; range `-90..90`; normalize to six decimal places. |
 | `originLongitude` | decimal nullable | `null` | Supply with latitude; range `-180..180`; normalize to six decimal places. |
-| `maxDistanceKm` | decimal nullable | `null` | Greater than zero and requires both origin coordinates. |
+| `maxDistanceKm` | decimal nullable | `null` | Greater than zero (`> 0`, `exclusiveMinimum: true`) and requires both origin coordinates. |
 | `openNow` | boolean | `false` | When true, keep only POIs open under the approved Vietnam-time rule. |
 | `sort` | string | `name` | One of `name`, `distance`, `rating`; distance requires origin coordinates. |
 | `page` | integer | `1` | Greater than zero. |
@@ -144,7 +144,7 @@ Creator identity is intentionally absent. Opening hours are ordered by `dayOfWee
 
 | Condition | HTTP status | Body |
 |---|---|---|
-| Invalid route ID or query value/combination | `400` | RFC 7807 `ValidationProblemDetails` with camelCase field keys. |
+| Invalid route ID or query value/combination | `400` | RFC 7807 `ValidationProblemDetails` with camelCase field keys (e.g. non-numeric `{id}` like `/api/v1/pois/abc` returns 400 with `errors.id`). |
 | Unknown category filter or no matching Active POI | `200` | Empty paginated DTO. |
 | Missing or Inactive detail POI | `404` | RFC 7807 `ProblemDetails` with `errorCode = Poi.NotFound`. |
 | Unexpected database/system failure | `500` | Generic RFC 7807 `ProblemDetails`; no exception, SQL, credential, or stack detail. |
@@ -171,9 +171,9 @@ Creator identity is intentionally absent. Opening hours are ordered by `dayOfWee
 - Add SQL Server integration coverage for translation, collation-sensitive search, aggregate
   values, ordering, and pagination.
 
-# Approval Gate
+# Delivery and Verification Gate
 
-D1-D6, the MVP requirement, and this API contract were approved on 2026-09-12. TM-98 is merged into
-Backend `develop` at `e6d64ec`. Preparation of the atomic TM-58 implementation plan is authorized;
-production-code execution begins only after that plan is separately reviewed and approved and the
-complete baseline, including SQL Server tests, is green.
+D1-D6, the MVP requirement, and this API contract are fully delivered and verified in Backend PR #14
+(TM-58). All quality gates passed with zero regressions and zero test skips across the complete test
+suite including SQL Server integration runs.
+
