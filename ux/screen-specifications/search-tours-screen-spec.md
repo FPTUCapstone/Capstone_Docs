@@ -6,7 +6,7 @@
 
 ## Related UC
 
-UC-24 — Search Tours
+UC-24 — Search Tours (`TM-70`)
 
 ## Actor
 
@@ -14,7 +14,7 @@ Guest / Traveler
 
 ## Platform
 
-Flutter Mobile and responsive Next.js Web. Current Stitch output covers Flutter Mobile UI only.
+Flutter Mobile and responsive Next.js Web.
 
 ## Purpose
 
@@ -30,38 +30,51 @@ Public Home, Traveler Home, or primary Tours navigation.
 
 ## Exit / Navigation
 
-Select result → Tour Details. Back from details restores page, filters, and sort.
+Select result → Tour Details. Back from details restores page and active filters.
 
-## Required Data
+## Required Data (TM-70 Owned Scope)
 
-User context; destination; date/date range; min/max price; interest tags; supported filters; sort; Tour identity/image/operator summary; price; departure/availability summary; total count; current page.
+- **Owned Search Inputs**:
+  - `destination`: optional string, trimmed and normalized to Unicode NFC, max 300 characters.
+  - `departureDate`: optional single departure date (`YYYY-MM-DD`, evaluated in `Asia/Ho_Chi_Minh`).
+  - `minPrice` / `maxPrice`: optional whole-VND integers (`0..9,999,999,999`, `minPrice <= maxPrice`).
+  - `page` / `pageSize`: `page >= 1`, default `pageSize = 20` (`1..100`).
+- **Out-of-Scope / Deferred SRS Filters**:
+  - `keyword`, `date range`, `duration`, `category`, `rating`, `sort`, and `interest tags` are explicitly out of scope for TM-70.
+- **Result Data**:
+  - `tourId`, `title`, `destinations`, `operatorName`, `durationDays`, `basePrice`, `currency`, `representativeScheduleId`, `departureAtUtc`, `availabilityStatus` (`available`, `soldOut`, `noUpcomingSchedule`, `unknown`), `remainingSlots`, `thumbnailUrl`, `page`, `pageSize`, `totalCount`, `totalPages`.
 
 ## Main Layout Regions
 
-Top app bar/search title; submit-based search field; filter controls/sheet; sort; result count; Tour card list; pagination; empty/error region.
+Top app bar/search header; submit-based filter bar (Web) or filter bottom sheet trigger (Mobile); active filter chips; result count; Tour card list/grid; platform pagination region; empty/error/stale-warning region.
 
 ## Components
 
 ### User Inputs
 
-Destination; date/date range; min/max price; interest tags and only other supported filters; sort; page.
+- `destination` (trimmed + Unicode NFC normalized, $\le 300$ chars)
+- single `departureDate` (`YYYY-MM-DD`)
+- `minPrice` and `maxPrice` (whole VND `0..9,999,999,999`)
+- page navigation:
+  - **Web**: Numbered pagination (`TourPagination`, 20 items per page, URL search-param synced)
+  - **Mobile**: Infinite scroll (triggers `loadNextPage` at 85% scroll extent with `tourId` deduplication) + pull-to-refresh (`RefreshIndicator`)
 
 ### Read-only Information
 
-Tour cards with identity, image, operator summary, formatted price, relevant departure and current availability summary; total count.
+Tour cards with identity, thumbnail (or neutral accessible placeholder), operator summary, duration, formatted VND price, representative departure timestamp, and current availability summary; total count.
 
 ### Primary Actions
 
-- **Search** (submit).
+- **Search / Apply filters** (explicit submit).
 - Select Tour.
 
 ### Secondary Actions
 
-Open/clear supported filters; sort; change page.
+Open/reset filters; remove individual active filter chip; change page (Web) or pull-to-refresh / scroll to load more (Mobile).
 
 ## Validation
 
-Search only on submit (CR-02). Valid formats; end date not before start; minimum price not above maximum. Only approved/public tours. CR-01: 20 per page, total count, preserve page/filter/sort. CR-07/CR-08 formatting.
+Search only on explicit submit (CR-02). `destination` is normalized to Unicode NFC and trimmed before checking length $\le 300$. `departureDate` must be a valid calendar date in `YYYY-MM-DD` and not in the past. `minPrice` and `maxPrice` must be whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`. Web BFF proxy rejects duplicate or unknown query keys with HTTP 400 ProblemDetails. Only approved/public tours are returned. CR-01: 20 per page, total count, deterministic ordering (`title ASC, tourId ASC`).
 
 ## Business Rules
 
@@ -85,27 +98,28 @@ First 20 public Tours and total count load; optional criteria empty.
 
 ### Loading State
 
-Tour-card skeletons; Search button disabled during request.
+Tour-card skeletons; Search/Filter submit disabled during request.
 
 ### Loaded State
 
-Matching Tour cards, total count, page/filter/sort state.
+Matching Tour cards, total count, active filter chips, and pagination state.
 
 ### Empty State
 
-MSG64; preserve criteria and offer no invented fallback.
+MSG64; preserve criteria and offer filter reset without invented fallback results.
 
 ### Validation Error State
 
-Inline date/price/format errors; no search request.
+Inline destination/date/price errors; no search request dispatched.
 
 ### Business Error State
 
 Selected Tour becomes unavailable: MSG65 and no booking implication.
 
-### System Error State
+### System & Stale-Data Error State
 
-MSG127; previous client state unchanged.
+- Initial load failure: MSG127 full error state with retry action.
+- Subsequent refresh/search failure with existing results: preserve previously loaded results and pagination, and display a non-destructive inline warning banner with retry action.
 
 ### Success State
 
@@ -127,11 +141,8 @@ Public results require network; MSG127.
 
 Home/Tours → Search Tours → Tour Details → preserved Search Tours.
 
-## Open Questions
+## Scope & Pagination Decision Notes
 
-“Other Supported Filters” are not enumerated.
-
-## UX Suggestions
-
-Use a mobile filter bottom sheet and compact POI/tour cards; this adapts presentation only and preserves submit search and CR-01.
-
+- **Owned TM-70 Filters**: `destination`, single `departureDate`, `minPrice`, `maxPrice`, `page`, `pageSize`, and real-time availability status.
+- **Out-of-Scope SRS Filters**: `keyword`, `date range`, `duration`, `category`, `rating`, `sort`, and `interest tags`.
+- **Platform Pagination Pattern**: Web uses numbered pagination (`TourPagination`); Mobile uses infinite scroll (85% threshold) + pull-to-refresh (`RefreshIndicator`).
