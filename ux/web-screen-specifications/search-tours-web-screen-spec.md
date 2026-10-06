@@ -64,8 +64,8 @@
 
 | Field / Feature | SRS Reference | Backend Support (`TM-70`) | Web & Mobile Implementation Decision |
 |---|---|---|---|
-| **destination** | §3.5.1 | Supported (`string`, max 300 chars, trimmed, literal match on `commerce.TourDestinations`) | **Owned Scope**: Text input, trimmed and normalized to Unicode NFC before validation/request, client validation $\le$ 300 chars. |
-| **departureDate** | §3.5.1 | Supported (`DateOnly` `yyyy-MM-dd`, evaluated against future scheduled departures in `Asia/Ho_Chi_Minh`) | **Owned Scope**: Single departure date input (`min=today`), validates real calendar date `yyyy-MM-dd` and non-past constraint. |
+| **destination** | §3.5.1 | Supported (`string`, max 300 chars, trimmed, literal match on `commerce.TourDestinations`) | **Owned Scope**: Text input, trimmed and normalized to Unicode NFC before enforcing length $\le$ 300 chars. |
+| **departureDate** | §3.5.1 | Supported (`DateOnly` `yyyy-MM-dd`, evaluated against scheduled departures in `Asia/Ho_Chi_Minh`) | **Owned Scope**: Single departure date input. `departureDate` must be a valid YYYY-MM-DD calendar date. Past valid dates are accepted criteria and may return an empty result. |
 | **minPrice** / **maxPrice** | §3.5.1, CR-08 | Supported (whole VND integer `0..9,999,999,999`, `minPrice <= maxPrice`) | **Owned Scope**: Whole-number VND inputs, client validation `0..9,999,999,999` and `minPrice <= maxPrice`. |
 | **page** / **pageSize** | CR-01 | Supported (`page >= 1`, `pageSize` `1..100`, default `20`, deterministic sort `title ASC, tourId ASC`) | **Owned Scope**: Web uses numbered pagination (`pageSize = 20`); Mobile uses infinite scroll + pull-to-refresh (`pageSize = 20`). |
 | **availability** | §3.5.1, BR-60 | Supported (`available`, `soldOut`, `noUpcomingSchedule`, `unknown`, `remainingSlots`, `departureAtUtc`) | **Owned Scope**: Rendered on every tour card with status badge, slot counter, and representative departure date. |
@@ -90,8 +90,8 @@
 ### 2. Search & Filter Hero Section
 - **Title & Description**: Informative heading (`Explore Authentic Local Tours`).
 - **Search Form** (`TourFilterBar`):
-  - **Destination Input**: Accessible label `Destination`, placeholder `Da Nang, Hoi An, Hue...`, normalized to Unicode NFC and trimmed, `maxLength={300}`.
-  - **Departure Date Input**: Accessible label `Departure date`, date picker with `min` set to today's date in Vietnam time (`Asia/Ho_Chi_Minh`).
+  - **Destination Input**: Accessible label `Destination`, placeholder `Da Nang, Hoi An, Hue...`, normalized to Unicode NFC and trimmed before checking length $\le 300$ characters (no pre-normalization truncation on raw decomposed input).
+  - **Departure Date Input**: Accessible label `Departure date`, date input accepting valid `YYYY-MM-DD` calendar dates (`departureDate` must be a valid YYYY-MM-DD calendar date; past valid dates are accepted criteria and may return an empty result).
   - **Price Range Inputs**:
     - `Min price (VND)`: Whole-number VND input (`0..9,999,999,999`).
     - `Max price (VND)`: Whole-number VND input (`0..9,999,999,999`).
@@ -102,7 +102,7 @@
 
 ### 3. Active Filters & Results Summary Bar
 - **Results Count**: Announcements such as `Showing X–Y of Z tours` (using `aria-live="polite"`).
-- **Stale Data Indicator (`TourStaleWarningBanner`)**: If a subsequent refresh, filter submission, or pagination request fails after valid results are already loaded, preserves the existing results and pagination controls while displaying a non-blocking warning banner (`Results could not be refreshed. Availability may have changed.`) with a `Try again` action.
+- **Stale Data Indicator (`TourStaleWarningBanner`)**: If a subsequent refresh, filter submission, or pagination request fails after valid results are already loaded, preserves the existing results, the `displayedCriteria` associated with those results, and pagination controls while retaining `requestedCriteria` in the editable form and displaying a non-blocking warning banner (`Results could not be refreshed. Availability may have changed.`) with a `Retry` action.
 
 ### 4. Main Results Grid
 - **Responsive Layout**:
@@ -115,7 +115,7 @@
   - **Operator Name**: Verified operator company name.
   - **Schedule & Departure**: Formatted departure date and time in Vietnam time (`Asia/Ho_Chi_Minh`).
   - **Availability Badge**:
-    - `available`: Green badge with slot counter (`{n} slots available`).
+    - `available`: Green badge with slot counter (`{n} slots left` / `Available`).
     - `soldOut`: Red badge (`Sold out`).
     - `noUpcomingSchedule`: Neutral gray badge (`No upcoming departures`).
     - `unknown`: Warning amber badge (`Availability unavailable`).
@@ -135,11 +135,11 @@
 |---|---|---|
 | **Initial State** | Page loads without query params | Loads first 20 public tours, empty filter inputs, total count displayed. |
 | **Loading State** | Initial fetch or new search submission with no prior data | Grid of 6 shimmer skeleton cards (`TourLoadingSkeleton`), submit button disabled. |
-| **Loaded State** | HTTP 200 with `items.length > 0` | Render matching tour cards, total count, pagination. |
+| **Loaded State** | HTTP 200 with `items.length > 0` | Render matching tour cards, total count, `displayedCriteria`, pagination. |
 | **Empty State** | HTTP 200 with `totalCount === 0` | Empty illustration/icon, message **MSG64** (`No tour packages found matching your destination and dates.`), and a `Clear filters` button. |
-| **Validation Error** | Client-side validation failure | Inline field errors under respective inputs and summary alert. Search request is NOT dispatched. |
-| **Server Error** | HTTP 500 or Network offline on initial load | Error alert box with message **MSG127** (`TripMate is temporarily unable to process your request. Please check your connection and try again.`), and an interactive `Try again` button. |
-| **Stale Data Error** | Network/server error during subsequent search/refresh | Preserves previously loaded valid tour cards and pagination, displays `TourStaleWarningBanner`, and provides a `Try again` button. |
+| **Validation Error** | Client-side or URL query validation failure | Field-level `aria-invalid`, `aria-describedby`, and inline error messages under invalid inputs. Search request is NOT dispatched and normal empty state is NOT rendered. |
+| **Server Error** | HTTP 500 or Network offline on initial load | Error alert box with message **MSG127** (`TripMate is temporarily unable to process your request. Please check your connection and try again.`), and an interactive `Retry` button. |
+| **Stale Data Error** | Network/server error during subsequent search/refresh | Preserves previously loaded valid tour cards, `displayedCriteria`, and pagination, retains `requestedCriteria` in filter inputs, displays `TourStaleWarningBanner`, and provides a `Retry` button. |
 
 ---
 
@@ -153,11 +153,10 @@
 | **MSG127** | TripMate tạm thời không thể xử lý yêu cầu. Vui lòng kiểm tra kết nối và thử lại. | TripMate is temporarily unable to process your request. Please check your connection and try again. |
 | `tourSearch.destinationTooLong` | Điểm đến không được vượt quá 300 ký tự. | Destination must not exceed 300 characters. |
 | `tourSearch.invalidDepartureDate` | Ngày khởi hành không hợp lệ. | Enter a valid departure date. |
-| `tourSearch.pastDepartureDate` | Ngày khởi hành không thể là ngày trong quá khứ. | Departure date cannot be in the past. |
 | `tourSearch.invalidPrice` | Giá phải là số nguyên VND từ 0 đến 9.999.999.999. | Enter a whole VND amount between 0 and 9,999,999,999. |
 | `tourSearch.invalidPriceRange` | Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu. | Maximum price must be greater than or equal to minimum price. |
 | `tourSearch.staleResults` | Không thể làm mới kết quả. Tình trạng chỗ có thể đã thay đổi. | Results could not be refreshed. Availability may have changed. |
-| `tourSearch.statusAvailable` | Còn {n} chỗ trống | {n} slots available |
+| `tourSearch.statusAvailable` | Còn {n} chỗ trống | {n} slots left |
 | `tourSearch.statusSoldOut` | Hết chỗ | Sold out |
 | `tourSearch.statusNoSchedule` | Chưa có lịch khởi hành | No upcoming departures |
 | `tourSearch.statusUnknown` | Tình trạng chỗ chưa xác định | Availability unavailable |

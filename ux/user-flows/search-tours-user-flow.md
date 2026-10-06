@@ -43,18 +43,18 @@ Browse without criteria; return from UC-26 to preserved results.
 
 # Validation Flow
 
-- `destination` normalized to Unicode NFC + trimmed, length $\le 300$.
-- `departureDate` valid calendar date (`YYYY-MM-DD`) and not in the past.
+- `destination` normalized to Unicode NFC + trimmed before checking length $\le 300$.
+- `departureDate` must be a valid YYYY-MM-DD calendar date. Past valid dates are accepted criteria and may return an empty result.
 - `minPrice` and `maxPrice` whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`.
 - Web BFF proxy rejects duplicate or unknown query keys with HTTP 400 ProblemDetails.
 
 # Error Flow
 
-- Invalid criteria: inline field errors; no search request dispatched.
+- Invalid criteria: inline field errors associated with invalid inputs; no search request dispatched and normal empty state is not rendered.
 - No matches: MSG64.
 - Selected tour becomes unavailable: MSG65.
 - Initial search/network failure: MSG127 full error state with retry.
-- Subsequent refresh/search failure with loaded results: preserve existing results and pagination, display non-destructive warning banner with retry.
+- Subsequent refresh/search failure with loaded results: preserve existing results, displayed criteria associated with those results, and pagination; keep requested criteria in editable state and display non-destructive warning banner with retry.
 - Traveler session expiry does not prevent public browsing; protected actions follow MSG125.
 
 # Success State
