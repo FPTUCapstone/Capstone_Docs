@@ -74,7 +74,7 @@ Open/reset filters; remove individual active filter chip; change page (Web) or p
 
 ## Validation
 
-Search only on explicit submit (CR-02). `destination` is normalized to Unicode NFC and trimmed before checking length $\le 300$. `departureDate` must be a valid calendar date in `YYYY-MM-DD` and not in the past. `minPrice` and `maxPrice` must be whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`. Web BFF proxy rejects duplicate or unknown query keys with HTTP 400 ProblemDetails. Only approved/public tours are returned. CR-01: 20 per page, total count, deterministic ordering (`title ASC, tourId ASC`).
+Search only on explicit submit (CR-02). `destination` is normalized to Unicode NFC and trimmed before checking length $\le 300$. `departureDate` must be a valid YYYY-MM-DD calendar date. Past valid dates are accepted criteria and may return an empty result. `minPrice` and `maxPrice` must be whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`. Web BFF proxy rejects duplicate or unknown query keys with HTTP 400 ProblemDetails. Only approved/public tours are returned. CR-01: 20 per page, total count, deterministic ordering (`title ASC, tourId ASC`).
 
 ## Business Rules
 
@@ -110,7 +110,7 @@ MSG64; preserve criteria and offer filter reset without invented fallback result
 
 ### Validation Error State
 
-Inline destination/date/price errors; no search request dispatched.
+Inline destination/date/price errors associated with invalid fields; no search request dispatched and normal empty state is not rendered.
 
 ### Business Error State
 
@@ -119,7 +119,7 @@ Selected Tour becomes unavailable: MSG65 and no booking implication.
 ### System & Stale-Data Error State
 
 - Initial load failure: MSG127 full error state with retry action.
-- Subsequent refresh/search failure with existing results: preserve previously loaded results and pagination, and display a non-destructive inline warning banner with retry action.
+- Subsequent refresh/search failure with existing results: preserve previously loaded results, displayed criteria associated with those results, and pagination, while retaining requested criteria in editable state and displaying a non-destructive inline warning banner with retry action.
 
 ### Success State
 
