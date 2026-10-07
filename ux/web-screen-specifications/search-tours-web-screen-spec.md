@@ -88,44 +88,48 @@
 - Active styling indicates current route when on `/tours`.
 
 ### 2. Search & Filter Hero Section
-- **Title & Description**: Informative heading (`Explore Authentic Local Tours`).
+- **Title & Description**: Informative heading (`Verified Experience Tours`, badge `Explore Central Vietnam Tours`).
 - **Search Form** (`TourFilterBar`):
-  - **Destination Input**: Accessible label `Destination`, placeholder `Da Nang, Hoi An, Hue...`, normalized to Unicode NFC and trimmed before checking length $\le 300$ characters (no pre-normalization truncation on raw decomposed input).
-  - **Departure Date Input**: Accessible label `Departure date`, date input accepting valid `YYYY-MM-DD` calendar dates (`departureDate` must be a valid YYYY-MM-DD calendar date; past valid dates are accepted criteria and may return an empty result).
+  - **Destination Input**: Accessible label `Destination / Region`, placeholder `Da Nang, Hoi An, Hue...`, normalized to Unicode NFC and trimmed before checking length $\le 300$ characters (no pre-normalization truncation on raw decomposed input).
+  - **Departure Date Input**: Accessible label `Departure Date`, date input accepting valid `YYYY-MM-DD` calendar dates (`departureDate` must be a valid YYYY-MM-DD calendar date; past valid dates are accepted criteria and may return an empty result).
   - **Price Range Inputs**:
-    - `Min price (VND)`: Whole-number VND input (`0..9,999,999,999`).
-    - `Max price (VND)`: Whole-number VND input (`0..9,999,999,999`).
+    - `Min Price (VND)`: Whole-number VND input (`0..9,999,999,999`).
+    - `Max Price (VND)`: Whole-number VND input (`0..9,999,999,999`).
   - **Action Buttons**:
     - **Search Button (`Search tours`)**: Primary button, submits search. Disabled while request is in-flight.
-    - **Reset Button (`Reset`)**: Secondary button, resets all criteria to empty and loads default page 1.
+    - **Reset Button (`Clear filters`)**: Secondary button, resets all criteria to empty and loads default page 1.
+  - **Raw Query Validation**: Unknown keys, wrong casing (`Destination`, `MinPrice`, etc.), and duplicate keys are rejected before canonicalization and surfaced in `#tour-query-error` (`role="alert"`).
   - **Execution Rule (CR-02)**: Search triggers **only on explicit form submission**, never on individual keystrokes or input blur.
 
 ### 3. Active Filters & Results Summary Bar
-- **Results Count**: Announcements such as `Showing X–Y of Z tours` (using `aria-live="polite"`).
+- **Results Heading**: `Available Tour Packages` (`#tour-results-heading`).
+- **Results Count**: Announces `Showing {items.length} of {totalCount} matching tours` when `totalCount > 0`, or `No matching tours found` when `totalCount === 0` (`role="status"`).
+- **Displayed Criteria Summary**: When active filters belong to the currently displayed result set (`displayedCriteria`), renders `Active: {parts.join(' · ')}` (`data-testid="displayed-criteria"`). Active filter chips on Mobile and the `Active:` summary on Web are read-only indicators paired with `Clear filters`; individual chip removal is not supported.
 - **Stale Data Indicator (`TourStaleWarningBanner`)**: If a subsequent refresh, filter submission, or pagination request fails after valid results are already loaded, preserves the existing results, the `displayedCriteria` associated with those results, and pagination controls while retaining `requestedCriteria` in the editable form and displaying a non-blocking warning banner (`Results could not be refreshed. Availability may have changed.`) with a `Retry` action.
 
 ### 4. Main Results Grid
-- **Responsive Layout**:
-  - **Desktop ($\ge$ 1024px)**: 3-column grid (max-width 1280px).
-  - **Tablet (768px – 1023px)**: 2-column grid.
-  - **Mobile (< 768px)**: 1-column stacked list with 16px horizontal padding.
+- **Responsive Layout** (`grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`):
+  - **Extra-Large Desktop (`xl` $\ge$ 1280px)**: 4-column grid (container `max-w-7xl`).
+  - **Desktop (`lg` 1024px – 1279px)**: 3-column grid.
+  - **Small / Tablet (`sm` 640px – 1023px)**: 2-column grid.
+  - **Mobile (< 640px)**: 1-column stacked list.
 - **Tour Card Component** (`TourCard`):
-  - **Top Banner / Badge**: Tour thumbnail (`thumbnailUrl` from TM-208/TM-209) or neutral accessible placeholder, destination tags, duration badge.
-  - **Tour Title**: Clear, bold typography, max 2 lines with truncation.
-  - **Operator Name**: Verified operator company name.
-  - **Schedule & Departure**: Formatted departure date and time in Vietnam time (`Asia/Ho_Chi_Minh`).
-  - **Availability Badge**:
-    - `available`: Green badge with slot counter (`{n} slots left` / `Available`).
-    - `soldOut`: Red badge (`Sold out`).
-    - `noUpcomingSchedule`: Neutral gray badge (`No upcoming departures`).
-    - `unknown`: Warning amber badge (`Availability unavailable`).
-  - **Price Display**: Formatted base price in VND.
+  - **Top Banner / Badge**: Tour thumbnail (`thumbnailUrl` from TM-208/TM-209) or neutral accessible placeholder, destination tags, availability badge.
+  - **Tour Title**: Clear, bold typography, max 2 lines (`line-clamp-2`) with link to `/tours/{tourId}`.
+  - **Operator Name & Duration**: Verified operator company name and formatted duration (`{durationDays} days` / `1 day`).
+  - **Schedule & Departure**: Formatted departure date (`DD/MM/YYYY`) or `Contact operator` fallback when null.
+  - **Availability Badge** (`getTourAvailabilityPresentation`):
+    - `available` (with `remainingSlots > 0` or `null`): Teal badge (`bg-teal-700/90 text-white`) with slot counter (`{n} slots left` / `1 slot left` / `Available`). If `remainingSlots === 0`, renders red `Sold out` badge (`bg-red-600/90 text-white`).
+    - `soldOut`: Red badge (`bg-red-600/90 text-white`, `Sold out`).
+    - `noUpcomingSchedule`: Amber badge (`bg-amber-600/90 text-white`, `No upcoming departures`).
+    - `unknown`: Neutral slate badge (`bg-slate-600/90 text-white`, `Availability unavailable`).
+  - **Price Display**: Formatted base price in VND (`From {price}`) with `Details` action link.
 
 ### 5. Numbered Pagination Controls (`TourPagination`)
-- Renders numbered pages: `Previous`, `1`, `2`, `3`, `...`, `N`, `Next`.
-- Summary text: `Page {page} / {totalPages} • Total {totalCount} tours`.
+- Renders numbered pages: `Previous`, `1`, `2`, `3`, `...`, `N`, `Next` inside `<nav aria-label="Tour pagination">`.
+- Every interactive pagination button (`Previous`, `Next`, and numbered page buttons) enforces a minimum touch target of $\ge 48\text{px} \times 48\text{px}$ (`min-h-12 min-w-12`).
 - Hidden when `totalPages <= 1`.
-- Changing page updates URL search params and fetches the requested page.
+- Changing page updates URL search params based on `displayedCriteria` (preserving the displayed result set's filters) and fetches the requested page.
 
 ---
 
@@ -134,12 +138,12 @@
 | State | Trigger / Condition | UI Representation |
 |---|---|---|
 | **Initial State** | Page loads without query params | Loads first 20 public tours, empty filter inputs, total count displayed. |
-| **Loading State** | Initial fetch or new search submission with no prior data | Grid of 6 shimmer skeleton cards (`TourLoadingSkeleton`), submit button disabled. |
-| **Loaded State** | HTTP 200 with `items.length > 0` | Render matching tour cards, total count, `displayedCriteria`, pagination. |
-| **Empty State** | HTTP 200 with `totalCount === 0` | Empty illustration/icon, message **MSG64** (`No tour packages found matching your destination and dates.`), and a `Clear filters` button. |
-| **Validation Error** | Client-side or URL query validation failure | Field-level `aria-invalid`, `aria-describedby`, and inline error messages under invalid inputs. Search request is NOT dispatched and normal empty state is NOT rendered. |
-| **Server Error** | HTTP 500 or Network offline on initial load | Error alert box with message **MSG127** (`TripMate is temporarily unable to process your request. Please check your connection and try again.`), and an interactive `Retry` button. |
-| **Stale Data Error** | Network/server error during subsequent search/refresh | Preserves previously loaded valid tour cards, `displayedCriteria`, and pagination, retains `requestedCriteria` in filter inputs, displays `TourStaleWarningBanner`, and provides a `Retry` button. |
+| **Loading State** | Initial fetch or new search submission with no prior data | Grid of 8 shimmer skeleton cards (`TourListSkeleton` on Web; 4 skeleton cards in `_TourSkeletonList` on Mobile), submit button disabled. |
+| **Loaded State** | HTTP 200 with `items.length > 0` | Render matching tour cards, `Showing {items.length} of {totalCount} matching tours`, `displayedCriteria`, pagination. |
+| **Empty State** | HTTP 200 with `totalCount === 0` | Empty illustration/icon, message **MSG64** (`No tour packages found matching your destination and dates (MSG64)...`), and a `Clear search filters` button when filters are active. |
+| **Validation Error** | Client-side or raw URL query validation failure | Field-level `aria-invalid`, `aria-describedby`, and inline error messages under invalid inputs (or `#tour-query-error` for raw URL query errors). Search request is NOT dispatched and normal empty state is NOT rendered. |
+| **Server Error** | HTTP 500 or Network offline on initial load | Error alert box with message **MSG127** (`TripMate is temporarily unable to process your request. Please check your connection and try again (MSG127).`), and an interactive `Retry` button. |
+| **Stale Data Error** | Network/server error during subsequent search/refresh | Preserves previously loaded valid tour cards, `displayedCriteria`, and pagination, retains `requestedCriteria` in filter inputs, displays `TourStaleWarningBanner` (`Results could not be refreshed. Availability may have changed.`), and provides a `Retry` button. |
 
 ---
 
