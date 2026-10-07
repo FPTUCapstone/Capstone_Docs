@@ -21,15 +21,15 @@ Open Tours → see public tours → enter optional criteria → submit → valid
 - Search on explicit submit, never on every keystroke (CR-02).
 - Owned filter and query parameters:
   - `destination`: optional string, trimmed and normalized to Unicode NFC before validation/request, maximum 300 characters.
-  - `departureDate`: optional single calendar date (`YYYY-MM-DD`), evaluated against future scheduled departures in `Asia/Ho_Chi_Minh`.
+  - `departureDate`: optional single calendar date (`YYYY-MM-DD`). Any valid calendar date (including past dates) is accepted as search criteria; schedule eligibility and real-time availability are evaluated against active/open scheduled departures in `Asia/Ho_Chi_Minh` (past valid dates may return an empty result).
   - `minPrice` / `maxPrice`: optional whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`.
   - `page` / `pageSize`: `page >= 1`, `pageSize` in `1..100` (default `20`), deterministic ordering by `title ASC, tourId ASC`.
 - Real-time availability summary on each tour card (`available`, `soldOut`, `noUpcomingSchedule`, `unknown`, `remainingSlots`, `representativeScheduleId`, `departureAtUtc`).
 - Platform pagination decision:
-  - **Web**: Numbered pagination (`TourPagination`, 20 items per page, URL query parameter synchronization).
+  - **Web**: Numbered pagination (`TourPagination`, 20 items per page, URL query parameter synchronization, $\ge 48\text{px} \times 48\text{px}$ interactive controls).
   - **Mobile**: Infinite scroll (`loadNextPage` triggered at 85% scroll threshold with `tourId` deduplication) + pull-to-refresh (`RefreshIndicator`).
-- Validate date format/calendar validity and min/max price bounds inline without dispatching invalid requests.
-- Preserve existing results with a non-destructive warning/retry indicator when a subsequent refresh or search fails.
+- Validate date format/calendar validity, min/max price bounds, and raw URL query keys inline without dispatching invalid requests.
+- Preserve existing results and their associated `displayedCriteria` while keeping `requestedCriteria` in editable/request state and showing a non-destructive warning (`Results could not be refreshed.`) with an explicit `Retry` action when a subsequent refresh or search fails.
 - Use MSG64 for no matches, MSG65 for unavailable tour, MSG127 for failure.
 - Selecting a result enters UC-26; no Booking is created.
 

@@ -36,7 +36,7 @@ Select result → Tour Details. Back from details restores page and active filte
 
 - **Owned Search Inputs**:
   - `destination`: optional string, trimmed and normalized to Unicode NFC, max 300 characters.
-  - `departureDate`: optional single departure date (`YYYY-MM-DD`, evaluated in `Asia/Ho_Chi_Minh`).
+  - `departureDate`: optional single departure date (`YYYY-MM-DD`; any valid calendar date including past dates is accepted as search criteria and may return an empty result, while schedule eligibility and availability are evaluated in `Asia/Ho_Chi_Minh`).
   - `minPrice` / `maxPrice`: optional whole-VND integers (`0..9,999,999,999`, `minPrice <= maxPrice`).
   - `page` / `pageSize`: `page >= 1`, default `pageSize = 20` (`1..100`).
 - **Out-of-Scope / Deferred SRS Filters**:
@@ -46,7 +46,7 @@ Select result → Tour Details. Back from details restores page and active filte
 
 ## Main Layout Regions
 
-Top app bar/search header; submit-based filter bar (Web) or filter bottom sheet trigger (Mobile); active filter chips; result count; Tour card list/grid; platform pagination region; empty/error/stale-warning region.
+Top app bar/search header; submit-based filter bar (Web) or filter bottom sheet trigger (Mobile); active filter chips (bound to `displayedCriteria` / committed `query`); result count; Tour card list/grid; platform pagination region; empty/error/stale-warning region.
 
 ## Components
 
@@ -56,12 +56,12 @@ Top app bar/search header; submit-based filter bar (Web) or filter bottom sheet 
 - single `departureDate` (`YYYY-MM-DD`)
 - `minPrice` and `maxPrice` (whole VND `0..9,999,999,999`)
 - page navigation:
-  - **Web**: Numbered pagination (`TourPagination`, 20 items per page, URL search-param synced)
+  - **Web**: Numbered pagination (`TourPagination`, 20 items per page, URL search-param synced, $\ge 48\text{px} \times 48\text{px}$ interactive controls)
   - **Mobile**: Infinite scroll (triggers `loadNextPage` at 85% scroll extent with `tourId` deduplication) + pull-to-refresh (`RefreshIndicator`)
 
 ### Read-only Information
 
-Tour cards with identity, thumbnail (or neutral accessible placeholder), operator summary, duration, formatted VND price, representative departure timestamp, and current availability summary; total count.
+Tour cards with identity, thumbnail (or neutral accessible placeholder), operator summary, duration, formatted VND price, representative departure timestamp, and current availability summary; total count; active filter chips reflecting committed/displayed search criteria.
 
 ### Primary Actions
 
@@ -70,11 +70,11 @@ Tour cards with identity, thumbnail (or neutral accessible placeholder), operato
 
 ### Secondary Actions
 
-Open/reset filters; remove individual active filter chip; change page (Web) or pull-to-refresh / scroll to load more (Mobile).
+Open/reset filters (active filter chips are read-only indicators paired with a single `Clear filters` / `Reset` action that clears all active filters at once; individual chip removal is not supported); change page (Web) or pull-to-refresh / scroll to load more (Mobile).
 
 ## Validation
 
-Search only on explicit submit (CR-02). `destination` is normalized to Unicode NFC and trimmed before checking length $\le 300$. `departureDate` must be a valid YYYY-MM-DD calendar date. Past valid dates are accepted criteria and may return an empty result. `minPrice` and `maxPrice` must be whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`. Web BFF proxy rejects duplicate or unknown query keys with HTTP 400 ProblemDetails. Only approved/public tours are returned. CR-01: 20 per page, total count, deterministic ordering (`title ASC, tourId ASC`).
+Search only on explicit submit (CR-02). `destination` is normalized to Unicode NFC and trimmed before checking length $\le 300$. `departureDate` must be a valid YYYY-MM-DD calendar date. Past valid dates are accepted criteria and may return an empty result. `minPrice` and `maxPrice` must be whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`. Web raw URL validation and the BFF proxy reject duplicate, casing-mismatched, or unknown query keys before canonicalization and return HTTP 400 ProblemDetails at the proxy boundary. Response parsers strictly reject malformed DTO payloads (unknown `availabilityStatus`, non-string `destinations` elements, non-integer numbers, invalid timestamps, or non-string `thumbnailUrl`). Only approved/public tours are returned. CR-01: 20 per page, total count, deterministic ordering (`title ASC, tourId ASC`).
 
 ## Business Rules
 
@@ -98,7 +98,7 @@ First 20 public Tours and total count load; optional criteria empty.
 
 ### Loading State
 
-Tour-card skeletons; Search/Filter submit disabled during request.
+Tour-card skeletons (`8` cards in `TourListSkeleton` on Web, `4` cards in `_TourSkeletonList` on Mobile); Search/Filter submit disabled during request.
 
 ### Loaded State
 

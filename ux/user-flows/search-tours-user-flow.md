@@ -18,14 +18,14 @@ Find a suitable public Tour by destination, single departure date, and whole-VND
 
 - **Owned Scope**:
   - `destination`: optional string, trimmed and normalized to Unicode NFC before validation/request, max 300 characters.
-  - `departureDate`: optional single departure date (`YYYY-MM-DD`, evaluated in `Asia/Ho_Chi_Minh`).
+  - `departureDate`: optional single departure date (`YYYY-MM-DD`; any valid calendar date including past dates is accepted as search criteria and may return an empty result, while schedule eligibility and real-time availability are evaluated in `Asia/Ho_Chi_Minh`).
   - `minPrice` / `maxPrice`: optional whole-VND integers (`0..9,999,999,999`, `minPrice <= maxPrice`).
   - `page` / `pageSize`: `page >= 1`, default `pageSize = 20` (`1..100`), deterministic order `title ASC, tourId ASC`.
   - Real-time availability summary (`available`, `soldOut`, `noUpcomingSchedule`, `unknown`, `remainingSlots`, `departureAtUtc`).
 - **Out-of-Scope SRS Filters (Deferred)**:
   - `keyword`, `date range`, `duration`, `category`, `rating`, `sort`, and `interest tags`.
 - **Platform Pagination Pattern**:
-  - **Web**: Numbered pagination (`TourPagination`, 20 items per page, URL search-param synced).
+  - **Web**: Numbered pagination (`TourPagination`, 20 items per page, URL search-param synced, $\ge 48\text{px} \times 48\text{px}$ interactive controls).
   - **Mobile**: Infinite scroll (85% scroll threshold `loadNextPage` with `tourId` deduplication) + pull-to-refresh (`RefreshIndicator`).
 
 # Main Flow
@@ -46,15 +46,15 @@ Browse without criteria; return from UC-26 to preserved results.
 - `destination` normalized to Unicode NFC + trimmed before checking length $\le 300$.
 - `departureDate` must be a valid YYYY-MM-DD calendar date. Past valid dates are accepted criteria and may return an empty result.
 - `minPrice` and `maxPrice` whole-VND integers in `0..9,999,999,999` with `minPrice <= maxPrice`.
-- Web BFF proxy rejects duplicate or unknown query keys with HTTP 400 ProblemDetails.
+- Web raw URL validation and BFF proxy reject duplicate, casing-mismatched, or unknown query keys before canonicalization and return HTTP 400 ProblemDetails at the proxy boundary.
 
 # Error Flow
 
-- Invalid criteria: inline field errors associated with invalid inputs; no search request dispatched and normal empty state is not rendered.
+- Invalid criteria: inline field/query errors associated with invalid inputs; no search request dispatched and normal empty state is not rendered.
 - No matches: MSG64.
 - Selected tour becomes unavailable: MSG65.
 - Initial search/network failure: MSG127 full error state with retry.
-- Subsequent refresh/search failure with loaded results: preserve existing results, displayed criteria associated with those results, and pagination; keep requested criteria in editable state and display non-destructive warning banner with retry.
+- Subsequent refresh/search failure with loaded results: preserve existing results, `displayedCriteria` associated with those results, and pagination; keep `requestedCriteria` in editable state and display non-destructive warning (`Results could not be refreshed.`) with an explicit `Retry` action.
 - Traveler session expiry does not prevent public browsing; protected actions follow MSG125.
 
 # Success State
