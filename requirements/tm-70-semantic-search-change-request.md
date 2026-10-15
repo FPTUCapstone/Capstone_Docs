@@ -282,6 +282,23 @@ approved here. Shared Review/POI compatibility ownership/release gate remains
 open. PoC success does not close Task 2.3 contract approval or Task 2.6 runtime
 eligibility acceptance.
 
+### Delivery dependency recheck and implementation evidence
+
+During this mission, PR #72 was merged at `2026-10-15T07:32:17Z` as
+`b4d7c6a47f96adf0b921004e7204b7f30f0ccb51`, now the latest develop snapshot.
+The implementation branches started from the verified preflight develop
+`bdb70d8a74002dc5c99f124c7dfa46f4a648c82b`; no unmerged index migration was
+copied, and this mission did not modify or merge PR #72. Its merge does not close
+the shared Review/POI eligibility release gate.
+
+- [Backend foundation PR #74](https://github.com/FPTUCapstone/Capstone_BE/pull/74): isolated V2 parsing/validation/DTO infrastructure; production Tour Search unchanged.
+- [Independent features PR #75](https://github.com/FPTUCapstone/Capstone_BE/pull/75): explicitly stacked on #74; prepared independent SQL filters/projection and anonymous active taxonomy endpoint.
+- [Semantic PoC PR #76](https://github.com/FPTUCapstone/Capstone_BE/pull/76), HEAD `305a6c31af8c8645f0f66febe2e4f46e2433c556`: isolated actual model/Qdrant implementation.
+- [Immutable PoC execution evidence](https://github.com/FPTUCapstone/Capstone_BE/blob/305a6c31af8c8645f0f66febe2e4f46e2433c556/docs/tm-70-semantic-poc-evidence.md) and [local operation instructions](https://github.com/FPTUCapstone/Capstone_BE/blob/305a6c31af8c8645f0f66febe2e4f46e2433c556/tools/semantic-poc/README.md).
+
+All implementation PRs remain Draft for verification/review and relevant approval
+gates. No implementation PR or this proposed CR is automatically merged.
+
 ### Benchmark evidence status
 
 PoC implementation and execution are a separate Backend branch. This CR does
@@ -296,19 +313,30 @@ operator predicate and current three-field content/model fingerprint. Its exact
 indexed-corpus eligible count is not a claim of complete SQL universe coverage,
 and does not satisfy frozen public global totals. It intentionally has no
 threshold, fallback or production API wiring; §6 and §8 remain approval decisions.
-At the initial environment probe, Docker's daemon pipe was absent; actual model
-and integration execution status is still pending evidence reconciliation.
+Docker was initially unavailable, then restored. The isolated Docker project ran real pinned E5 inference and Qdrant 1.13.4; the evidence below records executed tests and a small synthetic comparison.
 
 | Evidence | Current record |
 |---|---|
-| Model revision, dependency pins, collection and fixture corpus | Pending final PoC evidence reconciliation |
-| Labelled Vietnamese queries and label reviewer | Pending; synthetic/author labels are not independent Product/BA validation |
-| Recall@5/@10, Precision@5, nDCG@10 | No measured result recorded here yet |
-| p50/p95 query, inference and vector latency | No measured result recorded here yet |
-| CPU, memory, index build/update time | No measured result recorded here yet |
+| Model revision, dependency pins, collection and fixture corpus | Actual `intfloat/multilingual-e5-small@fd1525a9fd15316a2d503bf26ab031a61d056e98`, 384-dimensional normalized CPU inference; Torch 2.10.0+cpu / Transformers 5.3.0, resolved dependency lock. Qdrant 1.13.4, disposable `tm70_poc_<uuid>` Cosine collection; 12 synthetic Tours. |
+| Labelled Vietnamese queries and label reviewer | 12 AI-authored Vietnamese graded queries across all requested intent classes; no independent Product/BA label validation. |
+| Recall@5/@10, Precision@5, nDCG@10 | Actual semantic versus frozen lexical approximation: 0.981818/0.454545; 1.000000/0.454545; 0.300000/0.116667; 0.969186/0.454545 respectively. Recall/nDCG average 11 positive-label queries; precision averages all 12. No quality threshold or superiority claim. |
+| p50/p95 query, inference and vector latency | One short local Docker run: embedding+vector 34.12/55.23 ms; inference computation 11.23/13.77 ms; vector HTTP 11.03/21.38 ms. Excludes SQL, startup and index build; not a production SLO. |
+| CPU, memory, index build/update time | Inference RSS 1,201,692,672 bytes; query CPU delta 0.45 seconds / 105.27% one-core equivalent (two threads). 12-vector build/update 1170.49/446.44 ms; Docker snapshots 846.9 MiB inference / 92.68 MiB Qdrant, different accounting from RSS. |
 | SQL authority integration | `SemanticPocSqlServerTests`: 3 passed, 0 failed, 0 skipped on real SQL Server during mission verification. Deterministic test vectors isolate orchestration; these tests do not prove model inference or Qdrant compatibility. |
-| Real-model/Qdrant/failure tests | Pending final PoC execution evidence; unavailable/skipped must not be called passed |
+| Real-model/Qdrant/failure tests | Combined .NET/SQL/E5/Qdrant Release tests: 4 passed / 0 failed / 0 skipped, including real-model hidden-Tour rejection, idempotent upsert and cleanup. Python 6 tests and real isolated embedding/Qdrant outage experiments passed failure expectations; unavailable states returned exit 1. Full PoC solution with Redis and SQL disabled: 3,215 passed / 0 failed / 386 skipped; provider-backed cases executed separately, skips never counted as passes. |
 | Proposed numerical acceptance thresholds | Unset; require Owner/Product/BA approval and operational feasibility review |
+
+
+The standalone comparator approximates the frozen three-field, accent-insensitive,
+all-token/worst-best-class algorithm in Python; it does not prove SQL collation
+parity and does not benchmark an existing keyword endpoint (the current production
+endpoint has no keyword input). All fixture ratings are null. The semantic PoC
+implements SQL publication/operator visibility and freshness checks, while explicit
+production destination/category/date/price/duration/rating/availability interaction
+acceptance remains unimplemented and gated. No-threshold retrieval returned
+irrelevant items for the zero-relevance query; this makes SEM-D1 a necessary product
+decision. Actual collection cleanup was checked; no production embeddings were written.
+Measured host: Intel Core i5-12500H (12 cores / 16 logical processors); Docker Linux/WSL2 exposed 16 CPUs and 8,155,713,536 bytes of memory. Inference used two Torch threads; concurrent development/test workloads were present. This was not isolated load testing.
 
 Small synthetic fixtures cannot establish production relevance, coverage,
 Vietnamese linguistic robustness or scale. Report cold/warm timing conditions,
