@@ -6,6 +6,7 @@
 
 - Canonical SRS: [`Report3_Software-Requirement-Specification.docx`](https://docs.google.com/document/d/1VwPkqRyC6ZlbXBQC0ztdektt0vAyE3qt/edit) — **original non-V2**.
 - Snapshot inspected: **2026-11-08**, SHA-256 `cd97de4bd74df3b5cdc159171ee964093d4bb7ba99ca65b52232f88b11de1c6b`, 9,571,142 bytes.
+- Live authority recheck on **2026-11-08** found Drive revision `0B5_dfpH4IC_wMlAwM25FL25jZ2FWdVZKTFhqRVdOdFRoeDdZPQ`, SHA-256 `d51b7dbbd09d20784284faa9c12ddcdeadb3c0b3bb2010801a0b2f03c4fd2f46`, 9,570,836 bytes. Its Table 3 still contains the same 75 IDs, names and catalogue actors, but other requirement text changed materially after the inspected snapshot. This matrix is therefore **not fully reconciled to the live revision**; payout, cancellation/refund, role and business-rule conflict entries require a separately scoped re-audit before approval.
 - Requirement IDs in this matrix follow **SRS Table 3 — Use Case Description**, covering **UC-01 through UC-75** (75 entries). Detailed §§3.2–3.10, screen descriptions §3.1.2 and authorization Table 5 were reviewed; conflicts are explicitly recorded below.
 - `Capstone_Docs` history and existing UI specs are evidence only; neither V2 nor GitHub/Jira nor an implementation overrides the canonical SRS without explicit, traceable approval.
 - Existing Web Screen means a Web screen **specification** under `ux/web-screen-specifications/`, **not proof of implementation or production deployment**.
@@ -76,7 +77,7 @@
 | UC-48 | Unlock User Account | Staff/ Administrator | INTERNAL_WEB_ONLY | None | REUSE/DIALOG — hold permissions | Table 3 and Table 5 grant Staff + Administrator role-scoped unlocking, but §3.9.1.3 says Administrator only. ROLE_CONFLICT. |
 | UC-49 | Approve Tour Operator Application | Staff | INTERNAL_WEB_ONLY | None | REUSE/ACTION — later batch | §3.9.2.1: STAFF approves Tour Operator applications via moderation workspace. |
 | UC-50 | Reject Tour Operator Application | Staff | INTERNAL_WEB_ONLY | None | REUSE/DIALOG — later batch | §3.9.2.2: STAFF rejects Tour Operator applications with reason. |
-| UC-51 | Create POI | Staff/ Administrator | INTERNAL_WEB_ONLY | None | YES — later batch | §3.9.3.1: STAFF and Administrator may create POIs. |
+| UC-51 | Create POI | Staff/ Administrator | INTERNAL_WEB_ONLY | None | YES — later batch | Table 3 and the §3.9.3.1 actor/purpose text name Staff and Administrator, while the same detailed section's credentials, BR-115, flow and validation remain Administrator-only. Current FE/BE creation authorization is Staff-only. `MISMATCH`; preserve the catalogue actor and do not infer compliance. |
 | UC-52 | Update POI | Staff/ Administrator | INTERNAL_WEB_ONLY | None | REUSE — later batch | §3.9.3.2: STAFF and Administrator may update POIs. |
 | UC-53 | Remove POI | Administrator | INTERNAL_WEB_ONLY | None | REUSE/DIALOG — lifecycle hold | §3.9.3.3: Administrator-only POI removal. Official SRS conditionally allows deletion/deactivation; any soft-delete-only change requires traceable approval. POLICY_HOLD. |
 | UC-54 | Create Route | Staff | INTERNAL_WEB_ONLY | None | YES — later batch | §3.9.4.1: STAFF creates routes; old matrix incorrectly had UC-54 as Remove POI. |
@@ -152,6 +153,7 @@
 | C-17 | UC-02/03 | Old matrix marked Web only; §§3.2.2–3.2.3 explicitly support Web and Mobile. | Corrected to SHARED_WEB_MOBILE. |
 | C-18 | UC-42 | Old matrix: Initiate Booking Refund; Table 3 and §3.8.4.3: Confirm Booking Refund. | Corrected scope/name; the UC-42/UC-67 handoff remains unresolved. |
 | C-19 | UC-46–75 | Previous matrix used historical UC numbering and stopped at UC-72. | Rebased all catalogue IDs and associated actors against current original Report 3 Table 3. |
+| C-20 | UC-51 | Table 3 plus the §3.9.3.1 actor/purpose text name Staff/Administrator; the same section's credentials, BR-115, flow and validation say Administrator-only. FE proxy and BE controller instead authorize Staff-only. | `MISMATCH`; catalogue actor remains authoritative for traceability, while runtime permissions and the internal SRS contradiction require owner resolution. |
 
 ## Existing Web Design Evidence
 
@@ -164,5 +166,7 @@
 ## Governance and Approval Gate
 
 This is a **traceability update**, not a change to the official SRS, source code, Jira or deployed screens. Before design or implementation decisions affecting any disputed UC, obtain traceable Owner approval and record the chosen precedence. In particular: Staff account permissions, UC-31 Web availability, UC-53 POI deletion lifecycle, UC-66 cancellation UI ownership, and UC-71/73/74 payout authority.
+
+The live SRS revision identified above materially post-dates the matrix snapshot. Final approval is blocked until those requirement changes are reconciled across both matrices without silently retaining or removing conflicts.
 
 **Implementation verification:** `NOT_VERIFIED` across Web code/tests/deployments because this artifact compares requirements and existing spec inventory, not current FE/BE/Mobile source code.
