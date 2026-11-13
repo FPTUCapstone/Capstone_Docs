@@ -1,0 +1,3410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripMate — Hotel & Service Provider Flow (High-Fidelity Interactive Prototype)</title>
+
+  <!-- Fonts: Inter & JetBrains Mono for Desktop Web, Bricolage Grotesque & Manrope for Mobile -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM TOKENS — COASTAL HERITAGE (WEB) & REFINED EDITORIAL (MOBILE)
+       ========================================================================== */
+    :root {
+      /* Web Coastal Heritage Tokens (Verified Authority: 04_DESIGN_SYSTEM.md) */
+      --color-teal-primary: #174B4A;
+      --color-teal-deep: #103B39;
+      --color-teal-hover: #1F5F5E;
+      --color-teal-soft: #E8F7F4;
+      --color-teal-border: #C8E6E2;
+
+      --color-copper-accent: #B96D4C;
+      --color-copper-text: #995436;
+      --color-copper-soft: #FFF3ED;
+
+      --color-canvas-sand: #F7F5EF;
+      --color-surface-pure: #FFFFFF;
+      --color-surface-alt: #FBFDFB;
+
+      --color-ink-primary: #1C2928;
+      --color-ink-secondary: #5B6E69;
+      --color-ink-muted: #8E9E9B;
+      --color-ink-subtle: #A3B1AE;
+
+      --color-border-subtle: #DCE2DD;
+      --color-border-hairline: #E8ECE9;
+      --color-border-focus: #174B4A;
+
+      /* Mobile V3 Concept B Editorial Tokens */
+      --tm-mobile-navy: #00152A;
+      --tm-mobile-teal: #006B5F;
+      --tm-mobile-teal-soft: #E0F2F1;
+      --tm-mobile-coral: #FF7043;
+      --tm-mobile-deep-coral: #B83D18;
+      --tm-mobile-canvas: #F5F6F2;
+      --tm-mobile-surface: #FFFFFF;
+
+      /* Semantic Status Tokens (English UI - CR-09) */
+      --status-pending-bg: #FEF3E2;
+      --status-pending-text: #92400E;
+      --status-pending-border: #FDE68A;
+
+      --status-confirmed-bg: #E6F7F0;
+      --status-confirmed-text: #065F46;
+      --status-confirmed-border: #A7F3D0;
+
+      --status-rejected-bg: #FDECEF;
+      --status-rejected-text: #991B1B;
+      --status-rejected-border: #FECDD3;
+
+      --status-cancelled-bg: #F1F5F9;
+      --status-cancelled-text: #475569;
+      --status-cancelled-border: #CBD5E1;
+
+      --status-completed-bg: #E8F7F4;
+      --status-completed-text: #103B39;
+      --status-completed-border: #B2DFDB;
+
+      --status-noshow-bg: #F1EBFE;
+      --status-noshow-text: #5B21B6;
+      --status-noshow-border: #DDD6FE;
+
+      --status-paid-bg: #E6F7F0;
+      --status-paid-text: #065F46;
+      --status-paid-border: #A7F3D0;
+
+      /* Typography Tokens */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Bricolage Grotesque', sans-serif;
+      --font-mobile-body: 'Manrope', sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+
+      /* Elevation & Shadows */
+      --shadow-subtle: 0 1px 2px rgba(16, 59, 57, 0.04);
+      --shadow-card: 0 2px 6px -1px rgba(16, 59, 57, 0.06), 0 1px 3px -1px rgba(16, 59, 57, 0.04);
+      --shadow-card-hover: 0 6px 16px -2px rgba(16, 59, 57, 0.08), 0 2px 6px -1px rgba(16, 59, 57, 0.04);
+      --shadow-modal: 0 20px 25px -5px rgba(16, 59, 57, 0.15), 0 10px 10px -5px rgba(16, 59, 57, 0.04);
+      --shadow-dropdown: 0 12px 28px -4px rgba(16, 59, 57, 0.18), 0 4px 10px -2px rgba(16, 59, 57, 0.08);
+
+      /* Radii */
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 18px;
+      --radius-full: 9999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-canvas-sand);
+      color: var(--color-ink-primary);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ==========================================================================
+       TOP CONTROL BAR (REVIEW MODE) & PRESENTATION MODE TOGGLE
+       ========================================================================== */
+    .proto-bar {
+      background: #101E26;
+      color: #E2E8F0;
+      border-bottom: 1px solid #203642;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 1000;
+      flex-shrink: 0;
+      transition: transform 200ms ease, opacity 200ms ease;
+    }
+    body.presentation-mode .proto-bar {
+      display: none !important;
+    }
+
+    .proto-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .proto-logo-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--color-teal-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #FFF;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .proto-brand-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #FFFFFF;
+    }
+    .proto-badge-review {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(185, 109, 76, 0.2);
+      color: #F8B494;
+      border: 1px solid rgba(185, 109, 76, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .proto-actor-tabs {
+      display: flex;
+      background: #172630;
+      padding: 3px;
+      border-radius: 7px;
+      border: 1px solid #233744;
+      gap: 3px;
+    }
+    .proto-actor-btn {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 150ms ease;
+    }
+    .proto-actor-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .proto-actor-btn.active {
+      background: var(--color-teal-primary);
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .proto-viewport-select {
+      background: #172630;
+      border: 1px solid #233744;
+      color: #CBD5E1;
+      padding: 4px 8px;
+      font-size: 11.5px;
+      border-radius: 5px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .proto-mode-switch {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-proto-ghost {
+      background: transparent;
+      border: 1px solid #2A4050;
+      color: #CBD5E1;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 150ms ease;
+    }
+    .btn-proto-ghost:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFF;
+      border-color: #3E5A70;
+    }
+
+    /* Floating Mode Toggle Pill */
+    .floating-mode-toggle {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(16, 30, 38, 0.9);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      transition: all 150ms ease;
+    }
+    .floating-mode-toggle:hover {
+      background: rgba(16, 30, 38, 0.98);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       PROTOTYPE STAGE CANVAS & CONTAINER
+       ========================================================================== */
+    .proto-stage {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: var(--color-canvas-sand);
+      transition: background 200ms ease;
+    }
+    body.review-mode .proto-stage {
+      padding: 24px;
+      background: radial-gradient(circle at center 20%, #17242C 0%, #0A1115 100%);
+    }
+    body.presentation-mode .proto-stage {
+      padding: 0;
+      background: var(--color-canvas-sand);
+    }
+
+    .proto-viewport-frame {
+      background: #FFFFFF;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: width 200ms ease, height 200ms ease;
+    }
+    body.review-mode .proto-viewport-frame {
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+    }
+    body.presentation-mode .proto-viewport-frame {
+      box-shadow: none;
+      border-radius: 0;
+    }
+    body.review-mode .proto-viewport-frame.mobile-mode {
+      border-radius: 40px;
+      border: 8px solid #1E293B;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Material Symbols Helper */
+    .icon {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      vertical-align: middle;
+    }
+
+    /* ==========================================================================
+       CUSTOM DROPDOWN DESIGN SYSTEM (MANDATORY REQUIREMENT)
+       ========================================================================== */
+    .custom-select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #FFFFFF;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--color-ink-primary);
+      min-height: 38px;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+      user-select: none;
+    }
+    .custom-select-trigger:hover {
+      border-color: var(--color-teal-primary);
+    }
+    .custom-select-trigger:focus-visible, .custom-select-trigger.active {
+      border-color: var(--color-teal-primary);
+      outline: 2px solid rgba(23, 75, 74, 0.2);
+      outline-offset: 1px;
+    }
+    .custom-select-trigger .trigger-text {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .custom-select-trigger .chevron {
+      font-size: 18px;
+      color: var(--color-ink-secondary);
+      transition: transform 150ms ease;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .custom-select-wrapper.open .chevron {
+      transform: rotate(180deg);
+    }
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-dropdown);
+      z-index: 1200;
+      display: none;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .custom-select-wrapper.open .custom-select-dropdown {
+      display: block;
+    }
+    .custom-select-option {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--color-ink-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 100ms ease;
+    }
+    .custom-select-option:hover, .custom-select-option.highlighted {
+      background: var(--color-teal-soft);
+      color: var(--color-teal-deep);
+    }
+    .custom-select-option.selected {
+      font-weight: 600;
+      background: #EDF7F5;
+      color: var(--color-teal-deep);
+    }
+    .custom-select-option .check-icon {
+      font-size: 16px;
+      color: var(--color-teal-primary);
+    }
+
+    /* Multi-select Specific Styles */
+    .multiselect-search-box {
+      padding: 8px;
+      border-bottom: 1px solid var(--color-border-hairline);
+      position: sticky;
+      top: 0;
+      background: #FFFFFF;
+      z-index: 2;
+    }
+    .multiselect-search-input {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: 4px;
+      outline: none;
+      font-family: var(--font-sans);
+    }
+    .multiselect-search-input:focus {
+      border-color: var(--color-teal-primary);
+    }
+    .multiselect-tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      flex: 1;
+      align-items: center;
+    }
+    .multiselect-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--color-teal-soft);
+      color: var(--color-teal-deep);
+      border: 1px solid var(--color-teal-border);
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .multiselect-tag .remove-btn {
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--color-ink-secondary);
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+    }
+    .multiselect-tag .remove-btn:hover {
+      color: #991B1B;
+    }
+    .multiselect-option-card {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--color-border-hairline);
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: background 100ms ease;
+    }
+    .multiselect-option-card:hover {
+      background: #F8FAF9;
+    }
+    .multiselect-option-card.selected {
+      background: #EDF7F5;
+    }
+    .multiselect-option-card .chk-box {
+      margin-top: 2px;
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--color-ink-secondary);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: transparent;
+    }
+    .multiselect-option-card.selected .chk-box {
+      background: var(--color-teal-primary);
+      border-color: var(--color-teal-primary);
+      color: #FFF;
+    }
+    .multiselect-option-info {
+      flex: 1;
+    }
+    .multiselect-option-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-ink-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .multiselect-option-meta {
+      font-size: 11px;
+      color: var(--color-ink-secondary);
+      margin-top: 2px;
+    }
+
+    /* ==========================================================================
+       COMMON BUTTON & INPUT COMPONENT PRIMITIVES
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 120ms ease;
+      white-space: nowrap;
+      text-decoration: none;
+      font-family: var(--font-sans);
+    }
+    .btn:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+    .btn-primary {
+      background-color: var(--color-teal-primary);
+      color: #FFFFFF;
+    }
+    .btn-primary:hover {
+      background-color: var(--color-teal-deep);
+    }
+    .btn-secondary {
+      background-color: #FFFFFF;
+      color: var(--color-ink-primary);
+      border-color: var(--color-border-subtle);
+    }
+    .btn-secondary:hover {
+      background-color: #F8FAF9;
+      border-color: var(--color-border-strong);
+    }
+    .btn-destructive {
+      background-color: #FFFFFF;
+      color: #991B1B;
+      border-color: #FECDD3;
+    }
+    .btn-destructive:hover {
+      background-color: #FEE2E2;
+      border-color: #FCA5A5;
+    }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-ink-primary);
+      margin-bottom: 5px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 13.5px;
+      font-family: var(--font-sans);
+      color: var(--color-ink-primary);
+      background-color: #FFFFFF;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+    .form-control:focus {
+      border-color: var(--color-border-focus);
+      box-shadow: 0 0 0 1px var(--color-border-focus);
+    }
+    .form-control[readonly] {
+      background-color: #F8FAF9;
+      color: var(--color-ink-secondary);
+      cursor: default;
+    }
+    .form-hint {
+      font-size: 11px;
+      color: var(--color-ink-secondary);
+      margin-top: 4px;
+    }
+    .field-error-text {
+      font-size: 11.5px;
+      color: #991B1B;
+      margin-top: 4px;
+      display: none;
+    }
+    .has-error .field-error-text { display: block; }
+    .has-error .form-control { border-color: #DC2626; }
+
+    /* Semantic Status Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-xs);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+    .badge-pending {
+      background-color: var(--status-pending-bg);
+      color: var(--status-pending-text);
+      border: 1px solid var(--status-pending-border);
+    }
+    .badge-confirmed {
+      background-color: var(--status-confirmed-bg);
+      color: var(--status-confirmed-text);
+      border: 1px solid var(--status-confirmed-border);
+    }
+    .badge-rejected {
+      background-color: var(--status-rejected-bg);
+      color: var(--status-rejected-text);
+      border: 1px solid var(--status-rejected-border);
+    }
+    .badge-cancelled {
+      background-color: var(--status-cancelled-bg);
+      color: var(--status-cancelled-text);
+      border: 1px solid var(--status-cancelled-border);
+    }
+    .badge-completed {
+      background-color: var(--status-completed-bg);
+      color: var(--status-completed-text);
+      border: 1px solid var(--status-completed-border);
+    }
+    .badge-noshow {
+      background-color: var(--status-noshow-bg);
+      color: var(--status-noshow-text);
+      border: 1px solid var(--status-noshow-border);
+    }
+    .badge-paid {
+      background-color: var(--status-paid-bg);
+      color: var(--status-paid-text);
+      border: 1px solid var(--status-paid-border);
+    }
+    .badge-reported {
+      background-color: var(--status-pending-bg);
+      color: #B45309;
+      border: 1px solid var(--status-pending-border);
+    }
+
+    /* Monospace Text Helper */
+    .mono-code {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--color-ink-primary);
+    }
+
+    /* Toast Container */
+    #toast-root {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      background: #1C2928;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 180ms ease forwards;
+    }
+    .toast-success { border-left: 4px solid #10B981; }
+    .toast-error { border-left: 4px solid #EF4444; }
+    .toast-info { border-left: 4px solid var(--color-teal-primary); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modal Backdrop & Dialog System (CR-05) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 30, 38, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 5000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-dialog {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-modal);
+      width: 100%;
+      max-width: 520px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: modalZoomIn 150ms ease forwards;
+    }
+    @keyframes modalZoomIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border-hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-ink-primary);
+    }
+    .modal-body {
+      padding: 20px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--color-ink-primary);
+    }
+    .modal-footer {
+      padding: 12px 20px;
+      background: #F8FAFC;
+      border-top: 1px solid var(--color-border-hairline);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* ==========================================================================
+       WEB SHELL & WORKSPACE STYLES (W102, W103, W104, W105, W106)
+       ========================================================================== */
+    .web-shell {
+      display: flex;
+      height: 100%;
+      width: 100%;
+      background: var(--color-canvas-sand);
+      overflow: hidden;
+    }
+    .web-sidebar {
+      width: 250px;
+      background: #FFFFFF;
+      border-right: 1px solid var(--color-border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: width 200ms ease;
+    }
+    .sidebar-brand {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--color-border-hairline);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo-sq {
+      width: 32px;
+      height: 32px;
+      background: var(--color-teal-primary);
+      border-radius: 6px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .brand-text-corp { font-size: 14px; font-weight: 700; color: var(--color-teal-primary); line-height: 1.2; }
+    .brand-sub-corp { font-size: 10.5px; color: var(--color-ink-secondary); }
+
+    .sidebar-partner-pill {
+      margin: 14px 16px 6px;
+      background: var(--color-teal-soft);
+      border: 1px solid var(--color-teal-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+    .partner-name-sm { font-size: 12.5px; font-weight: 700; color: var(--color-teal-deep); }
+    .partner-cat-sm { font-size: 11px; color: var(--color-ink-secondary); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+
+    .sidebar-nav-section {
+      padding: 10px 12px;
+      flex: 1;
+    }
+    .sidebar-section-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-ink-muted);
+      margin: 10px 8px 4px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-ink-secondary);
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: all 120ms ease;
+    }
+    .sidebar-link:hover {
+      background: #F4F7F5;
+      color: var(--color-ink-primary);
+    }
+    .sidebar-link.active {
+      background: var(--color-teal-soft);
+      color: var(--color-teal-deep);
+      font-weight: 600;
+    }
+    .sidebar-badge-count {
+      margin-left: auto;
+      background: var(--color-copper-accent);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--color-border-hairline);
+      font-size: 11px;
+      color: var(--color-ink-muted);
+    }
+
+    .web-main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--color-canvas-sand);
+    }
+
+    .web-top-bar {
+      height: 52px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--color-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+    .breadcrumb-trail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--color-ink-secondary);
+    }
+    .breadcrumb-trail .current {
+      font-weight: 600;
+      color: var(--color-ink-primary);
+    }
+    .top-user-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-avatar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-ink-secondary);
+    }
+
+    .web-body-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 30px;
+    }
+
+    /* Page Title Headings */
+    .page-title-box {
+      margin-bottom: 20px;
+    }
+    .page-h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--color-ink-primary);
+      margin-bottom: 4px;
+    }
+    .page-desc {
+      font-size: 13px;
+      color: var(--color-ink-secondary);
+    }
+
+    /* Filter Bar Layout */
+    .filter-bar {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    /* Data Tables Architecture */
+    .table-container {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      box-shadow: var(--shadow-subtle);
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    .data-table th {
+      background: #FAFCFA;
+      color: var(--color-ink-secondary);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--color-border-subtle);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--color-border-hairline);
+      color: var(--color-ink-primary);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:hover {
+      background: #F8FAF9;
+    }
+    .data-table tbody tr.row-active {
+      background: #EDF7F5;
+    }
+    .num-align {
+      font-variant-numeric: tabular-nums;
+      font-family: var(--font-mono);
+    }
+
+    /* Pagination Bar */
+    .table-pagination {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--color-border-hairline);
+      background: #FFFFFF;
+      font-size: 12px;
+      color: var(--color-ink-secondary);
+    }
+
+    /* Content Cards & Split Columns */
+    .op-card {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-subtle);
+      margin-bottom: 16px;
+    }
+    .op-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--color-border-hairline);
+      padding-bottom: 10px;
+    }
+    .op-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-ink-primary);
+    }
+
+    /* 65/35 Two Column Grid for W102, W104 */
+    .grid-two-column {
+      display: grid;
+      grid-template-columns: 65% calc(35% - 20px);
+      gap: 20px;
+      align-items: start;
+    }
+    .grid-two-column-w104 {
+      display: grid;
+      grid-template-columns: 62% calc(38% - 20px);
+      gap: 20px;
+      align-items: start;
+    }
+    .grid-two-column-w105 {
+      display: grid;
+      grid-template-columns: 60% calc(40% - 20px);
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* Key-Value Pair Grid */
+    .kv-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 16px;
+    }
+    .kv-item .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-ink-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      margin-bottom: 2px;
+    }
+    .kv-item .value {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--color-ink-primary);
+    }
+
+    /* Contextual Information Panel Styling */
+    .context-panel {
+      background: #FDFCF9;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+    }
+    .context-panel-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--color-teal-deep);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .context-step-item {
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--color-border-hairline);
+    }
+    .context-step-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .context-step-heading {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-ink-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+    .context-step-desc {
+      font-size: 11.5px;
+      color: var(--color-ink-secondary);
+      line-height: 1.45;
+    }
+
+    /* Policy Notice Banner (BR-196) */
+    .policy-banner {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 12px;
+      color: #92400E;
+      line-height: 1.45;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .web-sidebar { width: 64px; }
+      .sidebar-brand span, .brand-sub-corp, .partner-name-sm, .partner-cat-sm, .sidebar-section-title, .sidebar-link span:not(.icon), .sidebar-badge-count, .sidebar-footer { display: none; }
+      .sidebar-brand { padding: 12px; justify-content: center; }
+      .sidebar-partner-pill { margin: 8px 4px; padding: 6px; display: flex; justify-content: center; }
+      .sidebar-link { justify-content: center; padding: 10px; }
+      .grid-two-column, .grid-two-column-w104, .grid-two-column-w105 { grid-template-columns: 1fr; }
+    }
+
+    /* ==========================================================================
+       MOBILE WORKSPACE STYLES (M74 & M75) — PRESERVED EDITORIAL SYSTEM
+       ========================================================================== */
+    .mobile-screen-frame {
+      width: 100%;
+      height: 100%;
+      background: var(--tm-mobile-canvas);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .mobile-status-bar {
+      height: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--tm-mobile-navy);
+      background: transparent;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+    .mobile-hero-header {
+      background: var(--tm-mobile-navy);
+      color: #FFFFFF;
+      padding: 16px 20px 24px;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+    .m75-hero {
+      height: 220px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .m75-back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--tm-mobile-navy);
+      cursor: pointer;
+    }
+    .m75-body-card {
+      margin-top: -18px;
+      background: #FFFFFF;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px 16px;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+    }
+    .m75-bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      padding: 12px 16px;
+      border-top: 1px solid var(--color-border-hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    }
+  </style>
+</head>
+<body class="presentation-mode">
+
+  <!-- ==========================================================================
+       TOP CONTROL BAR (ACTIVE IN REVIEW MODE)
+       ========================================================================== -->
+  <header class="proto-bar" id="proto-control-bar">
+    <div class="proto-brand">
+      <div class="proto-logo-badge">TM</div>
+      <div>
+        <div class="proto-brand-title">TripMate Hotel Workflow Design Prototype</div>
+      </div>
+      <span class="proto-badge-review">Review Mode</span>
+    </div>
+
+    <!-- Actor Role Switcher -->
+    <div class="proto-actor-tabs">
+      <button class="proto-actor-btn active" id="btn-tab-web" onclick="switchActorMode('web')">
+        <span class="icon" style="font-size:16px;">desktop_windows</span> Hotel Provider
+      </button>
+      <button class="proto-actor-btn" id="btn-tab-staff" onclick="switchActorMode('staff')">
+        <span class="icon" style="font-size:16px;">admin_panel_settings</span> Staff Admin
+      </button>
+      <button class="proto-actor-btn" id="btn-tab-mobile" onclick="switchActorMode('mobile')">
+        <span class="icon" style="font-size:16px;">smartphone</span> Traveler Mobile
+      </button>
+    </div>
+
+    <!-- Viewport Switcher -->
+    <div class="proto-mode-switch">
+      <div style="display:flex; align-items:center; gap: 6px;">
+        <span style="font-size: 11.5px; color: #94A3B8;">Viewport:</span>
+        <select class="proto-viewport-select" id="viewport-picker" onchange="changeViewport(this.value)">
+          <optgroup label="Desktop & Laptop">
+            <option value="1440x900" selected>1440 × 900 (Desktop Standard)</option>
+            <option value="1280x800">1280 × 800 (Laptop Standard)</option>
+            <option value="1024x768">1024 × 768 (Tablet Landscape)</option>
+          </optgroup>
+          <optgroup label="Mobile Device">
+            <option value="390x844">390 × 844 (Base Phone)</option>
+            <option value="360x800">360 × 800 (Compact Android)</option>
+            <option value="412x915">412 × 915 (Tall Android)</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <button class="btn-proto-ghost" onclick="resetPrototypeData()" title="Reset mock data to initial SRS baseline state">
+        <span class="icon" style="font-size:14px;">restart_alt</span> Reset
+      </button>
+
+      <button class="btn-proto-ghost" onclick="togglePresentationMode()">
+        <span class="icon" style="font-size:14px;">visibility</span> Present
+      </button>
+    </div>
+  </header>
+
+  <!-- Floating Mode Toggle Pill for Easy Review Access -->
+  <button class="floating-mode-toggle" id="floating-toggle" onclick="togglePresentationMode()">
+    <span class="icon" style="font-size:16px;">tune</span> Review Mode
+  </button>
+
+  <!-- ==========================================================================
+       PROTOTYPE STAGE & RESPONSIVE CANVAS
+       ========================================================================== -->
+  <main class="proto-stage">
+
+    <div class="proto-viewport-frame" id="viewport-frame" style="width: 1440px; height: 900px;">
+
+      <!-- ====================================================================
+           VIEW A: HOTEL / SERVICE PROVIDER WEB WORKSPACE (W103, W104, W105)
+           ==================================================================== -->
+      <div id="view-web" class="web-shell" style="display: flex;">
+
+        <!-- Sidebar Navigation -->
+        <aside class="web-sidebar">
+          <div class="sidebar-brand">
+            <div class="brand-logo-sq">TM</div>
+            <div>
+              <div class="brand-text-corp">TripMate</div>
+              <div class="brand-sub-corp">Commercial Services</div>
+            </div>
+          </div>
+
+          <!-- Partner Context Pill -->
+          <div class="sidebar-partner-pill">
+            <div class="partner-name-sm">Hội An Riverside Resort</div>
+            <div class="partner-cat-sm">
+              <span class="icon" style="font-size:13px; color:var(--color-teal-primary);">hotel</span>
+              <span>Hotel • POI-0042</span>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav-section">
+            <div class="sidebar-section-title">Hospitality Operations</div>
+            <a class="sidebar-link active" id="nav-w103" onclick="showWebScreen('w103')">
+              <span class="icon">receipt_long</span>
+              <span>Booking Requests</span>
+              <span class="sidebar-badge-count" id="sidebar-pending-count">2</span>
+            </a>
+            <a class="sidebar-link" id="nav-w105" onclick="showWebScreen('w105')">
+              <span class="icon">account_balance_wallet</span>
+              <span>Commission Statements</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <div>Role: <b>Service Provider</b></div>
+            <div style="font-size:10px; margin-top:2px;">SRS §3.6.3 – §3.6.6</div>
+          </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="web-main-content">
+          <!-- Top Application Bar -->
+          <header class="web-top-bar">
+            <div class="breadcrumb-trail">
+              <span>Service Provider Workspace</span>
+              <span class="icon" style="font-size:14px;">chevron_right</span>
+              <span class="current" id="web-breadcrumb-text">Booking Requests</span>
+            </div>
+
+            <div class="top-user-pill">
+              <div style="text-align: right; margin-right: 4px;">
+                <div style="font-size: 12.5px; font-weight: 600; color: var(--color-ink-primary);">Front Desk Reception</div>
+                <div style="font-size: 11px; color: var(--color-ink-secondary);">13/11/2026 (Asia/Ho_Chi_Minh)</div>
+              </div>
+              <div class="user-avatar-circle">HD</div>
+            </div>
+          </header>
+
+          <!-- Dynamic Body Area -->
+          <div class="web-body-area">
+
+            <!-- SCREEN W103: Booking Requests Table -->
+            <div id="screen-w103">
+              <div class="page-title-box">
+                <h1 class="page-h1">Service Booking Requests</h1>
+                <p class="page-desc">Manage incoming commercial reservation requests and record guest stay outcomes.</p>
+              </div>
+
+              <!-- Full-Width Filter Bar -->
+              <div class="filter-bar">
+                <!-- Custom Status Dropdown -->
+                <div style="width: 200px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Status</label>
+                  <div class="custom-select-wrapper" id="w103-status-select">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('w103-status-select')" tabindex="0">
+                      <span class="trigger-text" id="w103-status-val">All Statuses</span>
+                      <span class="icon chevron">expand_more</span>
+                    </div>
+                    <div class="custom-select-dropdown">
+                      <div class="custom-select-option selected" onclick="selectCustomOption('w103-status-select', 'ALL', 'All Statuses')">
+                        <span>All Statuses</span>
+                        <span class="icon check-icon">check</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w103-status-select', 'Pending Confirmation', 'Pending Confirmation')">
+                        <span>Pending Confirmation</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w103-status-select', 'Confirmed', 'Confirmed')">
+                        <span>Confirmed</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w103-status-select', 'Completed', 'Completed')">
+                        <span>Completed</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w103-status-select', 'No-show', 'No-show')">
+                        <span>No-show</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w103-status-select', 'Rejected', 'Rejected')">
+                        <span>Rejected</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w103-status-select', 'Cancelled', 'Cancelled')">
+                        <span>Cancelled</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="width: 140px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Requested From</label>
+                  <input type="date" class="form-control" id="w103-filter-from">
+                </div>
+
+                <div style="width: 140px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Requested To</label>
+                  <input type="date" class="form-control" id="w103-filter-to">
+                </div>
+
+                <div style="flex: 1; min-width: 220px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Keyword Search</label>
+                  <input type="text" class="form-control" id="w103-filter-keyword" placeholder="Request code, traveler name, phone..." onkeydown="if(event.key==='Enter') applyW103Filters()">
+                </div>
+
+                <div style="display:flex; gap: 8px; align-self: flex-end;">
+                  <button class="btn btn-primary" onclick="applyW103Filters()">
+                    <span class="icon" style="font-size: 16px;">search</span> Search
+                  </button>
+                  <button class="btn btn-secondary" onclick="resetW103Filters()">
+                    <span class="icon" style="font-size: 16px;">restart_alt</span> Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Data Table Container -->
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 140px;">Request Code</th>
+                      <th style="width: 180px;">Service</th>
+                      <th style="width: 170px;">Option</th>
+                      <th style="width: 110px;">Date</th>
+                      <th style="width: 80px;">Time</th>
+                      <th style="width: 75px; text-align: center;">Qty</th>
+                      <th style="width: 170px;">Traveler Name</th>
+                      <th style="width: 140px;">Status</th>
+                      <th style="width: 130px;">Submitted At</th>
+                      <th style="width: 95px; text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="w103-table-body">
+                    <!-- Populated dynamically via JS -->
+                  </tbody>
+                </table>
+
+                <div class="table-pagination">
+                  <span id="w103-pagination-text">Showing 1 - 10 of 10 requests</span>
+                  <div style="display:flex; gap: 4px;">
+                    <button class="btn btn-secondary btn-sm" disabled>&lt; Previous</button>
+                    <button class="btn btn-primary btn-sm" style="min-width: 30px;">1</button>
+                    <button class="btn btn-secondary btn-sm" disabled>Next &gt;</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SCREEN W104: Request Details & Operational Actions -->
+            <div id="screen-w104" style="display:none;">
+              <div style="margin-bottom: 14px;">
+                <button class="btn btn-secondary btn-sm" onclick="showWebScreen('w103')">
+                  <span class="icon">arrow_back</span> Back to Booking Requests
+                </button>
+              </div>
+
+              <div class="page-title-box" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="display:flex; align-items:center; gap: 10px;">
+                    <h1 class="page-h1" id="w104-header-code">HBR-20261113-0082</h1>
+                    <span id="w104-header-badge" class="badge badge-pending">Pending Confirmation</span>
+                  </div>
+                  <p class="page-desc">Comprehensive reservation parameters and real-time operational decisions.</p>
+                </div>
+
+                <div style="text-align: right; background: #FFFBEB; border: 1px solid #FDE68A; padding: 7px 12px; border-radius: var(--radius-sm);" id="w104-timer-box">
+                  <div style="font-size: 11px; color: #92400E; font-weight: 600;">RESPONSE TARGET</div>
+                  <div style="font-size: 12.5px; font-weight: 700; color: #B45309;" id="w104-timer-val">Within 24 Hours (BR-194 Pending)</div>
+                </div>
+              </div>
+
+              <div class="grid-two-column-w104">
+                <!-- Left Column: Reservation Parameters & Context-Sensitive Actions -->
+                <div>
+                  <!-- Stay Parameters Card -->
+                  <div class="op-card">
+                    <div class="op-card-header">
+                      <span class="op-card-title">Reservation & Check-in Parameters</span>
+                      <span class="icon" style="color: var(--color-teal-primary); font-size: 18px;">hotel</span>
+                    </div>
+
+                    <div class="kv-grid-2">
+                      <div class="kv-item">
+                        <div class="label">COMMERCIAL SERVICE</div>
+                        <div class="value" id="w104-service-name">Hội An Riverside Heritage Resort</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">ROOM OPTION</div>
+                        <div class="value" id="w104-option-name">Deluxe River View King</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">REQUESTED DATE</div>
+                        <div class="value num-align" id="w104-req-date">15/12/2026</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">REQUESTED TIME</div>
+                        <div class="value num-align" id="w104-req-time">14:00</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">ROOM QUANTITY</div>
+                        <div class="value" id="w104-qty">1 Room</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">ESTIMATED AMOUNT (INFORMATIONAL)</div>
+                        <div class="value num-align" style="color: var(--color-copper-text);" id="w104-estimated-amt">1,850,000 VND</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Provider Decision Panel (Active only for Pending Confirmation) -->
+                  <div class="op-card" id="w104-section-b">
+                    <div class="op-card-header">
+                      <span class="op-card-title">Booking Request Decision (UC-79)</span>
+                      <span class="badge badge-pending">Action Required</span>
+                    </div>
+
+                    <p style="font-size: 12.5px; color: var(--color-ink-secondary); margin-bottom: 14px;">
+                      Please verify physical room inventory in your hotel management system before confirming or declining this reservation.
+                    </p>
+
+                    <div style="display:flex; gap: 10px;">
+                      <button class="btn btn-primary" onclick="openConfirmModal()">
+                        <span class="icon" style="font-size:16px;">check_circle</span> Confirm Booking Request
+                      </button>
+                      <button class="btn btn-destructive" onclick="openRejectModal()">
+                        <span class="icon" style="font-size:16px;">cancel</span> Reject Booking Request
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Service Outcome Panel (Active only for Confirmed & Past Stay Date) -->
+                  <div class="op-card" id="w104-section-c" style="display:none;">
+                    <div class="op-card-header">
+                      <span class="op-card-title">Record Service Outcome (UC-80)</span>
+                      <span class="badge badge-confirmed">Check-in Date Passed</span>
+                    </div>
+
+                    <p style="font-size: 12.5px; color: var(--color-ink-secondary); margin-bottom: 14px;">
+                      Enter the actual amount collected at checkout to record service revenue and compute the commission statement value.
+                    </p>
+
+                    <div style="background: #F8FAFC; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 14px;">
+                      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group">
+                          <label class="form-label">Actual Amount Collected (VND) (*)</label>
+                          <input type="number" class="form-control num-align" id="w104-actual-input" value="1850000" min="1" oninput="recalcCommissionPreview(this.value)">
+                          <span class="field-error-text" id="err-actual">Amount must be greater than zero</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Calculated Commission</label>
+                          <input type="text" class="form-control num-align" id="w104-comm-preview" value="185,000 VND" readonly style="background:#EDF2EE; font-weight:700; color:var(--color-teal-deep);">
+                        </div>
+                      </div>
+                      <div style="font-size: 11px; color: var(--color-ink-secondary); margin-top: 6px;">
+                        * Commission rate applied according to current statement policy (BR-198 parameter).
+                      </div>
+                    </div>
+
+                    <div style="display:flex; gap: 10px;">
+                      <button class="btn btn-primary" onclick="submitOutcomeCompleted()">
+                        <span class="icon" style="font-size:16px;">verified</span> Complete Stay
+                      </button>
+                      <button class="btn btn-secondary" onclick="submitOutcomeNoShow()">
+                        <span class="icon" style="font-size:16px;">person_off</span> Mark No-Show
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Read-only Completed / No-Show Summary Banner -->
+                  <div class="op-card" id="w104-section-readonly" style="display:none;">
+                    <div class="op-card-header">
+                      <span class="op-card-title">Recorded Service Outcome</span>
+                      <span class="badge badge-completed" id="w104-final-badge">Completed</span>
+                    </div>
+                    <div class="kv-grid-2">
+                      <div class="kv-item">
+                        <div class="label">ACTUAL AMOUNT COLLECTED</div>
+                        <div class="value num-align" id="w104-final-actual">1,850,000 VND</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">RECORDED COMMISSION</div>
+                        <div class="value num-align" style="color:var(--color-teal-deep);" id="w104-final-comm">185,000 VND</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">OUTCOME RECORDED AT</div>
+                        <div class="value num-align" id="w104-final-time">13/11/2026 15:00</div>
+                      </div>
+                      <div class="kv-item">
+                        <div class="label">AUDIT STATUS</div>
+                        <div class="value">Logged (BR-174)</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column: Traveler Contact & Direct Payment Policy -->
+                <div>
+                  <div class="op-card">
+                    <div class="op-card-header">
+                      <span class="op-card-title">Traveler Contact Information</span>
+                      <span class="icon" style="color: var(--color-ink-secondary); font-size: 18px;">person</span>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap: 10px; margin-bottom: 14px;">
+                      <div class="user-avatar-circle" style="width:38px;height:38px;font-size:13px;background:var(--color-teal-soft);color:var(--color-teal-deep);">AN</div>
+                      <div>
+                        <b style="font-size: 14px; color: var(--color-ink-primary);" id="w104-traveler-name">Nguyễn Văn An</b><br>
+                        <span style="font-size: 11px; color: var(--color-ink-secondary);">Verified TripMate Traveler</span>
+                      </div>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--color-border-hairline); padding-top: 12px; display:flex; flex-direction:column; gap: 10px;">
+                      <div>
+                        <div class="label" style="font-size:11px; color:var(--color-ink-secondary); font-weight:600;">PHONE NUMBER</div>
+                        <div style="font-size: 13px; font-weight:600;" class="num-align" id="w104-traveler-phone">0912 345 678</div>
+                      </div>
+                      <div>
+                        <div class="label" style="font-size:11px; color:var(--color-ink-secondary); font-weight:600;">EMAIL ADDRESS</div>
+                        <div style="font-size: 13px; font-weight:600;" id="w104-traveler-email">an.nguyen@example.com</div>
+                      </div>
+                      <div>
+                        <div class="label" style="font-size:11px; color:var(--color-ink-secondary); font-weight:600;">SPECIAL REQUEST</div>
+                        <div style="font-size: 12.5px; color:#334155; background:#F8FAFC; padding:8px 10px; border-radius:var(--radius-sm); border:1px solid #E2E8F0; margin-top:2px;" id="w104-special-req">
+                          Traveling with infant. Please prepare baby crib and quiet high-floor room if possible.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Direct Hotel Payment Policy Card (BR-196) -->
+                  <div class="policy-banner">
+                    <span class="icon" style="font-size: 18px; color: #B45309;">info</span>
+                    <div>
+                      <b>Commercial Service Payment Policy (BR-196)</b><br>
+                      The traveler pays the hotel directly upon check-in. TripMate does not collect advance payment for commercial service bookings and does not process refunds.
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- SCREEN W105: Commission Statements -->
+            <div id="screen-w105" style="display:none;">
+              <div class="page-title-box">
+                <h1 class="page-h1">Commission Statements Ledger</h1>
+                <p class="page-desc">Track completed monthly booking revenue and report bank wire transfer references to TripMate.</p>
+              </div>
+
+              <!-- Master-Detail Financial Ledger Grid -->
+              <div class="grid-two-column-w105">
+                <!-- Left: Statements Table -->
+                <div class="table-container">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 140px;">Period</th>
+                        <th style="width: 100px; text-align: right;">Stays</th>
+                        <th style="width: 140px; text-align: right;">Actual Revenue</th>
+                        <th style="width: 130px; text-align: right;">Commission</th>
+                        <th style="width: 100px;">Due Date</th>
+                        <th style="width: 120px;">Status</th>
+                        <th style="width: 70px; text-align: right;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="w105-statement-tbody">
+                      <!-- Populated dynamically via JS -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Right: Selected Statement Detail & Payment Reporting Card -->
+                <div class="op-card" id="w105-detail-panel">
+                  <div class="op-card-header">
+                    <div>
+                      <span class="op-card-title" id="w105-detail-code">Statement COMM-202611-0012</span>
+                      <div style="font-size: 11.5px; color: var(--color-ink-secondary);" id="w105-detail-period">Period: 01/11/2026 - 30/11/2026</div>
+                    </div>
+                    <span class="badge" style="background:#EBF5FF; color:#1E40AF;" id="w105-detail-status">Issued</span>
+                  </div>
+
+                  <!-- Financial Metrics Grid -->
+                  <div style="background: #F8FAF9; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                      <div>
+                        <div style="font-size: 11px; color: var(--color-ink-secondary);">COMPLETED BOOKINGS</div>
+                        <div style="font-size: 14px; font-weight: 700;" id="w105-detail-count">24 Stays</div>
+                      </div>
+                      <div>
+                        <div style="font-size: 11px; color: var(--color-ink-secondary);">TOTAL ACTUAL REVENUE</div>
+                        <div style="font-size: 14px; font-weight: 700;" class="num-align" id="w105-detail-rev">44,400,000 VND</div>
+                      </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
+                      <span style="font-size: 12px; font-weight: 700; color: var(--color-teal-deep);">COMMISSION PAYABLE</span>
+                      <span style="font-size: 16px; font-weight: 700; color: var(--color-teal-primary);" class="num-align" id="w105-detail-comm">4,440,000 VND</span>
+                    </div>
+                  </div>
+
+                  <!-- Beneficiary Bank Information (Marked DEMO) -->
+                  <div style="border: 1px dashed var(--color-border-strong); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; background: #FFFDF9;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+                      <span style="font-size: 11.5px; font-weight: 700; color: var(--color-ink-primary);">TripMate Beneficiary Bank Account</span>
+                      <span class="badge" style="background:#FEF3E2; color:#92400E; font-size:10px;">DEMO / Illustrative Only</span>
+                    </div>
+                    <div style="font-size: 11.5px; color: var(--color-ink-secondary); line-height: 1.4;">
+                      Bank: <b>Joint Stock Commercial Bank for Foreign Trade of Vietnam (Vietcombank)</b><br>
+                      Account Number: <span class="mono-code">0071 0012 3456 7</span><br>
+                      Account Name: <b>CONG TY CO PHAN TRIPMATE VIET NAM (DEMO)</b><br>
+                      Transfer Remark: <span class="mono-code" id="w105-transfer-remark">TRIPMATE COMM-202611-0012</span>
+                    </div>
+                  </div>
+
+                  <!-- Payment Reporting Form (Active when Issued) -->
+                  <div id="w105-report-section">
+                    <div class="form-group">
+                      <label class="form-label">Bank Wire Transfer Reference Code (*)</label>
+                      <input type="text" class="form-control mono-code" id="w105-ref-input" placeholder="e.g. VCB-20261205-982341">
+                      <span class="field-error-text" id="err-w105-ref">Bank transfer reference cannot be blank (MSG172)</span>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%;" onclick="reportCommissionPayment()">
+                      <span class="icon" style="font-size:16px;">send</span> Report Wire Transfer (UC-82)
+                    </button>
+                  </div>
+
+                  <!-- Reported Confirmation Notice -->
+                  <div id="w105-reported-notice" style="display:none; background:#E8F7F4; border:1px solid #B2DFDB; border-radius:var(--radius-sm); padding:10px 12px; font-size:12px; color:#004D40;">
+                    <div style="display:flex; align-items:center; gap:6px; font-weight:700;">
+                      <span class="icon" style="font-size:16px;">task_alt</span> Payment Reported
+                    </div>
+                    <div style="margin-top:2px;">
+                      Transfer reference <b class="mono-code" id="w105-confirmed-ref">VCB-20261205-982341</b> submitted. Awaiting TripMate Staff reconciliation under UC-83.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           VIEW B: TRAVELER MOBILE WORKSPACE (M74 & M75) — PRESERVED
+           ==================================================================== -->
+      <div id="view-mobile" class="mobile-screen-frame" style="display: none;">
+        <!-- Simulated Device Status Bar -->
+        <div class="mobile-status-bar">
+          <span>9:41</span>
+          <div style="display:flex; gap: 4px; align-items:center;">
+            <span class="icon" style="font-size:14px;">signal_cellular_4_bar</span>
+            <span class="icon" style="font-size:14px;">wifi</span>
+            <span class="icon" style="font-size:14px;">battery_full</span>
+          </div>
+        </div>
+
+        <!-- SCREEN M74: Commercial Services Search & List -->
+        <div id="m74-screen" style="flex:1; display:flex; flex-direction:column; overflow-y:auto; padding-bottom: 20px;">
+          <div class="mobile-hero-header">
+            <h1 style="font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 4px;">Khách sạn & Dịch vụ</h1>
+            <p style="font-size: 12.5px; opacity: 0.85;">Khám phá cơ sở lưu trú và dịch vụ thương mại được xác thực tại Hội An & Đà Nẵng.</p>
+
+            <div style="margin-top: 14px; position:relative;">
+              <input type="text" class="form-control" style="background:#FFFFFF; border-radius:var(--radius-full); padding-left: 36px;" placeholder="Tìm khách sạn, khu nghỉ dưỡng..." oninput="handleM74Search(this.value)">
+              <span class="icon" style="position:absolute; left:12px; top:9px; color:var(--color-ink-secondary); font-size:18px;">search</span>
+            </div>
+          </div>
+
+          <!-- Services List -->
+          <div style="padding: 16px; display:flex; flex-direction:column; gap: 14px;" id="m74-hotel-list">
+            <!-- Hotel Card 1 -->
+            <div class="op-card" style="padding: 0; overflow:hidden; cursor:pointer;" onclick="openM75Details('hoian')">
+              <div style="height: 150px; background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=700&q=80'); background-size: cover; background-position: center; position:relative; padding:12px;">
+                <span class="badge" style="background:rgba(0,21,42,0.8); color:#FFF; backdrop-filter:blur(4px);">★ 4.9 (128 đánh giá)</span>
+              </div>
+              <div style="padding: 14px;">
+                <h3 style="font-size: 15px; font-weight: 700; color: var(--tm-mobile-navy); margin-bottom: 4px;">Hội An Riverside Heritage Resort</h3>
+                <p style="font-size: 12px; color: var(--color-ink-secondary); margin-bottom: 8px;">📍 188 Cửa Đại, Cẩm Châu, Hội An</p>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #F1F5F9; padding-top:8px;">
+                  <div>
+                    <span style="font-size: 11px; color:#64748B;">Giá chỉ từ</span>
+                    <div style="font-size: 15px; font-weight: 700; color: var(--color-copper-text);">1.850.000 ₫ <span style="font-size:11px; font-weight:400; color:#64748B;">/đêm</span></div>
+                  </div>
+                  <button class="btn btn-sm btn-primary">Xem chi tiết &gt;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN M75: Hotel Details & Request Bottom Sheet -->
+        <div id="m75-screen" style="display: none; flex-direction: column; height: calc(100% - 36px); overflow-y: auto;">
+          <div id="m75-state-a">
+            <div class="m75-hero" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=700&q=80');">
+              <button class="m75-back-btn" onclick="backToM74()"><span class="icon">arrow_back</span></button>
+            </div>
+            <div class="m75-body-card">
+              <h2 style="font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--tm-mobile-navy);" id="m75-hotel-title">Hội An Riverside Heritage Resort</h2>
+              <p style="font-size: 12px; color: var(--color-ink-secondary); margin-bottom: 12px;">📍 188 Cửa Đại, Cẩm Châu, Hội An</p>
+
+              <div class="policy-banner" style="margin-bottom: 16px;">
+                <span class="icon" style="font-size:16px;">payments</span>
+                <div>Thanh toán trực tiếp tại khách sạn khi nhận phòng (BR-196).</div>
+              </div>
+
+              <h4 style="font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">Chọn loại phòng:</h4>
+              <div style="display:flex; flex-direction:column; gap: 8px;" id="m75-room-options">
+                <div class="op-card" style="padding: 10px 12px; border-color: var(--color-teal-primary); background: #F0FDF4;" onclick="selectRoomOption('Deluxe River View King', 1850000)">
+                  <div style="font-weight: 700; font-size: 13px;">Deluxe River View King</div>
+                  <div style="font-size: 12px; color: var(--color-copper-text); font-weight:600;">1.850.000 ₫ / đêm</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="m75-bottom-bar">
+              <div>
+                <span style="font-size: 11px; color:#64748B;">Tổng ước tính</span>
+                <div style="font-size: 16px; font-weight:700; color:var(--color-copper-text);" id="m75-bottom-est">1.850.000 ₫</div>
+              </div>
+              <button class="btn btn-primary" onclick="openBookingSheet()">Gửi yêu cầu đặt phòng</button>
+            </div>
+          </div>
+
+          <!-- M75 State D: Booking Outcome (Confirmed / Rejected) -->
+          <div id="m75-state-outcome" style="display:none; padding: 20px 16px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <span class="badge badge-confirmed" id="outcome-badge" style="font-size:13px; padding:6px 14px;">Đã xác nhận</span>
+              <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-top: 10px;" id="outcome-hotel">Hội An Riverside Heritage Resort</h2>
+              <div style="font-size: 12px; color: #64748B;" id="outcome-code">HBR-20261113-082</div>
+            </div>
+
+            <div class="op-card">
+              <div class="kv-grid-2">
+                <div class="kv-item"><div class="label">PHÒNG</div><div class="value" id="outcome-option">Deluxe River View</div></div>
+                <div class="kv-item"><div class="label">NGÀY NHẬN</div><div class="value" id="outcome-date">15/12/2026</div></div>
+                <div class="kv-item"><div class="label">TẠM TÍNH</div><div class="value" id="outcome-amount">1.850.000 ₫</div></div>
+              </div>
+            </div>
+
+            <div id="outcome-rejection-box" style="display:none;" class="policy-banner">
+              <span class="icon" style="color:#DC2626;">cancel</span>
+              <div>
+                <b>Lý do từ chối:</b><br>
+                <span id="outcome-rejection-reason">Cơ sở đã kín phòng vào ngày quý khách chọn.</span>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;" onclick="backToM74()">Quay lại danh sách</button>
+          </div>
+        </div>
+
+        <!-- M75-B: Booking Request Bottom Sheet -->
+        <div id="m75-sheet-backdrop" class="modal-backdrop" onclick="closeBookingSheet()">
+          <div class="modal-dialog" style="position: absolute; bottom: 0; max-width: 100%; border-radius: 20px 20px 0 0;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+              <span class="modal-title">Yêu cầu đặt phòng</span>
+              <button onclick="closeBookingSheet()" style="border:none;background:none;cursor:pointer;"><span class="icon">close</span></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+              <form id="m75-booking-form" onsubmit="handleBookingSubmit(event)">
+                <div class="form-group">
+                  <label class="form-label">Loại phòng</label>
+                  <input type="text" class="form-control" id="form-room-option" value="Deluxe River View King" readonly>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <div class="form-group">
+                    <label class="form-label">Ngày nhận phòng (*)</label>
+                    <input type="date" class="form-control" id="form-date" value="2026-12-15" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Giờ dự kiến (*)</label>
+                    <input type="time" class="form-control" id="form-time" value="14:00" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Số lượng phòng (*)</label>
+                  <input type="number" class="form-control" id="form-quantity" value="1" min="1" max="10" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Họ và tên khách (*)</label>
+                  <input type="text" class="form-control" id="form-contact-name" value="Nguyễn Văn An" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Số điện thoại (*)</label>
+                  <input type="tel" class="form-control" id="form-contact-phone" value="0912345678" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Gửi yêu cầu đặt phòng</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ====================================================================
+           VIEW C: TRIPMATE STAFF ADMIN CONSOLE (W102 & W106)
+           ==================================================================== -->
+      <div id="view-staff" class="web-shell" style="display: none;">
+
+        <!-- Sidebar Navigation -->
+        <aside class="web-sidebar">
+          <div class="sidebar-brand">
+            <div class="brand-logo-sq" style="background:#1E293B;">TM</div>
+            <div>
+              <div class="brand-text-corp" style="color:#1E293B;">TripMate Admin</div>
+              <div class="brand-sub-corp">Staff Operations</div>
+            </div>
+          </div>
+
+          <div class="sidebar-partner-pill" style="background:#F1F5F9; border-color:#CBD5E1;">
+            <div class="partner-name-sm" style="color:#334155;">Staff Console</div>
+            <div class="partner-cat-sm" style="color:#64748B;">Internal Administration</div>
+          </div>
+
+          <nav class="sidebar-nav-section">
+            <div class="sidebar-section-title">Commercial Management</div>
+            <a class="sidebar-link active" id="staff-nav-w102" onclick="showStaffScreen('w102')">
+              <span class="icon">domain_add</span>
+              <span>Create Provider Account</span>
+            </a>
+            <a class="sidebar-link" id="staff-nav-w106" onclick="showStaffScreen('w106')">
+              <span class="icon">fact_check</span>
+              <span>Commission Reconciliation</span>
+              <span class="sidebar-badge-count" style="background:#2563EB;">2</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <div>Role: <b>TripMate Staff</b></div>
+            <div style="font-size:10px; margin-top:2px;">SRS §3.9.1.5 & §3.6.7</div>
+          </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="web-main-content">
+          <header class="web-top-bar">
+            <div class="breadcrumb-trail">
+              <span>Staff Administration Workspace</span>
+              <span class="icon" style="font-size:14px;">chevron_right</span>
+              <span class="current" id="staff-breadcrumb-text">Create Service Provider Account</span>
+            </div>
+
+            <div class="top-user-pill">
+              <div style="text-align: right; margin-right: 4px;">
+                <div style="font-size: 12.5px; font-weight: 600; color: var(--color-ink-primary);">Staff Operator John</div>
+                <div style="font-size: 11px; color: var(--color-ink-secondary);">Administrator Console</div>
+              </div>
+              <div class="user-avatar-circle" style="background:#1E293B;color:#FFF;">OP</div>
+            </div>
+          </header>
+
+          <div class="web-body-area">
+
+            <!-- SCREEN W102: Create Service Provider Account (65/35 Two Column) -->
+            <div id="staff-screen-w102">
+              <div class="page-title-box">
+                <h1 class="page-h1">Create Service Provider Account</h1>
+                <p class="page-desc">Provision a commercial partner account and link active commercial POIs (UC-77).</p>
+              </div>
+
+              <div class="grid-two-column">
+                <!-- Left: Account Form (65%) -->
+                <div class="op-card">
+                  <div class="op-card-header">
+                    <span class="op-card-title">Commercial Entity & Representative Details</span>
+                    <span class="icon" style="font-size: 18px; color: var(--color-teal-primary);">domain_add</span>
+                  </div>
+
+                  <form id="staff-w102-form" onsubmit="handleCreateProviderSubmit(event)">
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 12px;">
+                      <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Business / Property Name (*)</label>
+                        <input type="text" class="form-control" id="w102-business-name" value="Hội An Riverside Heritage Resort" required>
+                      </div>
+
+                      <!-- Custom Category Dropdown -->
+                      <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Category (*)</label>
+                        <div class="custom-select-wrapper" id="w102-category-select">
+                          <div class="custom-select-trigger" onclick="toggleCustomSelect('w102-category-select')" tabindex="0">
+                            <span class="trigger-text" id="w102-cat-val">Hotel</span>
+                            <span class="icon chevron">expand_more</span>
+                          </div>
+                          <div class="custom-select-dropdown">
+                            <div class="custom-select-option selected" onclick="selectCustomOption('w102-category-select', 'Hotel', 'Hotel')">
+                              <span>Hotel</span>
+                              <span class="icon check-icon">check</span>
+                            </div>
+                            <div class="custom-select-option" onclick="selectCustomOption('w102-category-select', 'Vehicle Rental', 'Vehicle Rental')">
+                              <span>Vehicle Rental</span>
+                            </div>
+                            <div class="custom-select-option" onclick="selectCustomOption('w102-category-select', 'Restaurant', 'Restaurant')">
+                              <span>Restaurant</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                      <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Representative Full Name (*)</label>
+                        <input type="text" class="form-control" id="w102-rep-name" value="Trần Thị Lan" required>
+                      </div>
+                      <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Email Address (*)</label>
+                        <input type="email" class="form-control" id="w102-email" value="lan.tran@hoianriverside.vn" required>
+                      </div>
+                      <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Phone Number (*)</label>
+                        <input type="tel" class="form-control num-align" id="w102-phone" value="0905123456" required>
+                      </div>
+                    </div>
+
+                    <!-- Searchable MultiSelect POI Component -->
+                    <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--color-border-hairline); padding-top: 14px;">
+                      <label class="form-label">Linked Points of Interest (POIs) (*)</label>
+                      <div class="custom-select-wrapper" id="w102-poi-multiselect">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('w102-poi-multiselect')" tabindex="0" style="min-height: 44px; padding: 4px 10px;">
+                          <div class="multiselect-tags-container" id="w102-poi-tags">
+                            <span class="multiselect-tag">
+                              Hội An Riverside (POI-0042)
+                              <button type="button" class="remove-btn" onclick="removePoiTag(event, 'POI-DANANG-0042')">×</button>
+                            </span>
+                          </div>
+                          <span class="icon chevron">expand_more</span>
+                        </div>
+
+                        <!-- Dropdown panel with integrated search -->
+                        <div class="custom-select-dropdown" style="max-height: 320px;">
+                          <div class="multiselect-search-box">
+                            <input type="text" class="multiselect-search-input" id="poi-search-input" placeholder="Search POI name, code, address..." oninput="filterPoiOptions(this.value)" onclick="event.stopPropagation()">
+                          </div>
+                          <div id="poi-options-list">
+                            <div class="multiselect-option-card selected" data-code="POI-DANANG-0042" onclick="togglePoiSelection('POI-DANANG-0042', 'Hội An Riverside (POI-0042)')">
+                              <div class="chk-box"><span class="icon" style="font-size:14px;">check</span></div>
+                              <div class="multiselect-option-info">
+                                <div class="multiselect-option-title">
+                                  <span>Hội An Riverside Heritage Resort</span>
+                                  <span class="badge" style="background:#E2E8F0;font-size:10px;">Hotel</span>
+                                </div>
+                                <div class="multiselect-option-meta">📍 188 Cua Dai, Hoi An | Code: POI-DANANG-0042 | Active</div>
+                              </div>
+                            </div>
+                            <div class="multiselect-option-card" data-code="POI-DANANG-0018" onclick="togglePoiSelection('POI-DANANG-0018', 'Da Nang Coastal (POI-0018)')">
+                              <div class="chk-box"><span class="icon" style="font-size:14px;">check</span></div>
+                              <div class="multiselect-option-info">
+                                <div class="multiselect-option-title">
+                                  <span>Da Nang Coastal Suites</span>
+                                  <span class="badge" style="background:#E2E8F0;font-size:10px;">Hotel</span>
+                                </div>
+                                <div class="multiselect-option-meta">📍 72 Vo Nguyen Giap, Da Nang | Code: POI-DANANG-0018 | Active</div>
+                              </div>
+                            </div>
+                            <div class="multiselect-option-card" data-code="POI-HUE-0005" onclick="togglePoiSelection('POI-HUE-0005', 'Hue Imperial (POI-0005)')">
+                              <div class="chk-box"><span class="icon" style="font-size:14px;">check</span></div>
+                              <div class="multiselect-option-info">
+                                <div class="multiselect-option-title">
+                                  <span>Hue Imperial Palace Boutique</span>
+                                  <span class="badge" style="background:#E2E8F0;font-size:10px;">Hotel</span>
+                                </div>
+                                <div class="multiselect-option-meta">📍 15 Le Loi, Hue | Code: POI-HUE-0005 | Active</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-hint">* Note: Commercial POI association rules (BR-192 pending Owner approval). Multiple POIs may be selected if authorized.</div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap: 8px; border-top: 1px solid var(--color-border-hairline); padding-top: 14px;">
+                      <button type="button" class="btn btn-secondary" onclick="triggerToast('Account creation canceled.', 'info')">Cancel</button>
+                      <button type="submit" class="btn btn-primary">
+                        <span class="icon" style="font-size:16px;">save</span> Create Account & Dispatch Credentials
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Right: Contextual Operational Guidance (35%) -->
+                <div class="context-panel">
+                  <div class="context-panel-title">
+                    <span class="icon" style="font-size:18px;">security</span>
+                    Account Provisioning Policy & Security
+                  </div>
+
+                  <div class="context-step-item">
+                    <div class="context-step-heading">
+                      <span class="icon" style="font-size:15px; color:var(--color-teal-primary);">admin_panel_settings</span>
+                      Staff Authority (UC-77)
+                    </div>
+                    <div class="context-step-desc">
+                      Commercial Service Provider accounts are created exclusively by authorized TripMate Staff (§3.9.1.5). Service providers cannot self-register.
+                    </div>
+                  </div>
+
+                  <div class="context-step-item">
+                    <div class="context-step-heading">
+                      <span class="icon" style="font-size:15px; color:var(--color-copper-accent);">mark_email_read</span>
+                      Credential Dispatch
+                    </div>
+                    <div class="context-step-desc">
+                      A secure, system-generated temporary password is automatically emailed to the registered email address. The temporary password is never displayed on screen to Staff.
+                    </div>
+                  </div>
+
+                  <div class="context-step-item">
+                    <div class="context-step-heading">
+                      <span class="icon" style="font-size:15px; color:var(--color-teal-primary);">lock_reset</span>
+                      Mandatory Password Rotation
+                    </div>
+                    <div class="context-step-desc">
+                      The service provider must establish a permanent password upon first sign-in before accessing operational booking queues.
+                    </div>
+                  </div>
+
+                  <div class="context-step-item">
+                    <div class="context-step-heading">
+                      <span class="icon" style="font-size:15px; color:#1E3A8A;">history</span>
+                      Audit Logged (BR-174)
+                    </div>
+                    <div class="context-step-desc">
+                      Account creation is permanently recorded in the system audit trail with acting Staff ID, partner details, and Asia/Ho_Chi_Minh timestamp.
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- SCREEN W106: Commission Reconciliation (Staff Workspace) -->
+            <div id="staff-screen-w106" style="display:none;">
+              <div class="page-title-box">
+                <h1 class="page-h1">Commission Reconciliation Workstation</h1>
+                <p class="page-desc">Verify commercial partner bank transfers and confirm official payment receipts (UC-83).</p>
+              </div>
+
+              <!-- Full-Width Staff Filter Bar -->
+              <div class="filter-bar">
+                <!-- Provider Custom Select -->
+                <div style="width: 220px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Service Provider</label>
+                  <div class="custom-select-wrapper" id="w106-provider-select">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('w106-provider-select')" tabindex="0">
+                      <span class="trigger-text" id="w106-provider-val">All Providers</span>
+                      <span class="icon chevron">expand_more</span>
+                    </div>
+                    <div class="custom-select-dropdown">
+                      <div class="custom-select-option selected" onclick="selectCustomOption('w106-provider-select', 'ALL', 'All Providers')">
+                        <span>All Providers</span>
+                        <span class="icon check-icon">check</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-provider-select', 'Hoi An Riverside', 'Hội An Riverside Resort')">
+                        <span>Hội An Riverside Resort</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-provider-select', 'Da Nang Coastal', 'Da Nang Coastal Suites')">
+                        <span>Da Nang Coastal Suites</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-provider-select', 'Hue Imperial', 'Hue Imperial Palace Boutique')">
+                        <span>Hue Imperial Palace Boutique</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Period Custom Select -->
+                <div style="width: 170px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Statement Period</label>
+                  <div class="custom-select-wrapper" id="w106-period-select">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('w106-period-select')" tabindex="0">
+                      <span class="trigger-text" id="w106-period-val">All Periods</span>
+                      <span class="icon chevron">expand_more</span>
+                    </div>
+                    <div class="custom-select-dropdown">
+                      <div class="custom-select-option selected" onclick="selectCustomOption('w106-period-select', 'ALL', 'All Periods')">
+                        <span>All Periods</span>
+                        <span class="icon check-icon">check</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-period-select', '11/2026', 'November 2026')">
+                        <span>November 2026</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-period-select', '10/2026', 'October 2026')">
+                        <span>October 2026</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Status Custom Select -->
+                <div style="width: 170px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Status</label>
+                  <div class="custom-select-wrapper" id="w106-status-select">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('w106-status-select')" tabindex="0">
+                      <span class="trigger-text" id="w106-status-val">All Statuses</span>
+                      <span class="icon chevron">expand_more</span>
+                    </div>
+                    <div class="custom-select-dropdown">
+                      <div class="custom-select-option selected" onclick="selectCustomOption('w106-status-select', 'ALL', 'All Statuses')">
+                        <span>All Statuses</span>
+                        <span class="icon check-icon">check</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-status-select', 'Payment Reported', 'Payment Reported')">
+                        <span>Payment Reported</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-status-select', 'Paid', 'Paid')">
+                        <span>Paid</span>
+                      </div>
+                      <div class="custom-select-option" onclick="selectCustomOption('w106-status-select', 'Issued', 'Issued')">
+                        <span>Issued</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="flex: 1; min-width: 180px;">
+                  <label class="form-label" style="margin-bottom: 2px;">Reference / Search</label>
+                  <input type="text" class="form-control" id="w106-filter-search" placeholder="Transfer reference or provider..." onkeydown="if(event.key==='Enter') applyW106Filters()">
+                </div>
+
+                <div style="display:flex; gap: 8px; align-self: flex-end;">
+                  <button class="btn btn-primary" onclick="applyW106Filters()">
+                    <span class="icon" style="font-size: 16px;">filter_alt</span> Filter
+                  </button>
+                  <button class="btn btn-secondary" onclick="resetW106Filters()">
+                    <span class="icon" style="font-size: 16px;">restart_alt</span> Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Reconciliation Ledger Table -->
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 220px;">Service Provider</th>
+                      <th style="width: 110px;">Period</th>
+                      <th style="width: 130px; text-align: right;">Commission Due</th>
+                      <th style="width: 100px;">Due Date</th>
+                      <th style="width: 130px;">Status</th>
+                      <th style="width: 170px;">Bank Transfer Ref</th>
+                      <th style="width: 130px;">Reported At</th>
+                      <th style="width: 130px; text-align: right;">Reconcile Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="w106-table-body">
+                    <!-- Populated dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Generic Reusable Confirmation / Input Modal (CR-05) -->
+  <div class="modal-backdrop" id="generic-modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="modal-title" id="generic-modal-title">Confirmation</span>
+        <button onclick="closeModal()" style="border:none;background:none;cursor:pointer;color:var(--color-ink-secondary);"><span class="icon">close</span></button>
+      </div>
+      <div class="modal-body" id="generic-modal-body"></div>
+      <div class="modal-footer" id="generic-modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="generic-modal-confirm-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <!-- ==========================================================================
+       PROTOTYPE INTERACTIVE LOGIC & CONTROLLER ENGINE
+       ========================================================================== -->
+  <script>
+    // --- Mock State Store ---
+    const state = {
+      isPresentationMode: true,
+      currentActor: 'web', // 'web' | 'mobile' | 'staff'
+      selectedHotel: 'hoian',
+      selectedRoom: { name: 'Deluxe River View King', price: 1850000 },
+      selectedRequestId: 'req-01',
+      selectedStatementId: 'stmt-01',
+
+      // 10 Representative Booking Requests for W103
+      bookingRequests: [
+        {
+          id: 'req-01',
+          code: 'HBR-20261113-0082',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Deluxe River View King',
+          date: '15/12/2026',
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'Nguyễn Văn An',
+          travelerPhone: '0912 345 678',
+          travelerEmail: 'an.nguyen@example.com',
+          specialReq: 'Traveling with infant. Please prepare baby crib and quiet high-floor room if possible.',
+          estimatedAmt: 1850000,
+          actualAmt: 1850000,
+          commissionAmt: 185000,
+          status: 'Pending Confirmation',
+          submittedAt: '13/11/2026 14:15',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-02',
+          code: 'HBR-20261113-0081',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Superior Garden View',
+          date: '18/12/2026',
+          time: '15:00',
+          quantity: '2 Rooms',
+          travelerName: 'Trần Minh Đức',
+          travelerPhone: '0905 432 109',
+          travelerEmail: 'duc.tran@gmail.com',
+          specialReq: 'Late check-in after 19:00.',
+          estimatedAmt: 2900000,
+          actualAmt: 2900000,
+          commissionAmt: 290000,
+          status: 'Pending Confirmation',
+          submittedAt: '13/11/2026 11:30',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-03',
+          code: 'HBR-20261110-0045',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Superior Garden View',
+          date: '10/11/2026', // Stay date passed!
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'Lê Hoàng Nam',
+          travelerPhone: '0903 888 999',
+          travelerEmail: 'nam.le@gmail.com',
+          specialReq: 'Check-in late after 18:00.',
+          estimatedAmt: 1450000,
+          actualAmt: 1450000,
+          commissionAmt: 145000,
+          status: 'Confirmed',
+          submittedAt: '08/11/2026 09:30',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-04',
+          code: 'HBR-20261112-0067',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Deluxe River View King',
+          date: '25/12/2026', // Future date
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'Emily Watson',
+          travelerPhone: '0934 567 890',
+          travelerEmail: 'emily.w@outlook.com',
+          specialReq: 'Airport pickup requested.',
+          estimatedAmt: 1850000,
+          actualAmt: 1850000,
+          commissionAmt: 185000,
+          status: 'Confirmed',
+          submittedAt: '12/11/2026 16:20',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-05',
+          code: 'HBR-20261102-0012',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Heritage Family Suite',
+          date: '02/11/2026',
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'Trịnh Thị Mai',
+          travelerPhone: '0988 123 456',
+          travelerEmail: 'mai.trinh@yahoo.com',
+          specialReq: 'Need baby high chair in restaurant.',
+          estimatedAmt: 2800000,
+          actualAmt: 2800000,
+          commissionAmt: 280000,
+          status: 'Completed',
+          submittedAt: '30/10/2026 16:45',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-06',
+          code: 'HBR-20261028-0009',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Deluxe River View King',
+          date: '28/10/2026',
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'David Miller',
+          travelerPhone: '0918 765 432',
+          travelerEmail: 'dmiller@company.com',
+          specialReq: 'Vegetarian breakfast options.',
+          estimatedAmt: 1850000,
+          actualAmt: 1850000,
+          commissionAmt: 185000,
+          status: 'Completed',
+          submittedAt: '26/10/2026 10:15',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-07',
+          code: 'HBR-20261105-0031',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Deluxe River View King',
+          date: '05/11/2026',
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'Phạm Quốc Bảo',
+          travelerPhone: '0977 654 321',
+          travelerEmail: 'bao.pham@tech.vn',
+          specialReq: 'Early check-in if possible.',
+          estimatedAmt: 1850000,
+          actualAmt: 0,
+          commissionAmt: 0,
+          status: 'No-show',
+          submittedAt: '03/11/2026 13:00',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-08',
+          code: 'HBR-20261108-0038',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Superior Garden View',
+          date: '08/11/2026',
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'Hoàng Thu Thảo',
+          travelerPhone: '0966 234 567',
+          travelerEmail: 'thao.hoang@design.com',
+          specialReq: 'None',
+          estimatedAmt: 1450000,
+          actualAmt: 0,
+          commissionAmt: 0,
+          status: 'Rejected',
+          submittedAt: '07/11/2026 08:45',
+          rejectionReason: 'Property was fully booked on selected dates.'
+        },
+        {
+          id: 'req-09',
+          code: 'HBR-20261106-0035',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Heritage Family Suite',
+          date: '06/11/2026',
+          time: '14:00',
+          quantity: '2 Rooms',
+          travelerName: 'Vũ Đức Thắng',
+          travelerPhone: '0944 876 543',
+          travelerEmail: 'thang.vu@travel.vn',
+          specialReq: 'Adjoining rooms requested.',
+          estimatedAmt: 5600000,
+          actualAmt: 0,
+          commissionAmt: 0,
+          status: 'Cancelled',
+          submittedAt: '04/11/2026 15:10',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-10',
+          code: 'HBR-20261025-0004',
+          serviceName: 'Hội An Riverside Heritage Resort',
+          optionName: 'Superior Garden View',
+          date: '25/10/2026',
+          time: '14:00',
+          quantity: '1 Room',
+          travelerName: 'Sarah Jenkins',
+          travelerPhone: '0922 345 678',
+          travelerEmail: 'sarah.j@travel.uk',
+          specialReq: 'High floor room.',
+          estimatedAmt: 1450000,
+          actualAmt: 1450000,
+          commissionAmt: 145000,
+          status: 'Completed',
+          submittedAt: '23/10/2026 11:00',
+          rejectionReason: ''
+        }
+      ],
+
+      // Statements for W105
+      statements: [
+        {
+          id: 'stmt-01',
+          code: 'COMM-202611-0012',
+          periodName: 'November 2026',
+          periodDates: '01/11/2026 - 30/11/2026',
+          completedCount: 24,
+          totalRevenue: 44400000,
+          commissionAmount: 4440000,
+          dueDate: '07/12/2026',
+          status: 'Issued', // 'Issued' | 'Payment Reported' | 'Paid'
+          bankReference: '',
+          reportedAt: ''
+        },
+        {
+          id: 'stmt-02',
+          code: 'COMM-202610-0009',
+          periodName: 'October 2026',
+          periodDates: '01/10/2026 - 31/10/2026',
+          completedCount: 18,
+          totalRevenue: 32500000,
+          commissionAmount: 3250000,
+          dueDate: '07/11/2026',
+          status: 'Paid',
+          bankReference: 'VCB-20261106-990011',
+          reportedAt: '06/11/2026 11:05'
+        },
+        {
+          id: 'stmt-03',
+          code: 'COMM-202609-0008',
+          periodName: 'September 2026',
+          periodDates: '01/09/2026 - 30/09/2026',
+          completedCount: 21,
+          totalRevenue: 38900000,
+          commissionAmount: 3890000,
+          dueDate: '07/10/2026',
+          status: 'Paid',
+          bankReference: 'VCB-20261005-442211',
+          reportedAt: '05/10/2026 14:20'
+        },
+        {
+          id: 'stmt-04',
+          code: 'COMM-202608-0005',
+          periodName: 'August 2026',
+          periodDates: '01/08/2026 - 31/08/2026',
+          completedCount: 15,
+          totalRevenue: 27200000,
+          commissionAmount: 2720000,
+          dueDate: '07/09/2026',
+          status: 'Paid',
+          bankReference: 'VCB-20260904-883311',
+          reportedAt: '04/09/2026 09:40'
+        }
+      ],
+
+      // Reconciliation Records for W106 (Staff)
+      reconciliationRecords: [
+        {
+          id: 'rec-01',
+          providerName: 'Hội An Riverside Heritage Resort',
+          poiCode: 'POI-DANANG-0042',
+          period: 'November 2026',
+          commissionAmount: 4440000,
+          dueDate: '07/12/2026',
+          status: 'Payment Reported',
+          bankReference: 'VCB-20261205-982341',
+          reportedAt: '05/12/2026 10:14'
+        },
+        {
+          id: 'rec-02',
+          providerName: 'Da Nang Coastal Suites',
+          poiCode: 'POI-DANANG-0018',
+          period: 'November 2026',
+          commissionAmount: 2850000,
+          dueDate: '07/12/2026',
+          status: 'Payment Reported',
+          bankReference: 'TCB-20261204-551209',
+          reportedAt: '04/12/2026 16:30'
+        },
+        {
+          id: 'rec-03',
+          providerName: 'Hue Imperial Palace Boutique',
+          poiCode: 'POI-HUE-0005',
+          period: 'October 2026',
+          commissionAmount: 3250000,
+          dueDate: '07/11/2026',
+          status: 'Paid',
+          bankReference: 'VCB-20261105-112233',
+          reportedAt: '05/11/2026 09:12'
+        },
+        {
+          id: 'rec-04',
+          providerName: 'Hoi An Ancient Town Homestay',
+          poiCode: 'POI-HOIAN-0091',
+          period: 'October 2026',
+          commissionAmount: 1890000,
+          dueDate: '07/11/2026',
+          status: 'Paid',
+          bankReference: 'BIDV-20261106-778899',
+          reportedAt: '06/11/2026 14:20'
+        },
+        {
+          id: 'rec-05',
+          providerName: 'Da Nang Riverfront Hotel',
+          poiCode: 'POI-DANANG-0056',
+          period: 'November 2026',
+          commissionAmount: 5120000,
+          dueDate: '07/12/2026',
+          status: 'Issued',
+          bankReference: '—',
+          reportedAt: '—'
+        },
+        {
+          id: 'rec-06',
+          providerName: 'Hội An Riverside Heritage Resort',
+          poiCode: 'POI-DANANG-0042',
+          period: 'October 2026',
+          commissionAmount: 3250000,
+          dueDate: '07/11/2026',
+          status: 'Paid',
+          bankReference: 'VCB-20261106-990011',
+          reportedAt: '06/11/2026 11:05'
+        }
+      ],
+
+      // Selected POIs for W102
+      w102SelectedPois: ['POI-DANANG-0042']
+    };
+
+    // --- Mode Toggle: Presentation vs Review Mode ---
+    function togglePresentationMode() {
+      state.isPresentationMode = !state.isPresentationMode;
+      const body = document.body;
+      const toggleBtn = document.getElementById('floating-toggle');
+
+      if (state.isPresentationMode) {
+        body.classList.remove('review-mode');
+        body.classList.add('presentation-mode');
+        toggleBtn.innerHTML = '<span class="icon" style="font-size:16px;">tune</span> Review Mode';
+        if (state.currentActor === 'mobile') {
+          changeViewport('390x844');
+        } else {
+          changeViewport('1440x900');
+        }
+      } else {
+        body.classList.remove('presentation-mode');
+        body.classList.add('review-mode');
+        toggleBtn.innerHTML = '<span class="icon" style="font-size:16px;">visibility</span> Present';
+      }
+    }
+
+    // --- Actor Switcher ---
+    function switchActorMode(actor) {
+      state.currentActor = actor;
+
+      document.getElementById('btn-tab-web').classList.toggle('active', actor === 'web');
+      document.getElementById('btn-tab-mobile').classList.toggle('active', actor === 'mobile');
+      document.getElementById('btn-tab-staff').classList.toggle('active', actor === 'staff');
+
+      document.getElementById('view-web').style.display = (actor === 'web') ? 'flex' : 'none';
+      document.getElementById('view-mobile').style.display = (actor === 'mobile') ? 'flex' : 'none';
+      document.getElementById('view-staff').style.display = (actor === 'staff') ? 'flex' : 'none';
+
+      const frame = document.getElementById('viewport-frame');
+      const picker = document.getElementById('viewport-picker');
+
+      if (actor === 'mobile') {
+        frame.classList.add('mobile-mode');
+        frame.style.width = '390px';
+        frame.style.height = '844px';
+        picker.value = '390x844';
+      } else {
+        frame.classList.remove('mobile-mode');
+        frame.style.width = '1440px';
+        frame.style.height = '900px';
+        picker.value = '1440x900';
+        if (actor === 'web') renderW103Table();
+        if (actor === 'staff') renderW106Table();
+      }
+    }
+
+    function changeViewport(val) {
+      const [w, h] = val.split('x');
+      const frame = document.getElementById('viewport-frame');
+      frame.style.width = w + 'px';
+      frame.style.height = h + 'px';
+      if (parseInt(w) <= 450) {
+        frame.classList.add('mobile-mode');
+      } else {
+        frame.classList.remove('mobile-mode');
+      }
+    }
+
+    // --- Toast System ---
+    function triggerToast(message, type = 'success') {
+      const root = document.getElementById('toast-root');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+
+      let icon = 'check_circle';
+      if (type === 'error') icon = 'error';
+      if (type === 'warning') icon = 'warning';
+      if (type === 'info') icon = 'info';
+
+      toast.innerHTML = `
+        <span class="icon" style="font-size:18px;">${icon}</span>
+        <div style="flex:1;">${message}</div>
+        <button onclick="this.parentElement.remove()" style="border:none;background:none;cursor:pointer;color:#94A3B8;">
+          <span class="icon" style="font-size:15px;">close</span>
+        </button>
+      `;
+
+      root.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 200ms ease';
+        setTimeout(() => toast.remove(), 200);
+      }, 3500);
+    }
+
+    // --- Generic Confirmation Modal System (CR-05) ---
+    function openModal(title, bodyHtml, confirmCallback, confirmLabel = 'Confirm') {
+      document.getElementById('generic-modal-title').innerText = title;
+      document.getElementById('generic-modal-body').innerHTML = bodyHtml;
+
+      const confirmBtn = document.getElementById('generic-modal-confirm-btn');
+      confirmBtn.innerText = confirmLabel;
+      confirmBtn.onclick = () => {
+        closeModal();
+        if (confirmCallback) confirmCallback();
+      };
+
+      document.getElementById('generic-modal-backdrop').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('generic-modal-backdrop').style.display = 'none';
+    }
+
+    // --- CUSTOM DROPDOWN ENGINE ---
+    function toggleCustomSelect(wrapperId) {
+      const target = document.getElementById(wrapperId);
+      const isOpen = target.classList.contains('open');
+
+      // Close all open dropdowns first
+      document.querySelectorAll('.custom-select-wrapper.open').forEach(el => {
+        if (el !== target) el.classList.remove('open');
+      });
+
+      target.classList.toggle('open', !isOpen);
+    }
+
+    function selectCustomOption(wrapperId, val, label) {
+      const wrapper = document.getElementById(wrapperId);
+      const triggerText = wrapper.querySelector('.trigger-text');
+      if (triggerText) triggerText.innerText = label;
+
+      wrapper.querySelectorAll('.custom-select-option').forEach(opt => {
+        const isMatch = opt.innerText.trim().startsWith(label);
+        opt.classList.toggle('selected', isMatch);
+        let check = opt.querySelector('.check-icon');
+        if (isMatch && !check) {
+          opt.insertAdjacentHTML('beforeend', '<span class="icon check-icon">check</span>');
+        } else if (!isMatch && check) {
+          check.remove();
+        }
+      });
+
+      wrapper.classList.remove('open');
+      wrapper.setAttribute('data-value', val);
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.custom-select-wrapper')) {
+        document.querySelectorAll('.custom-select-wrapper.open').forEach(el => el.classList.remove('open'));
+      }
+    });
+
+    // --- W102 POI Multi-Select Logic ---
+    const poiData = {
+      'POI-DANANG-0042': { name: 'Hội An Riverside Heritage Resort', tag: 'Hội An Riverside (POI-0042)', address: '188 Cua Dai, Hoi An', cat: 'Hotel' },
+      'POI-DANANG-0018': { name: 'Da Nang Coastal Suites', tag: 'Da Nang Coastal (POI-0018)', address: '72 Vo Nguyen Giap, Da Nang', cat: 'Hotel' },
+      'POI-HUE-0005': { name: 'Hue Imperial Palace Boutique', tag: 'Hue Imperial (POI-0005)', address: '15 Le Loi, Hue', cat: 'Hotel' }
+    };
+
+    function renderPoiTags() {
+      const container = document.getElementById('w102-poi-tags');
+      container.innerHTML = '';
+      state.w102SelectedPois.forEach(code => {
+        const item = poiData[code];
+        if (!item) return;
+        const tag = document.createElement('span');
+        tag.className = 'multiselect-tag';
+        tag.innerHTML = `
+          ${item.tag}
+          <button type="button" class="remove-btn" onclick="removePoiTag(event, '${code}')">×</button>
+        `;
+        container.appendChild(tag);
+      });
+      if (state.w102SelectedPois.length === 0) {
+        container.innerHTML = '<span style="color:#94A3B8; font-size:13px;">Select linked commercial POIs...</span>';
+      }
+    }
+
+    function togglePoiSelection(code, label) {
+      const idx = state.w102SelectedPois.indexOf(code);
+      if (idx > -1) {
+        state.w102SelectedPois.splice(idx, 1);
+      } else {
+        state.w102SelectedPois.push(code);
+      }
+
+      const card = document.querySelector(`.multiselect-option-card[data-code="${code}"]`);
+      if (card) card.classList.toggle('selected', state.w102SelectedPois.includes(code));
+
+      renderPoiTags();
+    }
+
+    function removePoiTag(e, code) {
+      e.stopPropagation();
+      const idx = state.w102SelectedPois.indexOf(code);
+      if (idx > -1) {
+        state.w102SelectedPois.splice(idx, 1);
+        const card = document.querySelector(`.multiselect-option-card[data-code="${code}"]`);
+        if (card) card.classList.remove('selected');
+        renderPoiTags();
+      }
+    }
+
+    function filterPoiOptions(keyword) {
+      const term = keyword.toLowerCase().trim();
+      document.querySelectorAll('#poi-options-list .multiselect-option-card').forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(term) ? 'flex' : 'none';
+      });
+    }
+
+    function handleCreateProviderSubmit(e) {
+      e.preventDefault();
+      if (state.w102SelectedPois.length === 0) {
+        triggerToast('Please select at least one linked commercial POI (MSG01).', 'error');
+        return;
+      }
+      triggerToast('Service provider account created successfully. Temporary credentials dispatched to user email (MSG201).', 'success');
+    }
+
+    // --- Web Screen Switching ---
+    function showWebScreen(screenId) {
+      document.getElementById('screen-w103').style.display = (screenId === 'w103') ? 'block' : 'none';
+      document.getElementById('screen-w104').style.display = (screenId === 'w104') ? 'block' : 'none';
+      document.getElementById('screen-w105').style.display = (screenId === 'w105') ? 'block' : 'none';
+
+      document.getElementById('nav-w103').classList.toggle('active', screenId === 'w103' || screenId === 'w104');
+      document.getElementById('nav-w105').classList.toggle('active', screenId === 'w105');
+
+      const crumb = document.getElementById('web-breadcrumb-text');
+      if (screenId === 'w103') crumb.innerText = 'Booking Requests';
+      if (screenId === 'w104') crumb.innerText = 'Request Details ' + (state.selectedRequestId ? state.bookingRequests.find(r=>r.id===state.selectedRequestId).code : '');
+      if (screenId === 'w105') crumb.innerText = 'Commission Statements';
+
+      if (screenId === 'w103') renderW103Table();
+      if (screenId === 'w105') renderW105Table();
+    }
+
+    // --- Render W103 Booking Requests Table ---
+    function renderW103Table() {
+      const tbody = document.getElementById('w103-table-body');
+      tbody.innerHTML = '';
+
+      // Count pending requests for sidebar badge
+      const pendingCount = state.bookingRequests.filter(r => r.status === 'Pending Confirmation').length;
+      const countBadge = document.getElementById('sidebar-pending-count');
+      if (countBadge) countBadge.innerText = pendingCount;
+
+      // Filtering
+      const statusSelect = document.getElementById('w103-status-select');
+      const selectedStatus = statusSelect ? statusSelect.getAttribute('data-value') || 'ALL' : 'ALL';
+      const fromDate = document.getElementById('w103-filter-from').value;
+      const toDate = document.getElementById('w103-filter-to').value;
+      const keyword = (document.getElementById('w103-filter-keyword').value || '').toLowerCase().trim();
+
+      let filtered = state.bookingRequests.filter(item => {
+        if (selectedStatus !== 'ALL' && item.status !== selectedStatus) return false;
+        if (keyword) {
+          const matchCode = item.code.toLowerCase().includes(keyword);
+          const matchName = item.travelerName.toLowerCase().includes(keyword);
+          const matchPhone = item.travelerPhone.includes(keyword);
+          if (!matchCode && !matchName && !matchPhone) return false;
+        }
+        return true;
+      });
+
+      // Sorting: Pending Confirmation first, then date ascending
+      filtered.sort((a, b) => {
+        if (a.status === 'Pending Confirmation' && b.status !== 'Pending Confirmation') return -1;
+        if (a.status !== 'Pending Confirmation' && b.status === 'Pending Confirmation') return 1;
+        return a.date.localeCompare(b.date);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" style="text-align: center; padding: 36px 16px; color: var(--color-ink-secondary);">
+              <span class="icon" style="font-size: 32px; color: #94A3B8; margin-bottom: 6px;">search_off</span>
+              <div style="font-weight: 600; color: var(--color-ink-primary);">No service booking requests match the specified criteria (MSG128).</div>
+              <div style="font-size: 12px; margin-top: 4px;">Try clearing filters or search keywords to view all reservations.</div>
+              <button class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="resetW103Filters()">Reset Filters</button>
+            </td>
+          </tr>
+        `;
+        document.getElementById('w103-pagination-text').innerText = 'Showing 0 - 0 of 0 requests';
+        return;
+      }
+
+      document.getElementById('w103-pagination-text').innerText = `Showing 1 - ${filtered.length} of ${filtered.length} requests`;
+
+      filtered.forEach(req => {
+        const tr = document.createElement('tr');
+
+        let badgeClass = 'badge-pending';
+        let badgeIcon = 'schedule';
+        if (req.status === 'Confirmed') { badgeClass = 'badge-confirmed'; badgeIcon = 'check_circle'; }
+        if (req.status === 'Completed') { badgeClass = 'badge-completed'; badgeIcon = 'verified'; }
+        if (req.status === 'No-show') { badgeClass = 'badge-noshow'; badgeIcon = 'person_off'; }
+        if (req.status === 'Rejected') { badgeClass = 'badge-rejected'; badgeIcon = 'cancel'; }
+        if (req.status === 'Cancelled') { badgeClass = 'badge-cancelled'; badgeIcon = 'block'; }
+
+        tr.innerHTML = `
+          <td><span class="mono-code">${req.code}</span></td>
+          <td><b>${req.serviceName}</b></td>
+          <td style="color:var(--color-ink-secondary);">${req.optionName}</td>
+          <td class="num-align" style="white-space:nowrap;">${req.date}</td>
+          <td class="num-align" style="white-space:nowrap;">${req.time}</td>
+          <td style="text-align: center;" class="num-align">${req.quantity}</td>
+          <td>
+            <div style="font-weight:600;">${req.travelerName}</div>
+            <div style="font-size:11px;color:var(--color-ink-secondary);" class="num-align">${req.travelerPhone}</div>
+          </td>
+          <td><span class="badge ${badgeClass}"><span class="icon" style="font-size:14px;">${badgeIcon}</span> ${req.status}</span></td>
+          <td class="num-align" style="font-size:11.5px;color:var(--color-ink-secondary);">${req.submittedAt}</td>
+          <td style="text-align: right;">
+            <button class="btn btn-secondary btn-sm" onclick="openW104Details('${req.id}')">
+              <span class="icon" style="font-size:15px;">visibility</span> View
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyW103Filters() {
+      triggerToast('Filter parameters applied.', 'info');
+      renderW103Table();
+    }
+
+    function resetW103Filters() {
+      selectCustomOption('w103-status-select', 'ALL', 'All Statuses');
+      document.getElementById('w103-filter-from').value = '';
+      document.getElementById('w103-filter-to').value = '';
+      document.getElementById('w103-filter-keyword').value = '';
+      renderW103Table();
+      triggerToast('Filters reset to default.', 'info');
+    }
+
+    // --- Open Screen W104: Request Details ---
+    function openW104Details(reqId) {
+      state.selectedRequestId = reqId;
+      const req = state.bookingRequests.find(r => r.id === reqId);
+      if (!req) return;
+
+      document.getElementById('w104-header-code').innerText = req.code;
+      document.getElementById('w104-service-name').innerText = req.serviceName;
+      document.getElementById('w104-option-name').innerText = req.optionName;
+      document.getElementById('w104-req-date').innerText = req.date;
+      document.getElementById('w104-req-time').innerText = req.time;
+      document.getElementById('w104-qty').innerText = req.quantity;
+      document.getElementById('w104-estimated-amt').innerText = req.estimatedAmt.toLocaleString('en-US') + ' VND';
+
+      document.getElementById('w104-traveler-name').innerText = req.travelerName;
+      document.getElementById('w104-traveler-phone').innerText = req.travelerPhone;
+      document.getElementById('w104-traveler-email').innerText = req.travelerEmail;
+      document.getElementById('w104-special-req').innerText = req.specialReq || 'None specified.';
+
+      const badge = document.getElementById('w104-header-badge');
+      badge.className = 'badge';
+      let icon = 'schedule';
+      if (req.status === 'Pending Confirmation') { badge.classList.add('badge-pending'); icon = 'schedule'; }
+      if (req.status === 'Confirmed') { badge.classList.add('badge-confirmed'); icon = 'check_circle'; }
+      if (req.status === 'Completed') { badge.classList.add('badge-completed'); icon = 'verified'; }
+      if (req.status === 'No-show') { badge.classList.add('badge-noshow'); icon = 'person_off'; }
+      if (req.status === 'Rejected') { badge.classList.add('badge-rejected'); icon = 'cancel'; }
+      if (req.status === 'Cancelled') { badge.classList.add('badge-cancelled'); icon = 'block'; }
+      badge.innerHTML = `<span class="icon" style="font-size:14px;">${icon}</span> ${req.status}`;
+
+      // Section visibility based on lifecycle state
+      const sectionB = document.getElementById('w104-section-b');
+      const sectionC = document.getElementById('w104-section-c');
+      const sectionReadonly = document.getElementById('w104-section-readonly');
+      const timerBox = document.getElementById('w104-timer-box');
+
+      sectionB.style.display = 'none';
+      sectionC.style.display = 'none';
+      sectionReadonly.style.display = 'none';
+      timerBox.style.display = 'none';
+
+      if (req.status === 'Pending Confirmation') {
+        sectionB.style.display = 'block';
+        timerBox.style.display = 'block';
+      } else if (req.status === 'Confirmed') {
+        // In prototype, req-03 has stay date in the past (10/11/2026), req-04 in future (25/12/2026)
+        if (req.id === 'req-03' || req.date.includes('10/11') || req.date.includes('02/11')) {
+          sectionC.style.display = 'block';
+        } else {
+          // Future confirmed booking
+          sectionReadonly.style.display = 'block';
+          document.getElementById('w104-final-badge').className = 'badge badge-confirmed';
+          document.getElementById('w104-final-badge').innerText = 'Confirmed';
+          document.getElementById('w104-final-actual').innerText = 'Stay date not arrived';
+          document.getElementById('w104-final-comm').innerText = 'Calculated after checkout';
+        }
+      } else if (req.status === 'Completed' || req.status === 'No-show' || req.status === 'Rejected') {
+        sectionReadonly.style.display = 'block';
+        document.getElementById('w104-final-badge').className = (req.status === 'Completed') ? 'badge badge-completed' : (req.status === 'No-show') ? 'badge badge-noshow' : 'badge badge-rejected';
+        document.getElementById('w104-final-badge').innerText = req.status;
+        document.getElementById('w104-final-actual').innerText = (req.status === 'Completed') ? req.actualAmt.toLocaleString('en-US') + ' VND' : '0 VND';
+        document.getElementById('w104-final-comm').innerText = (req.status === 'Completed') ? req.commissionAmt.toLocaleString('en-US') + ' VND' : '0 VND';
+      }
+
+      showWebScreen('w104');
+    }
+
+    function openConfirmModal() {
+      const req = state.bookingRequests.find(r => r.id === state.selectedRequestId);
+      openModal(
+        'Confirm Booking Request (CR-05)',
+        `Are you sure you want to confirm booking request <b>${req.code}</b> for guest <b>${req.travelerName}</b> on <b>${req.date} at ${req.time}</b>?<br><br><i>Please ensure physical room inventory has been reserved in your local hotel PMS.</i>`,
+        () => {
+          req.status = 'Confirmed';
+          triggerToast(`Booking ${req.code} confirmed successfully (MSG203).`, 'success');
+          openW104Details(req.id);
+        },
+        'Confirm Request'
+      );
+    }
+
+    function openRejectModal() {
+      const req = state.bookingRequests.find(r => r.id === state.selectedRequestId);
+      openModal(
+        'Reject Booking Request (UC-79)',
+        `Please state the mandatory reason for declining request <b>${req.code}</b>:<br><br>
+        <textarea id="modal-reject-reason" class="form-control" rows="3" placeholder="Enter reason (e.g. Property fully booked for requested dates)..."></textarea>
+        <span class="field-error-text" id="modal-reject-err">Rejection reason cannot be blank (MSG123).</span>`,
+        () => {
+          const reason = document.getElementById('modal-reject-reason').value.trim();
+          if (!reason) {
+            triggerToast('Rejection reason is mandatory (MSG123).', 'error');
+            return;
+          }
+          req.status = 'Rejected';
+          req.rejectionReason = reason;
+          triggerToast(`Booking request ${req.code} declined (MSG204).`, 'info');
+          openW104Details(req.id);
+        },
+        'Decline Booking'
+      );
+    }
+
+    function recalcCommissionPreview(val) {
+      const num = parseInt(val) || 0;
+      // Parameterized 10% policy preview
+      const comm = Math.round(num * 0.1);
+      document.getElementById('w104-comm-preview').value = comm.toLocaleString('en-US') + ' VND';
+    }
+
+    function submitOutcomeCompleted() {
+      const req = state.bookingRequests.find(r => r.id === state.selectedRequestId);
+      const actualInput = document.getElementById('w104-actual-input');
+      const val = parseInt(actualInput.value) || 0;
+
+      if (val <= 0) {
+        document.getElementById('err-actual').style.display = 'block';
+        triggerToast('Actual collected amount must be greater than zero (MSG143).', 'error');
+        return;
+      }
+      document.getElementById('err-actual').style.display = 'none';
+
+      req.status = 'Completed';
+      req.actualAmt = val;
+      req.commissionAmt = Math.round(val * 0.1);
+
+      triggerToast(`Stay marked as Completed. Revenue and commission successfully recorded (MSG206).`, 'success');
+      openW104Details(req.id);
+    }
+
+    function submitOutcomeNoShow() {
+      const req = state.bookingRequests.find(r => r.id === state.selectedRequestId);
+      openModal(
+        'Confirm Guest No-Show (UC-80)',
+        `Are you sure you want to mark request <b>${req.code}</b> as No-Show?<br><br><i>This will set the actual collected revenue to 0 VND and commission payable to 0 VND. This action cannot be reversed.</i>`,
+        () => {
+          req.status = 'No-show';
+          req.actualAmt = 0;
+          req.commissionAmt = 0;
+          triggerToast(`Request ${req.code} marked as No-Show (MSG206).`, 'info');
+          openW104Details(req.id);
+        },
+        'Mark No-Show'
+      );
+    }
+
+    // --- Render W105 Commission Statements Table ---
+    function renderW105Table() {
+      const tbody = document.getElementById('w105-statement-tbody');
+      tbody.innerHTML = '';
+
+      state.statements.forEach(stmt => {
+        const tr = document.createElement('tr');
+        if (stmt.id === state.selectedStatementId) tr.classList.add('row-active');
+
+        let badgeStyle = 'background:#EBF5FF; color:#1E40AF;';
+        if (stmt.status === 'Paid') badgeStyle = 'background:#E6F7F0; color:#065F46;';
+        if (stmt.status === 'Payment Reported') badgeStyle = 'background:#FEF3E2; color:#B45309;';
+
+        tr.innerHTML = `
+          <td>
+            <b>${stmt.periodName}</b><br>
+            <span style="font-size:11px;color:var(--color-ink-secondary);">${stmt.periodDates}</span>
+          </td>
+          <td style="text-align: right;" class="num-align">${stmt.completedCount} stays</td>
+          <td style="text-align: right;" class="num-align">${stmt.totalRevenue.toLocaleString('en-US')} VND</td>
+          <td style="text-align: right;" class="num-align"><b style="color:var(--color-teal-deep);">${stmt.commissionAmount.toLocaleString('en-US')} VND</b></td>
+          <td class="num-align">${stmt.dueDate}</td>
+          <td><span class="badge" style="${badgeStyle}">${stmt.status}</span></td>
+          <td style="text-align: right;">
+            <button class="btn btn-secondary btn-sm" onclick="selectStatement('${stmt.id}')">
+              <span class="icon" style="font-size:15px;">visibility</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      renderSelectedStatement();
+    }
+
+    function selectStatement(stmtId) {
+      state.selectedStatementId = stmtId;
+      renderW105Table();
+    }
+
+    function renderSelectedStatement() {
+      const stmt = state.statements.find(s => s.id === state.selectedStatementId) || state.statements[0];
+      if (!stmt) return;
+
+      document.getElementById('w105-detail-code').innerText = `Statement ${stmt.code}`;
+      document.getElementById('w105-detail-period').innerText = `Period: ${stmt.periodDates}`;
+      document.getElementById('w105-detail-count').innerText = `${stmt.completedCount} Completed Stays`;
+      document.getElementById('w105-detail-rev').innerText = stmt.totalRevenue.toLocaleString('en-US') + ' VND';
+      document.getElementById('w105-detail-comm').innerText = stmt.commissionAmount.toLocaleString('en-US') + ' VND';
+      document.getElementById('w105-transfer-remark').innerText = `TRIPMATE ${stmt.code}`;
+
+      const statusBadge = document.getElementById('w105-detail-status');
+      statusBadge.innerText = stmt.status;
+      if (stmt.status === 'Paid') {
+        statusBadge.style.background = '#E6F7F0';
+        statusBadge.style.color = '#065F46';
+      } else if (stmt.status === 'Payment Reported') {
+        statusBadge.style.background = '#FEF3E2';
+        statusBadge.style.color = '#B45309';
+      } else {
+        statusBadge.style.background = '#EBF5FF';
+        statusBadge.style.color = '#1E40AF';
+      }
+
+      const reportSection = document.getElementById('w105-report-section');
+      const reportedNotice = document.getElementById('w105-reported-notice');
+
+      if (stmt.status === 'Issued') {
+        reportSection.style.display = 'block';
+        reportedNotice.style.display = 'none';
+      } else {
+        reportSection.style.display = 'none';
+        reportedNotice.style.display = 'block';
+        document.getElementById('w105-confirmed-ref').innerText = stmt.bankReference || 'VCB-20261205-982341';
+      }
+    }
+
+    function reportCommissionPayment() {
+      const refInput = document.getElementById('w105-ref-input');
+      const val = refInput.value.trim();
+
+      if (!val) {
+        document.getElementById('err-w105-ref').style.display = 'block';
+        triggerToast('Bank transfer reference code is mandatory (MSG172).', 'error');
+        return;
+      }
+      document.getElementById('err-w105-ref').style.display = 'none';
+
+      const stmt = state.statements.find(s => s.id === state.selectedStatementId);
+      if (stmt) {
+        stmt.status = 'Payment Reported';
+        stmt.bankReference = val;
+        stmt.reportedAt = '13/11/2026 15:45';
+      }
+
+      triggerToast('Commission payment reported successfully. Awaiting TripMate Staff reconciliation (MSG208).', 'success');
+      renderW105Table();
+    }
+
+    // --- Staff Console Screen Switching (W102, W106) ---
+    function showStaffScreen(screenId) {
+      document.getElementById('staff-screen-w102').style.display = (screenId === 'w102') ? 'block' : 'none';
+      document.getElementById('staff-screen-w106').style.display = (screenId === 'w106') ? 'block' : 'none';
+
+      document.getElementById('staff-nav-w102').classList.toggle('active', screenId === 'w102');
+      document.getElementById('staff-nav-w106').classList.toggle('active', screenId === 'w106');
+
+      const crumb = document.getElementById('staff-breadcrumb-text');
+      if (screenId === 'w102') crumb.innerText = 'Create Service Provider Account';
+      if (screenId === 'w106') crumb.innerText = 'Commission Reconciliation';
+
+      if (screenId === 'w106') renderW106Table();
+    }
+
+    // --- Render Screen W106 Reconciliation Table ---
+    function renderW106Table() {
+      const tbody = document.getElementById('w106-table-body');
+      tbody.innerHTML = '';
+
+      const providerSelect = document.getElementById('w106-provider-select');
+      const selectedProvider = providerSelect ? providerSelect.getAttribute('data-value') || 'ALL' : 'ALL';
+      const statusSelect = document.getElementById('w106-status-select');
+      const selectedStatus = statusSelect ? statusSelect.getAttribute('data-value') || 'ALL' : 'ALL';
+      const periodSelect = document.getElementById('w106-period-select');
+      const selectedPeriod = periodSelect ? periodSelect.getAttribute('data-value') || 'ALL' : 'ALL';
+      const search = (document.getElementById('w106-filter-search').value || '').toLowerCase().trim();
+
+      const filtered = state.reconciliationRecords.filter(rec => {
+        if (selectedProvider !== 'ALL' && !rec.providerName.includes(selectedProvider)) return false;
+        if (selectedStatus !== 'ALL' && rec.status !== selectedStatus) return false;
+        if (selectedPeriod !== 'ALL' && !rec.period.includes(selectedPeriod)) return false;
+        if (search) {
+          const matchRef = rec.bankReference.toLowerCase().includes(search);
+          const matchProv = rec.providerName.toLowerCase().includes(search);
+          if (!matchRef && !matchProv) return false;
+        }
+        return true;
+      });
+
+      filtered.forEach(rec => {
+        const tr = document.createElement('tr');
+
+        let badgeStyle = 'background:#FEF3E2; color:#B45309;';
+        if (rec.status === 'Paid') badgeStyle = 'background:#E6F7F0; color:#065F46;';
+        if (rec.status === 'Issued') badgeStyle = 'background:#EBF5FF; color:#1E40AF;';
+
+        let actionBtn = `—`;
+        if (rec.status === 'Payment Reported') {
+          actionBtn = `
+            <button class="btn btn-primary btn-sm" onclick="openStaffReconcileModal('${rec.id}')">
+              <span class="icon" style="font-size:15px;">task_alt</span> Confirm Receipt
+            </button>
+          `;
+        } else if (rec.status === 'Paid') {
+          actionBtn = `<span style="font-size:11.5px;color:#065F46;font-weight:600;"><span class="icon" style="font-size:14px;">check_circle</span> Reconciled</span>`;
+        }
+
+        tr.innerHTML = `
+          <td>
+            <b>${rec.providerName}</b><br>
+            <span style="font-size:11px;color:var(--color-ink-secondary);">Code: ${rec.poiCode}</span>
+          </td>
+          <td>${rec.period}</td>
+          <td style="text-align: right;" class="num-align"><b style="color:var(--color-teal-deep);">${rec.commissionAmount.toLocaleString('en-US')} VND</b></td>
+          <td class="num-align">${rec.dueDate}</td>
+          <td><span class="badge" style="${badgeStyle}">${rec.status}</span></td>
+          <td><span class="mono-code">${rec.bankReference}</span></td>
+          <td class="num-align" style="font-size:11.5px;color:var(--color-ink-secondary);">${rec.reportedAt}</td>
+          <td style="text-align: right;">${actionBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyW106Filters() {
+      triggerToast('Reconciliation filters applied.', 'info');
+      renderW106Table();
+    }
+
+    function resetW106Filters() {
+      selectCustomOption('w106-provider-select', 'ALL', 'All Providers');
+      selectCustomOption('w106-period-select', 'ALL', 'All Periods');
+      selectCustomOption('w106-status-select', 'ALL', 'All Statuses');
+      document.getElementById('w106-filter-search').value = '';
+      renderW106Table();
+      triggerToast('Reconciliation filters reset.', 'info');
+    }
+
+    function openStaffReconcileModal(recId) {
+      const rec = state.reconciliationRecords.find(r => r.id === recId);
+      if (!rec) return;
+
+      openModal(
+        'Confirm Commission Receipt (UC-83 / CR-05)',
+        `Are you sure you want to confirm receipt of <b>${rec.commissionAmount.toLocaleString('en-US')} VND</b> from <b>${rec.providerName}</b> for <b>${rec.period}</b>?<br><br>
+        Transfer Reference: <span class="mono-code">${rec.bankReference}</span><br><br>
+        <i>Please ensure that funds have been credited to the company account before confirming. This action will update the statement status to Paid and record an audit log under BR-174.</i>`,
+        () => {
+          rec.status = 'Paid';
+          triggerToast(`Commission receipt confirmed. Statement marked as Paid (MSG209).`, 'success');
+          renderW106Table();
+        },
+        'Confirm Receipt & Mark Paid'
+      );
+    }
+
+    // --- Mobile Traveler Interactions (M74 & M75) ---
+    function openM75Details(hotelKey) {
+      document.getElementById('m74-screen').style.display = 'none';
+      document.getElementById('m75-screen').style.display = 'flex';
+      document.getElementById('m75-state-a').style.display = 'block';
+      document.getElementById('m75-state-outcome').style.display = 'none';
+    }
+
+    function backToM74() {
+      document.getElementById('m75-screen').style.display = 'none';
+      document.getElementById('m74-screen').style.display = 'flex';
+    }
+
+    function selectRoomOption(name, price) {
+      state.selectedRoom = { name, price };
+      document.getElementById('form-room-option').value = name;
+      document.getElementById('m75-bottom-est').innerText = price.toLocaleString('vi-VN') + ' ₫';
+    }
+
+    function openBookingSheet() {
+      document.getElementById('m75-sheet-backdrop').style.display = 'flex';
+    }
+
+    function closeBookingSheet() {
+      document.getElementById('m75-sheet-backdrop').style.display = 'none';
+    }
+
+    function handleBookingSubmit(e) {
+      e.preventDefault();
+      closeBookingSheet();
+
+      const newReq = {
+        id: 'req-' + Date.now(),
+        code: 'HBR-20261113-099',
+        serviceName: 'Hội An Riverside Heritage Resort',
+        optionName: state.selectedRoom.name,
+        date: '15/12/2026',
+        time: '14:00',
+        quantity: '1 Room',
+        travelerName: 'Nguyễn Văn An',
+        travelerPhone: '0912 345 678',
+        travelerEmail: 'an.nguyen@example.com',
+        specialReq: 'Traveling with infant.',
+        estimatedAmt: state.selectedRoom.price,
+        actualAmt: state.selectedRoom.price,
+        commissionAmt: Math.round(state.selectedRoom.price * 0.1),
+        status: 'Pending Confirmation',
+        submittedAt: '13/11/2026 15:30',
+        rejectionReason: ''
+      };
+
+      state.bookingRequests.unshift(newReq);
+      triggerToast('Đã gửi yêu cầu đặt phòng. Khách sạn sẽ phản hồi sớm nhất.', 'success');
+      renderM75Outcome(newReq);
+    }
+
+    function renderM75Outcome(req) {
+      document.getElementById('m75-state-a').style.display = 'none';
+      const outcomeView = document.getElementById('m75-state-outcome');
+      outcomeView.style.display = 'block';
+
+      document.getElementById('outcome-code').innerText = req.code;
+      document.getElementById('outcome-hotel').innerText = req.serviceName;
+      document.getElementById('outcome-option').innerText = req.optionName + ' (' + req.quantity + ')';
+      document.getElementById('outcome-date').innerText = req.date + ' lúc ' + req.time;
+      document.getElementById('outcome-amount').innerText = req.estimatedAmt.toLocaleString('vi-VN') + ' ₫';
+
+      const badge = document.getElementById('outcome-badge');
+      const rejectionBox = document.getElementById('outcome-rejection-box');
+
+      if (req.status === 'Pending Confirmation') {
+        badge.className = 'badge badge-pending';
+        badge.innerText = 'Chờ xác nhận';
+        rejectionBox.style.display = 'none';
+      } else if (req.status === 'Confirmed') {
+        badge.className = 'badge badge-confirmed';
+        badge.innerText = 'Đã xác nhận';
+        rejectionBox.style.display = 'none';
+      } else if (req.status === 'Rejected') {
+        badge.className = 'badge badge-rejected';
+        badge.innerText = 'Đã từ chối';
+        rejectionBox.style.display = 'block';
+        document.getElementById('outcome-rejection-reason').innerText = req.rejectionReason || 'Cơ sở đã kín phòng.';
+      }
+    }
+
+    function handleM74Search(query) {
+      // In prototype, simple filtering
+    }
+
+    // --- Reset Prototype Data to Baseline ---
+    function resetPrototypeData() {
+      state.bookingRequests[0].status = 'Pending Confirmation';
+      state.bookingRequests[1].status = 'Pending Confirmation';
+      state.bookingRequests[2].status = 'Confirmed';
+      state.statements[0].status = 'Issued';
+      state.statements[0].bankReference = '';
+      state.reconciliationRecords[0].status = 'Payment Reported';
+
+      triggerToast('Prototype data reset to initial baseline state.', 'info');
+      renderW103Table();
+      renderW105Table();
+      renderW106Table();
+    }
+
+    // --- Initial Boot ---
+    renderW103Table();
+    renderW105Table();
+    renderW106Table();
+    renderPoiTags();
+  </script>
+</body>
+</html>
