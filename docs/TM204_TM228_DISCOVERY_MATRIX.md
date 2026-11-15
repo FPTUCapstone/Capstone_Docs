@@ -44,6 +44,8 @@ Section 3.9.1.3 also repeats BR-168 and BR-176 and states:
 
 Jira TM-228's Staff/Administrator split agrees with these rules. Its acceptance text omits Service Provider, while BR-168 explicitly includes it. The current original SRS controls.
 
+The actor lines of §§3.9.1.2 and 3.9.1.3 also abbreviate the Staff target list to Traveler and Tour Operator. The body of both sections explicitly invokes BR-168. The identical definition in §5.1 includes Service Provider, and §3.9.1.3 explicitly covers an automatic Service Provider lock under BR-200. This delivery follows those explicit rules. For operational access, §3.9.3.2 lists Administrator and Staff for POI updates, while §§3.9.3.1 and 3.9.3.3 assign creation to Staff and removal to Administrator, respectively.
+
 ## Initial execution matrix
 
 | Task | SRS reference | Existing implementation | Missing work / classification | Repository | Dependencies | Proposed action |
