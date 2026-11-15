@@ -1,8 +1,8 @@
-# Proposed TM-212 scope correction
+# Approved TM-212 scope correction
 
-**Decision requested from the Owner. This proposal has no effect until approved.**
+**Approved and recorded on 2026-11-15.** The Owner approved removing the Tour Favorite dependency. The approved title and scope are reflected in Jira. The original Report 3 and the implementation scope of the underlying use cases were preserved.
 
-Proposed title: **Reconcile Tour Recommendation, Booking and Payment dependencies**
+Jira title: **Reconcile Tour Recommendation, Booking and Payment dependencies**
 
 Replace “Trace Favorite to TM-74, Booking to TM-73, and Recommendation/Match to TM-71” with:
 
@@ -10,4 +10,4 @@ Replace “Trace Favorite to TM-74, Booking to TM-73, and Recommendation/Match t
 
 Retain the existing checks on typed components, usable callbacks, and the absence of simulated or unavailable actions. Apply the owning-ticket criterion only to supported controls. Keep the global navigation question separate from the capability mapping and preserve the existing owners and contracts.
 
-Accept the correction when the sprint plan and Jira references agree with §§3.5.2, 3.5.4 and 3.5.5 of the [official original Report 3](https://docs.google.com/document/d/1VwPkqRyC6ZlbXBQC0ztdektt0vAyE3qt/edit). [TM-212](https://tripmate-capstone.atlassian.net/browse/TM-212) remains open pending the Owner’s decision.
+The Jira scope correction is **IMPLEMENTATION_COMPLETE**. [TM-212](https://tripmate-capstone.atlassian.net/browse/TM-212) retains its In Progress status for its other acceptance criteria. The mappings agree with §§3.5.2, 3.5.4 and 3.5.5 of the [official original Report 3](https://docs.google.com/document/d/1VwPkqRyC6ZlbXBQC0ztdektt0vAyE3qt/edit).
