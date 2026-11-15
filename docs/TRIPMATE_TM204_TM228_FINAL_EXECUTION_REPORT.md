@@ -28,6 +28,14 @@ Apply the additive SQL migration before deploying the API. The account API filte
 
 The existing Web route directory and Tour moderation queue have limited production integration. The landing proxy is gated to Staff. No landing management or route CRUD controller was found on the audited Backend branch. Those gaps and any additional role or session regression results must be resolved or documented before Jira completion.
 
+| Operation | SRS role | Delivery evidence |
+|---|---|---|
+| Account directory, lock and unlock | Staff for Traveler, Tour Operator and Service Provider. Administrator for Staff. | [API contract](../api/contracts/staff-admin-user-accounts.md) |
+| Operator application, tour decision and active-trip monitoring | Staff, §§3.9.2, 3.9.6, 3.9.7 | Backend rejects Administrator at these entry points. Web direct navigation uses the same role. |
+| POI and routes | Staff creates POIs and owns routine routes. Staff and Administrator can update POIs. Administrator removes POIs. | Existing POI authorization was retained where already aligned. Web route screens require Staff. Backend route CRUD remains absent. |
+| Booking monitoring and landing content | Staff, §§3.9.8 and 3.9.10 | Existing Booking gate retained. Web landing gate tightened. Backend landing management contract remains absent. |
+| Algorithm configuration, reports and audit log | Administrator, §§3.9.5, 3.9.11 and 3.9.12 | Existing Administrator policies retained. |
+
 ## Verification
 
 | Gate | Result |
@@ -37,9 +45,11 @@ The existing Web route directory and Tour moderation queue have limited producti
 | Backend focused Detail and supporting unit tests | 77 passed, zero skipped |
 | Backend account/session/OpenAPI focused API checks | 20 passed, zero skipped before subsequent operational changes |
 | Backend account, Staff operations and OpenAPI focused integration | 28 passed, zero skipped |
+| Backend SQL-backed authorization regression and persisted JWT fixtures | 54 passed, zero skipped |
 | Web clean baseline | 93 Node tests and 4,053 Vitest tests passed, 5 existing skips |
 | Web thumbnail focused tests | 53 passed after 2 new regressions failed on the original implementation |
 | Web full suite with account integration | 94 Node tests and 4,055 Vitest tests passed, 5 skips |
+| Web moderation form | Two additional tests passed for required reasons and API denials |
 | Web typecheck, ESLint and production build | Passed. Production build needed network access for the existing Google Fonts dependency. |
 | Mobile `flutter test` | 2,609 passed, 4 skips |
 | Mobile `flutter analyze` | No issues |
