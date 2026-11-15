@@ -22,6 +22,8 @@ Execution date 2026-11-15. Source hashes, verbatim SRS excerpts and the initial 
 
 Product should confirm whether to remove the Tour Favorite dependency from TM-212 or approve it under a dedicated requirement and owner. TM-74 remains the Payment dependency.
 
+The [proposed Jira wording](TM212_OWNER_DECISION_PROPOSAL.md) is submitted for Owner review. The Jira title, description and requirements remain as recorded until explicit approval.
+
 ## TM-228 release dependencies
 
 Apply the additive SQL migration before deploying the API. The account API filters by actor role before pagination or returning details. It preserves previous status for manual locks and invalidates signed access sessions and refresh tokens. An older locked Service Provider whose commission status cannot be verified remains locked pending integration with the authoritative provider workflow.
@@ -35,6 +37,18 @@ The existing Web route directory and Tour moderation queue have limited producti
 | POI and routes | Staff creates POIs and owns routine routes. Staff and Administrator can update POIs. Administrator removes POIs. | Existing POI authorization was retained where already aligned. Web route screens require Staff. Backend route CRUD remains absent. |
 | Booking monitoring and landing content | Staff, §§3.9.8 and 3.9.10 | Existing Booking gate retained. Web landing gate tightened. Backend landing management contract remains absent. |
 | Algorithm configuration, reports and audit log | Administrator, §§3.9.5, 3.9.11 and 3.9.12 | Existing Administrator policies retained. |
+
+### Follow-up ownership audit
+
+The fresh export of the official original Report 3 has the same SHA-256 as the source in the discovery matrix. The latest Jira descriptions and active branches establish these dependencies:
+
+| Gap | Existing owner and evidence | TM-228 integration consequence |
+|---|---|---|
+| Route create/list and update | [TM-101](https://tripmate-capstone.atlassian.net/browse/TM-101) has [Backend #167](https://github.com/FPTUCapstone/Capstone_BE/pull/167) with a Staff-only route controller and create/list/options. [TM-102](https://tripmate-capstone.atlassian.net/browse/TM-102) owns update. | Verify the Staff gate when the owner branches land. Leave route endpoints with those tickets. |
+| Landing CMS | [TM-112](https://tripmate-capstone.atlassian.net/browse/TM-112) is marked Done, but [Backend #110](https://github.com/FPTUCapstone/Capstone_BE/pull/110) is open. Its controller currently admits Staff and Administrator, and the Jira description names Administrator. Report 3 §3.9.10 assigns the operation to Staff. | Align the owner PR and reconcile the outdated Jira role before integration. The Web proxy on #166 requires Staff. |
+| Provider onboarding versus financial obligations | [TM-225](https://tripmate-capstone.atlassian.net/browse/TM-225) has [Backend #169](https://github.com/FPTUCapstone/Capstone_BE/pull/169) for onboarding and service requests. [TM-226](https://tripmate-capstone.atlassian.net/browse/TM-226) owns statements, receipt confirmation and BR-200 automatic locks. | The account endpoint continues to deny release when the required settlement cannot be verified. Verify the authoritative paid-state integration once TM-226 is available. |
+
+Web and Docs may be reviewed independently. Final integration for account administration requires the Backend migration and API first, followed by the Web deployment. Completing the remaining TM-228 acceptance criteria also requires the owner integrations listed above.
 
 ## Verification
 
