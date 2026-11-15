@@ -61,6 +61,7 @@ Web and Docs may be reviewed independently. Final integration for account admini
 | Backend account, Staff operations and OpenAPI focused integration | 28 passed, zero skipped |
 | Backend SQL-backed authorization regression and persisted JWT fixtures | 54 passed, zero skipped |
 | Backend SQL Server simultaneous lock attempts | Passed. One request succeeds and the other returns 409. |
+| Follow-up account access audit | 15 targeted API tests passed and the Service Provider SQL test passed separately. Missing and inaccessible accounts produce identical 404s and equivalent denial events without target identifiers. Changed-file formatting passed. |
 | Web clean baseline | 93 Node tests and 4,053 Vitest tests passed, 5 existing skips |
 | Web thumbnail focused tests | 53 passed after 2 new regressions failed on the original implementation |
 | Web full suite with account integration | 94 Node tests and 4,055 Vitest tests passed, 5 skips |
@@ -75,9 +76,11 @@ Human review should verify migration ordering, active session revocation, operat
 
 | Repository | Branch or baseline | Draft PR and CI |
 |---|---|---|
-| Backend | `feature/tm204-tm228-sequential-delivery` at `bdeeeecf` | [Draft #171](https://github.com/FPTUCapstone/Capstone_BE/pull/171), [CI pending at report update](https://github.com/FPTUCapstone/Capstone_BE/pull/171/checks) |
-| Web | `feature/tm204-tm228-sequential-delivery` at `8a4abcd` | [Draft #166](https://github.com/FPTUCapstone/Capstone_FE/pull/166), [CI and Vercel passed](https://github.com/FPTUCapstone/Capstone_FE/pull/166/checks) |
+| Backend | `feature/tm204-tm228-sequential-delivery` at `2700ad2c` | [Draft #171](https://github.com/FPTUCapstone/Capstone_BE/pull/171), no conflicts, one approval required, [current CI pending](https://github.com/FPTUCapstone/Capstone_BE/pull/171/checks) |
+| Web | `feature/tm204-tm228-sequential-delivery` at `8a4abcd` | [PR #166](https://github.com/FPTUCapstone/Capstone_FE/pull/166) ready, no conflicts, `sekiro171` requested, [CI and Vercel passed](https://github.com/FPTUCapstone/Capstone_FE/pull/166/checks) |
 | Mobile | develop `c7eef0fbc33e3d7e52b028fd28ddb6ba1212a38b` | Existing implementation, no new diff |
-| Docs | `feature/tm204-tm228-sequential-delivery` | [Draft #15](https://github.com/FPTUCapstone/Capstone_Docs/pull/15) |
+| Docs | `feature/tm204-tm228-sequential-delivery` | [PR #15](https://github.com/FPTUCapstone/Capstone_Docs/pull/15) ready, clean, local path and whitespace checks passed, no required CI reported, `sekiro171` requested |
 
-Jira evidence was posted to TM-208 through TM-212 and TM-228. The Draft PRs require human review. TM-212 remains open for the explicit Owner decision. TM-228 remains open for implementation dependencies.
+[Backend run 43712557294](https://github.com/FPTUCapstone/Capstone_BE/actions/runs/43712557294) was verified against `bdeeeecf8aa38129c049e6a13dcff993a260c432`. It was queued behind the preceding SQL run and GitHub superseded it when the account audit fix was pushed. It recorded no test result. The current Backend head has its own run.
+
+At follow-up audit, all three PRs had zero unresolved review threads. Web and Docs are **READY_FOR_HUMAN_REVIEW**. Backend remains Draft pending CI and review, and full TM-228 is **IMPLEMENTATION_INCOMPLETE** because of the owner integrations above. TM-212 remains open for explicit Owner approval. Evidence is recorded in Jira.
