@@ -46,6 +46,7 @@ The existing Web route directory and Tour moderation queue have limited producti
 | Backend account/session/OpenAPI focused API checks | 20 passed, zero skipped before subsequent operational changes |
 | Backend account, Staff operations and OpenAPI focused integration | 28 passed, zero skipped |
 | Backend SQL-backed authorization regression and persisted JWT fixtures | 54 passed, zero skipped |
+| Backend SQL Server simultaneous lock attempts | Passed. One request succeeds and the other returns 409. |
 | Web clean baseline | 93 Node tests and 4,053 Vitest tests passed, 5 existing skips |
 | Web thumbnail focused tests | 53 passed after 2 new regressions failed on the original implementation |
 | Web full suite with account integration | 94 Node tests and 4,055 Vitest tests passed, 5 skips |
@@ -60,8 +61,8 @@ Human review should verify migration ordering, active session revocation, operat
 
 | Repository | Branch or baseline | Draft PR and CI |
 |---|---|---|
-| Backend | `feature/tm204-tm228-sequential-delivery` | [Draft #171](https://github.com/FPTUCapstone/Capstone_BE/pull/171), [checks](https://github.com/FPTUCapstone/Capstone_BE/pull/171/checks) |
-| Web | `feature/tm204-tm228-sequential-delivery` | [Draft #166](https://github.com/FPTUCapstone/Capstone_FE/pull/166), [checks](https://github.com/FPTUCapstone/Capstone_FE/pull/166/checks) |
+| Backend | `feature/tm204-tm228-sequential-delivery` at `bdeeeecf` | [Draft #171](https://github.com/FPTUCapstone/Capstone_BE/pull/171), [CI pending at report update](https://github.com/FPTUCapstone/Capstone_BE/pull/171/checks) |
+| Web | `feature/tm204-tm228-sequential-delivery` at `8a4abcd` | [Draft #166](https://github.com/FPTUCapstone/Capstone_FE/pull/166), [CI and Vercel passed](https://github.com/FPTUCapstone/Capstone_FE/pull/166/checks) |
 | Mobile | develop `c7eef0fbc33e3d7e52b028fd28ddb6ba1212a38b` | Existing implementation, no new diff |
 | Docs | `feature/tm204-tm228-sequential-delivery` | [Draft #15](https://github.com/FPTUCapstone/Capstone_Docs/pull/15) |
 
