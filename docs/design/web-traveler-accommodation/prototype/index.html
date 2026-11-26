@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TripMate Web — Luồng Lưu trú UC-31 (Traveler & Hotel Operator)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400..600,0..1,-25..0" />
+  <style>
+    /* ==========================================================================
+       TRIPMATE COASTAL HERITAGE — TRAVELER WEB & HOTEL OPERATOR (PROVIDER WEB)
+       Aligned with Capstone_FE (PublicNavigation, ViewSuggestedItineraryPage,
+       CreateSchedulingRequestForm, ProviderWorkspaceShell)
+       ========================================================================== */
+    :root {
+      --ch-canvas: #F7F5EF;
+      --ch-surface: #FFFFFF;
+      --ch-surface-warm: #FBF9F4;
+      --ch-surface-soft: #F2F0E9;
+
+      --ch-primary: #174B4A;
+      --ch-primary-hover: #103B39;
+      --ch-soft-accent: #E8F0EA;
+      --ch-teal-border: #C2D6CC;
+
+      --ch-accent: #B96D4C;
+      --ch-accent-text: #995436;
+      --ch-accent-soft: #FDF2EC;
+      --ch-accent-border: #EECAB7;
+
+      --ch-ink: #1C2928;
+      --ch-secondary: #5B6E69;
+      --ch-muted: #7C8E89;
+
+      --ch-border: #DCE2DD;
+      --ch-border-strong: #BFC9C3;
+
+      /* Provider Dark Coastal Sidebar (Synced with ProviderWorkspaceShell.tsx) */
+      --pv-sidebar-top: #172B29;
+      --pv-sidebar-bot: #122422;
+      --pv-accent-bar: #D98A66;
+
+      /* Status Tokens (WCAG AA+ dual-encoded) */
+      --st-sent-bg: #FEF3E2;
+      --st-sent-text: #92400E;
+      --st-sent-border: #FDE68A;
+
+      --st-responded-bg: #E6F7F0;
+      --st-responded-text: #065F46;
+      --st-responded-border: #A7F3D0;
+
+      --st-rejected-bg: #FDECEF;
+      --st-rejected-text: #991B1B;
+      --st-rejected-accent: #E02D4D;
+      --st-rejected-border: #FECDD3;
+
+      --st-closed-bg: #EFF2F0;
+      --st-closed-text: #475955;
+      --st-closed-border: #CFD8D4;
+
+      --font-display: 'Bricolage Grotesque', 'Manrope', -apple-system, sans-serif;
+      --font-ui: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, monospace;
+
+      --shadow-card: 0 4px 20px -2px rgba(0, 21, 42, 0.045);
+      --shadow-subtle: 0 1px 2px rgba(16, 59, 57, 0.05);
+      --shadow-float: 0 18px 44px -12px rgba(16, 59, 57, 0.24);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-ui);
+      background-color: var(--ch-canvas);
+      color: var(--ch-ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .ms {
+      font-family: 'Material Symbols Outlined';
+      font-weight: 500;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .ms.filled { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20; }
+    .ms.sm { font-size: 17px; }
+    .ms.xs { font-size: 14px; }
+    .ms.lg { font-size: 24px; }
+    .tnum { font-variant-numeric: tabular-nums; }
+    .mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
+
+    /* ==========================================================================
+       TRAVELER WEB HEADER (Matches Capstone_FE PublicNavigation)
+       ========================================================================== */
+    .tm-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--ch-border);
+    }
+    .tm-header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .tm-brand { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0; }
+    .tm-brand-mark {
+      width: 34px; height: 34px; border-radius: 10px; background: var(--ch-primary);
+      color: #FFFFFF; font-family: var(--font-display); font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; justify-content: center; letter-spacing: -0.03em;
+    }
+    .tm-brand-name { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--ch-ink); letter-spacing: -0.025em; }
+
+    .tm-nav {
+      display: flex; align-items: center; gap: 3px;
+      background: var(--ch-surface-warm); border: 1px solid var(--ch-border);
+      padding: 4px; border-radius: 999px;
+    }
+    .tm-nav-link {
+      border: none; background: transparent; color: var(--ch-secondary);
+      font-family: var(--font-ui); font-size: 12.5px; font-weight: 600;
+      padding: 7px 13px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 5px;
+      transition: background 140ms ease, color 140ms ease;
+    }
+    .tm-nav-link:hover { color: var(--ch-primary); background: rgba(23, 75, 74, 0.05); }
+    .tm-nav-link.active { background: var(--ch-primary); color: #FFFFFF; font-weight: 700; }
+    .nav-badge {
+      font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 999px;
+      background: var(--ch-accent); color: #FFFFFF;
+    }
+    .tm-nav-link.active .nav-badge { background: rgba(255,255,255,0.22); }
+
+    .tm-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .tm-icon-btn {
+      width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--ch-border);
+      background: #FFFFFF; color: var(--ch-secondary);
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative;
+    }
+    .tm-icon-btn:hover { border-color: var(--ch-primary); color: var(--ch-primary); }
+    .tm-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ch-accent); position: absolute; top: 7px; right: 8px; }
+    .tm-profile-pill {
+      display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 11px;
+      border: 1px solid #B2D6C4; background: var(--ch-soft-accent); color: var(--ch-primary);
+      font-size: 12.5px; font-weight: 700; cursor: pointer;
+    }
+    .tm-burger {
+      display: none; width: 38px; height: 38px; border-radius: 10px;
+      border: 1px solid var(--ch-border); background: #FFFFFF; color: var(--ch-ink);
+      align-items: center; justify-content: center; cursor: pointer;
+    }
+    .mobile-drawer { display: none; background: #FFFFFF; border-bottom: 1px solid var(--ch-border); padding: 12px 16px 16px; }
+    .mobile-drawer.open { display: block; }
+    .mobile-drawer-links { display: flex; flex-direction: column; gap: 6px; }
+    .mobile-drawer-links button {
+      text-align: left; border: 1px solid transparent; background: var(--ch-surface-warm);
+      padding: 10px 12px; border-radius: 10px; font-family: var(--font-ui); font-size: 13.5px; font-weight: 700;
+      color: var(--ch-ink); cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    }
+    .mobile-drawer-links button.active { background: var(--ch-soft-accent); border-color: var(--ch-teal-border); color: var(--ch-primary); }
+
+    /* ==========================================================================
+       PROVIDER WEB SHELL (Mirrors ProviderWorkspaceShell.tsx — Hotel Operator)
+       ========================================================================== */
+    .pv-shell { display: flex; min-height: 100vh; background: var(--ch-canvas); }
+    .pv-sidebar {
+      width: 260px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+      background: linear-gradient(180deg, var(--pv-sidebar-top) 0%, var(--pv-sidebar-bot) 100%);
+      color: #F7F5EF; border-right: 1px solid #0E1F1D;
+      display: flex; flex-direction: column; z-index: 30;
+    }
+    .pv-sb-brand {
+      height: 64px; padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .pv-role-tag {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 3px 7px; border-radius: 6px;
+      border: 1px solid rgba(185, 109, 76, 0.5); background: rgba(185, 109, 76, 0.22); color: #F4CBB8;
+      white-space: nowrap;
+    }
+    .pv-sb-nav { flex: 1; padding: 18px 12px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+    .pv-sb-section { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #7D9992; padding: 0 12px; margin-bottom: 6px; }
+    .pv-sb-link {
+      width: 100%; border: none; background: transparent; color: #B9CCC7;
+      font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+      padding: 10px 12px; border-radius: 11px; cursor: pointer;
+      display: flex; align-items: center; gap: 10px; position: relative; text-align: left;
+      transition: background 140ms ease, color 140ms ease;
+    }
+    .pv-sb-link:hover { background: rgba(255,255,255,0.08); color: #FFFFFF; }
+    .pv-sb-link.active { background: var(--ch-primary); color: #FFFFFF; font-weight: 700; }
+    .pv-sb-link.active::before {
+      content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+      width: 4px; border-radius: 0 4px 4px 0; background: var(--pv-accent-bar);
+    }
+    .pv-sb-link .ms { color: #8FA9A3; }
+    .pv-sb-link.active .ms { color: #F4CBB8; }
+    .pv-sb-foot { border-top: 1px solid rgba(255,255,255,0.1); padding: 12px; }
+    .pv-account-box {
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05);
+      border-radius: 12px; padding: 10px 12px;
+    }
+    .pv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .pv-topbar {
+      min-height: 64px; background: rgba(255,255,255,0.95); border-bottom: 1px solid var(--ch-border);
+      padding: 10px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      position: sticky; top: 0; z-index: 25; flex-wrap: wrap;
+    }
+    .pv-mobile-bar {
+      display: none;
+      background: linear-gradient(90deg, var(--pv-sidebar-top) 0%, var(--pv-sidebar-bot) 100%);
+      color: #F7F5EF; padding: 10px 14px;
+      align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .pv-mobile-tabs {
+      display: none;
+      background: #FFFFFF; border-bottom: 1px solid var(--ch-border);
+      padding: 8px 14px; gap: 8px; overflow-x: auto;
+    }
+    .pv-mobile-tab {
+      border: 1px solid var(--ch-border); background: var(--ch-surface-warm); color: var(--ch-secondary);
+      font-family: var(--font-ui); font-size: 12.5px; font-weight: 700;
+      padding: 7px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .pv-mobile-tab.active {
+      background: var(--ch-primary); border-color: var(--ch-primary); color: #FFFFFF;
+    }
+    .pv-content { max-width: 1180px; width: 100%; margin: 0 auto; padding: 24px 28px 64px; }
+
+    /* ==========================================================================
+       SHARED COMPONENTS
+       ========================================================================== */
+    .page-container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 68px; }
+    .card { background: var(--ch-surface); border: 1px solid var(--ch-border); border-radius: 16px; box-shadow: var(--shadow-card); }
+    .card-pad { padding: 20px 22px; }
+
+    .eyebrow { font-size: 12px; font-weight: 700; color: var(--ch-accent-text); margin-bottom: 4px; display: inline-flex; align-items: center; gap: 6px; }
+    .page-h1 { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--ch-ink); line-height: 1.2; letter-spacing: -0.025em; }
+    .page-sub { font-size: 13.5px; color: var(--ch-secondary); line-height: 1.5; margin-top: 6px; max-width: 720px; }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px;
+      border-radius: 999px; font-size: 11.5px; font-weight: 700; line-height: 1.25;
+      white-space: nowrap; border: 1px solid transparent;
+    }
+    .pill-sent { background: var(--st-sent-bg); color: var(--st-sent-text); border-color: var(--st-sent-border); }
+    .pill-responded, .pill-open { background: var(--st-responded-bg); color: var(--st-responded-text); border-color: var(--st-responded-border); }
+    .pill-rejected { background: var(--st-rejected-bg); color: var(--st-rejected-text); border-color: var(--st-rejected-border); }
+    .pill-closed { background: var(--st-closed-bg); color: var(--st-closed-text); border-color: var(--st-closed-border); }
+    .pill-teal { background: var(--ch-soft-accent); color: var(--ch-primary); border-color: var(--ch-teal-border); }
+    .pill-copper { background: var(--ch-accent-soft); color: var(--ch-accent-text); border-color: var(--ch-accent-border); }
+    .pill-neutral { background: var(--ch-surface-warm); color: var(--ch-secondary); border-color: var(--ch-border); }
+
+    .btn {
+      height: 41px; padding: 0 16px; border-radius: 11px; font-family: var(--font-ui);
+      font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+      gap: 7px; cursor: pointer; border: 1px solid transparent; white-space: nowrap;
+      transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    }
+    .btn-primary { background: var(--ch-primary); color: #FFFFFF; }
+    .btn-primary:hover:not(:disabled) { background: var(--ch-primary-hover); }
+    .btn-primary:disabled { background: #CFD7D3; color: #677772; cursor: not-allowed; }
+    .btn-secondary { background: #FFFFFF; color: var(--ch-ink); border-color: var(--ch-border-strong); }
+    .btn-secondary:hover:not(:disabled) { border-color: var(--ch-primary); color: var(--ch-primary); background: var(--ch-surface-warm); }
+    .btn-teal-soft { background: var(--ch-soft-accent); color: var(--ch-primary); border-color: var(--ch-teal-border); }
+    .btn-teal-soft:hover { background: #DAE8DF; border-color: var(--ch-primary); }
+    .btn-copper-soft { background: var(--ch-accent-soft); color: var(--ch-accent-text); border-color: var(--ch-accent-border); }
+    .btn-copper-soft:hover { background: #FBE6D9; border-color: var(--ch-accent); }
+    .btn-danger-outline { background: #FFFFFF; color: var(--st-rejected-text); border-color: var(--st-rejected-border); }
+    .btn-danger-outline:hover { background: var(--st-rejected-bg); }
+    .btn-sm { height: 35px; padding: 0 12px; font-size: 12.5px; border-radius: 9px; }
+    .btn-xs { height: 30px; padding: 0 10px; font-size: 11.5px; border-radius: 8px; }
+    .btn-full { width: 100%; }
+
+    .direct-notice {
+      background: var(--ch-accent-soft); border: 1px solid var(--ch-accent-border);
+      border-radius: 12px; padding: 11px 13px; display: flex; align-items: flex-start; gap: 9px;
+      font-size: 12.5px; line-height: 1.5; color: var(--ch-ink);
+    }
+    .direct-notice .ms { color: var(--ch-accent-text); margin-top: 1px; }
+    .direct-notice strong { color: var(--ch-accent-text); }
+
+    .closed-notice {
+      background: var(--st-closed-bg); border: 1px solid var(--st-closed-border);
+      border-radius: 13px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 10px;
+    }
+    .closed-notice .ms { color: var(--st-closed-text); font-size: 21px; }
+
+    .context-strip {
+      background: var(--ch-soft-accent); border: 1px solid var(--ch-teal-border);
+      border-radius: 14px; padding: 11px 16px; margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      height: 33px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--ch-border);
+      background: var(--ch-surface-warm); color: var(--ch-secondary);
+      font-family: var(--font-ui); font-size: 12.5px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap;
+    }
+    .chip-btn:hover { border-color: var(--ch-primary); color: var(--ch-primary); }
+    .chip-btn.active { background: var(--ch-primary); border-color: var(--ch-primary); color: #FFFFFF; font-weight: 700; }
+    .chip-btn.soft-active { background: var(--ch-soft-accent); border-color: var(--ch-primary); color: var(--ch-primary); font-weight: 700; }
+
+    .search-wrap { position: relative; display: flex; align-items: center; }
+    .search-wrap .ms { position: absolute; left: 13px; color: var(--ch-secondary); pointer-events: none; }
+    .text-input, .text-area {
+      width: 100%; border: 1px solid var(--ch-border-strong); border-radius: 10px;
+      padding: 9px 13px; font-family: var(--font-ui); font-size: 13.5px; color: var(--ch-ink);
+      background: #FFFFFF; outline: none;
+    }
+    .text-input.with-icon { padding-left: 39px; height: 42px; }
+    .text-input:focus, .text-area:focus { border-color: var(--ch-primary); box-shadow: 0 0 0 3px rgba(23, 75, 74, 0.1); }
+    .text-input.invalid, .text-area.invalid { border-color: var(--st-rejected-accent); background: #FFF9FA; }
+    .text-area { min-height: 76px; resize: vertical; line-height: 1.5; }
+    .field-lbl { display: block; font-size: 12px; font-weight: 700; color: var(--ch-ink); margin-bottom: 5px; }
+    .field-err { display: block; font-size: 11.5px; font-weight: 600; color: var(--st-rejected-text); margin-top: 4px; }
+
+    /* ==========================================================================
+       TRAVELER — STAYS CATALOG & HOTEL DETAIL
+       ========================================================================== */
+    .filter-surface {
+      background: #FFFFFF; border: 1px solid var(--ch-border); border-radius: 16px;
+      padding: 16px 18px; margin: 18px 0 20px; box-shadow: var(--shadow-subtle);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .filter-top-row { display: grid; grid-template-columns: 1.55fr 1fr auto; gap: 12px; align-items: center; }
+    .filter-bottom-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid #EEF1ED; }
+    .segmented-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+    .stays-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    .stay-card {
+      background: #FFFFFF; border: 1px solid var(--ch-border); border-radius: 16px; overflow: hidden;
+      display: flex; flex-direction: column; box-shadow: var(--shadow-card); transition: border-color 150ms ease;
+    }
+    .stay-card:hover { border-color: var(--ch-primary); }
+    .stay-card.closed-card { background: #FCFCFA; }
+    .stay-media {
+      height: 184px; position: relative; background-size: cover; background-position: center;
+      padding: 12px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;
+    }
+    .stay-media::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(16, 42, 41, 0.34) 0%, rgba(16, 42, 41, 0.05) 45%, rgba(16, 42, 41, 0.42) 100%);
+      pointer-events: none;
+    }
+    .stay-media.no-photo {
+      background: linear-gradient(135deg, #E8F0EA 0%, #F2EFE6 100%);
+      align-items: center; justify-content: center;
+    }
+    .stay-media.no-photo::after { display: none; }
+    .stay-media-row { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; width: 100%; }
+    .media-type-tag { background: rgba(255,255,255,0.93); color: var(--ch-ink); font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 999px; }
+    .stay-body { padding: 15px 17px 17px; display: flex; flex-direction: column; flex: 1; gap: 8px; }
+    .stay-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--ch-ink); line-height: 1.25; cursor: pointer; }
+    .stay-title:hover { color: var(--ch-primary); }
+    .stay-addr { font-size: 12.5px; color: var(--ch-secondary); display: flex; align-items: flex-start; gap: 4px; line-height: 1.4; }
+    .stay-card-actions {
+      margin-top: auto; padding-top: 12px; border-top: 1px solid #EEF1ED;
+      display: flex; flex-direction: column; gap: 7px;
+    }
+
+    /* Hotel Detail + Simple Inquiry Form (60% / 40%) */
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ch-secondary); margin-bottom: 14px; flex-wrap: wrap; }
+    .breadcrumb button { border: none; background: none; color: var(--ch-primary); font-family: var(--font-ui); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+    .detail-split { display: grid; grid-template-columns: minmax(0, 1.38fr) minmax(380px, 1fr); gap: 24px; align-items: start; }
+    .gallery-grid { display: grid; grid-template-columns: 1.7fr 1fr; grid-template-rows: 146px 146px; gap: 10px; border-radius: 16px; overflow: hidden; }
+    .gallery-main { grid-row: 1 / 3; background-size: cover; background-position: center; position: relative; padding: 14px; display: flex; align-items: flex-start; justify-content: space-between; }
+    .gallery-sub { background-size: cover; background-position: center; }
+    .amenity-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .amenity-chip { padding: 5px 10px; border-radius: 8px; background: var(--ch-surface-warm); border: 1px solid var(--ch-border); font-size: 12px; font-weight: 600; color: var(--ch-secondary); }
+
+    .sticky-side { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 16px; }
+    .inquiry-panel { background: #FFFFFF; border: 1.5px solid var(--ch-teal-border); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-card); }
+    .inquiry-head { background: var(--ch-soft-accent); border-bottom: 1px solid var(--ch-teal-border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .inquiry-head h2 { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--ch-primary); }
+    .inquiry-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 13px; }
+    .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .stepper-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: var(--ch-surface-warm); border: 1px solid var(--ch-border); border-radius: 11px; padding: 9px 13px;
+    }
+    .step-btn {
+      width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--ch-border-strong);
+      background: #FFFFFF; color: var(--ch-ink); font-size: 17px; font-weight: 700; cursor: pointer;
+    }
+    .step-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ==========================================================================
+       TRAVELER — RESULT & TRACKING
+       ========================================================================== */
+    .result-split { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr); gap: 24px; align-items: start; }
+    .status-banner { border-radius: 16px; padding: 20px 22px; border: 1px solid transparent; display: flex; align-items: flex-start; gap: 14px; }
+    .status-banner.sent { background: var(--st-sent-bg); border-color: var(--st-sent-border); }
+    .status-banner.responded { background: var(--st-responded-bg); border-color: var(--st-responded-border); }
+    .status-banner.rejected { background: var(--st-rejected-bg); border-color: var(--st-rejected-border); }
+    .status-icon { width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .status-banner.sent .status-icon { background: rgba(146,64,14,0.14); color: var(--st-sent-text); }
+    .status-banner.responded .status-icon { background: rgba(6,95,70,0.14); color: var(--st-responded-text); }
+    .status-banner.rejected .status-icon { background: rgba(153,27,27,0.14); color: var(--st-rejected-text); }
+
+    .reply-quote-box {
+      background: #F4FAF7; border: 1.5px solid var(--st-responded-border);
+      border-radius: 14px; padding: 15px 17px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .kv-table { display: flex; flex-direction: column; }
+    .kv-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 10px 0; border-bottom: 1px solid #EEF1ED; font-size: 13px; }
+    .kv-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .kv-row:first-child { padding-top: 0; }
+    .kv-row .k { color: var(--ch-secondary); font-weight: 600; flex-shrink: 0; }
+    .kv-row .v { color: var(--ch-ink); font-weight: 700; text-align: right; line-height: 1.4; min-width: 0; overflow-wrap: anywhere; }
+
+    .req-list-item { border: 1px solid var(--ch-border); border-radius: 12px; padding: 12px 13px; background: #FFFFFF; cursor: pointer; }
+    .req-list-item:hover { border-color: var(--ch-primary); }
+    .req-list-item.active { border-color: var(--ch-primary); background: #F4F9F6; }
+
+    /* ==========================================================================
+       TRAVELER — ITINERARY DETAIL (/itinerary/1) & PLANNER (/plan)
+       ========================================================================== */
+    .itin-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 16px 0 18px; }
+    .metric-box { background: #FFFFFF; border: 1px solid var(--ch-border); border-radius: 14px; padding: 13px 16px; }
+    .metric-box .k { font-size: 11.5px; font-weight: 600; color: var(--ch-secondary); }
+    .metric-box .v { font-size: 15.5px; font-weight: 800; color: var(--ch-ink); margin-top: 3px; }
+    .metric-box .s { font-size: 11px; color: var(--ch-secondary); margin-top: 2px; }
+
+    .itin-two-col { display: grid; grid-template-columns: minmax(0, 3fr) minmax(360px, 2fr); gap: 22px; align-items: start; }
+    .day-section { margin-bottom: 18px; }
+    .day-section:last-child { margin-bottom: 0; }
+    .day-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--ch-border); }
+    .day-heading h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--ch-primary); display: flex; align-items: center; gap: 8px; }
+    .day-heading h3::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--ch-accent); }
+    .timeline-stop {
+      background: #FFFFFF; border: 1px solid var(--ch-border); border-radius: 14px;
+      padding: 13px 15px; display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px;
+    }
+    .stop-seq {
+      width: 28px; height: 28px; border-radius: 9px; background: var(--ch-primary); color: #FFFFFF;
+      font-size: 12.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    .itin-stay-card { background: #FFFFFF; border: 1.5px solid var(--ch-teal-border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-card); }
+    .itin-stay-head { background: var(--ch-soft-accent); padding: 13px 18px; border-bottom: 1px solid var(--ch-teal-border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .itin-stay-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--ch-primary); }
+    .itin-stay-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+
+    .suggest-item {
+      border: 1px solid var(--ch-border); border-radius: 12px; padding: 11px; background: #FFFFFF;
+      display: flex; flex-direction: column; gap: 9px;
+    }
+    .suggest-top { display: flex; align-items: center; gap: 11px; cursor: pointer; }
+    .suggest-thumb { width: 62px; height: 56px; border-radius: 9px; background-size: cover; background-position: center; flex-shrink: 0; }
+    .suggest-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+    .coastal-map-box { border-radius: 12px; border: 1px solid var(--ch-border); overflow: hidden; background: #DFECEA; }
+    .coastal-map-box svg { display: block; width: 100%; height: auto; }
+
+    /* Planner */
+    .planner-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+    .form-section-head { padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid #EEF1ED; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .form-section-head h2 { font-family: var(--font-display); font-size: 16.5px; font-weight: 700; }
+    .form-section-head p { font-size: 12px; color: var(--ch-secondary); margin-top: 2px; }
+    .route-pin-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .pin-badge { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; color: #FFFFFF; flex-shrink: 0; margin-top: 2px; }
+    .pin-badge.start { background: var(--ch-primary); }
+    .pin-badge.start-hotel { background: var(--ch-accent); }
+    .pin-badge.explore { background: #5B6E69; }
+    .picker-trigger {
+      width: 100%; margin-top: 5px; border: 1px solid var(--ch-border); background: var(--ch-surface-warm);
+      border-radius: 11px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; cursor: pointer; font-family: var(--font-ui); font-size: 13.5px; color: var(--ch-ink); font-weight: 700; text-align: left;
+    }
+    .picker-trigger.hotel-prefilled { background: var(--ch-accent-soft); border-color: var(--ch-accent); }
+    .must-see-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .poi-chip {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--ch-soft-accent);
+      border: 1px solid var(--ch-teal-border); color: var(--ch-primary); padding: 6px 11px;
+      border-radius: 999px; font-size: 12px; font-weight: 700;
+    }
+    .poi-chip button { border: none; background: rgba(23,75,74,0.14); color: var(--ch-primary); width: 18px; height: 18px; border-radius: 50%; cursor: pointer; font-size: 12px; font-weight: 800; }
+
+    /* ==========================================================================
+       HOTEL OPERATOR (PROVIDER WEB TABLES, TOGGLE, DETAIL)
+       ========================================================================== */
+    .pv-table-wrap { overflow-x: auto; }
+    .pv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .pv-table th {
+      text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--ch-secondary); padding: 11px 14px; background: var(--ch-surface-warm); border-bottom: 1px solid var(--ch-border); white-space: nowrap;
+    }
+    .pv-table td { padding: 13px 14px; border-bottom: 1px solid #EEF1ED; vertical-align: middle; }
+    .pv-table tr:last-child td { border-bottom: none; }
+    .pv-table tr:hover td { background: #FAFBF9; }
+
+    .toggle-switch {
+      position: relative; width: 48px; height: 26px; border-radius: 999px; border: none;
+      background: #C7D0CC; cursor: pointer; transition: background 180ms ease; flex-shrink: 0;
+    }
+    .toggle-switch.on { background: var(--ch-primary); }
+    .toggle-switch::after {
+      content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+      border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 180ms ease;
+    }
+    .toggle-switch.on::after { transform: translateX(22px); }
+
+    .pv-detail-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: 22px; align-items: start; }
+
+    /* ==========================================================================
+       MODALS, TOAST, FLOATING CROSS-ACTOR FLOW DOCK
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(16, 36, 35, 0.56); backdrop-filter: blur(3px);
+      z-index: 80; display: none; align-items: center; justify-content: center; padding: 18px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-panel {
+      width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+      background: #FFFFFF; border: 1px solid var(--ch-border); border-radius: 20px; box-shadow: var(--shadow-float);
+    }
+    .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--ch-border); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .modal-head h3 { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+    .modal-close { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--ch-border); background: var(--ch-surface-warm); color: var(--ch-ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .modal-body { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 14px; }
+    .picker-item { border: 1px solid var(--ch-border); border-radius: 12px; padding: 11px 13px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #FFFFFF; }
+
+    body.presentation-mode .review-dock,
+    body.presentation-mode .review-fab,
+    body.presentation-mode .demo-only { display: none !important; }
+
+    .review-fab {
+      position: fixed; right: 20px; bottom: 20px; z-index: 65;
+      background: #1C2928; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px; padding: 10px 16px; font-family: var(--font-ui); font-size: 12.5px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 7px; cursor: pointer; box-shadow: var(--shadow-float);
+    }
+    .review-dock {
+      position: fixed; right: 20px; bottom: 70px; z-index: 65; width: 360px; max-height: calc(100vh - 100px); overflow-y: auto;
+      background: #FFFFFF; border: 1px solid var(--ch-border); border-radius: 16px; padding: 16px;
+      box-shadow: var(--shadow-float); display: none; flex-direction: column; gap: 7px;
+    }
+    .review-dock.open { display: flex; }
+    .dock-lbl { font-size: 10.5px; font-weight: 800; color: var(--ch-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 5px; }
+    .dock-btn {
+      width: 100%; text-align: left; border: 1px solid var(--ch-border); background: var(--ch-surface-warm);
+      border-radius: 10px; padding: 8px 11px; font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+      color: var(--ch-ink); cursor: pointer;
+    }
+    .dock-btn:hover { border-color: var(--ch-primary); background: var(--ch-soft-accent); }
+    .dock-btn.active { border-color: var(--ch-primary); background: var(--ch-soft-accent); color: var(--ch-primary); }
+    .dock-btn small { display: block; font-size: 11px; font-weight: 500; color: var(--ch-secondary); margin-top: 2px; }
+
+    .toast-bar {
+      position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 95;
+      background: #1C2928; color: #FFFFFF; padding: 11px 16px; border-radius: 12px;
+      font-size: 13px; font-weight: 600; display: none; align-items: center; gap: 8px; box-shadow: var(--shadow-float);
+    }
+    .toast-bar.show { display: inline-flex; }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS (Tablet & Narrow Screen 390px)
+       ========================================================================== */
+    @media (max-width: 1080px) {
+      .tm-nav { display: none; }
+      .tm-burger { display: inline-flex; }
+      .stays-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .detail-split, .result-split, .itin-two-col, .planner-grid, .pv-detail-grid { grid-template-columns: 1fr; }
+      .sticky-side { position: static; }
+      .itin-two-col .sticky-side { order: -1; }
+      .filter-top-row { grid-template-columns: 1fr; }
+      .filter-reset-btn { justify-self: start; }
+      .itin-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pv-sidebar { display: none; }
+      .pv-mobile-bar { display: flex; }
+      .pv-mobile-tabs { display: flex; }
+      .pv-topbar { padding: 10px 14px; position: static; }
+      .pv-content { padding: 16px 14px 56px; }
+    }
+
+    @media (max-width: 640px) {
+      .tm-header-inner { padding: 0 14px; height: 58px; }
+      .tm-profile-pill span.name { display: none; }
+      .page-container { padding: 14px 14px 52px; }
+      .page-h1 { font-size: 21px; }
+      .stays-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr; grid-template-rows: 192px; }
+      .gallery-sub { display: none; }
+      .card-pad { padding: 16px; }
+      .inquiry-body { padding: 15px; }
+      .form-2col, .suggest-btns { grid-template-columns: 1fr; }
+      .status-banner { flex-direction: column; gap: 10px; padding: 16px; }
+      .review-dock { right: 12px; left: 12px; width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div id="shell-root"></div>
+
+  <!-- Modal Portal -->
+  <div class="modal-backdrop" id="modal-backdrop" onclick="closeModal()">
+    <div class="modal-panel" onclick="event.stopPropagation()" id="modal-content"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-bar" id="toast-bar">
+    <span class="ms sm filled" style="color:#6EE7B7;">check_circle</span>
+    <span id="toast-text"></span>
+  </div>
+
+  <!-- Floating Cross-Actor Review Dock (Hidden cleanly in presentation mode) -->
+  <button class="review-fab" onclick="toggleDock()">
+    <span class="ms sm">swap_horiz</span> Luồng xuyên suốt (Traveler ↔ Hotel Operator)
+  </button>
+  <aside class="review-dock" id="review-dock" aria-label="Bảng chọn kịch bản xuyên suốt">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <strong style="font-family:var(--font-display); font-size:14px;">Luồng UC-31 (Bản cập nhật)</strong>
+      <button class="modal-close" style="width:28px;height:28px;" onclick="toggleDock()"><span class="ms xs">close</span></button>
+    </div>
+
+    <div class="dock-lbl">1. Traveler Web — Tìm nơi ở & Gửi yêu cầu</div>
+    <button class="dock-btn" data-sc="t-itinerary-empty" onclick="runScenario('t-itinerary-empty')">
+      Bước 1: Chi tiết lịch trình (/itinerary/1)
+      <small>Khối Lưu trú riêng + Gợi ý lưu trú tách khỏi tuyến tham quan</small>
+    </button>
+    <button class="dock-btn" data-sc="t-stays" onclick="runScenario('t-stays')">
+      Trang Lưu trú riêng (/stays)
+      <small>Tên, địa chỉ, ảnh, trạng thái nhận yêu cầu & Dùng làm điểm xuất phát</small>
+    </button>
+    <button class="dock-btn" data-sc="t-detail-open" onclick="runScenario('t-detail-open')">
+      Bước 2: Chi tiết khách sạn & Gửi yêu cầu lưu trú
+      <small>Ngày dự kiến, số khách, liên hệ, ghi chú (không hạng phòng/giá/tồn)</small>
+    </button>
+    <button class="dock-btn" data-sc="t-detail-closed" onclick="runScenario('t-detail-closed')">
+      Trạng thái: Cơ sở "Chưa mở nhận yêu cầu"
+      <small>Khách sạn Cố Đô Huế · xem đủ thông tin, khóa gửi yêu cầu</small>
+    </button>
+    <button class="dock-btn" data-sc="t-result-sent" onclick="runScenario('t-result-sent')">
+      Bước 3: Kết quả sau khi gửi — "Đã gửi"
+      <small>Mã STAY-20261126-0148 · liên kết chuyến đi Hội An</small>
+    </button>
+
+    <div class="dock-lbl">2. Hotel Operator — Provider Web</div>
+    <button class="dock-btn" data-sc="op-profile" onclick="runScenario('op-profile')">
+      Hotel Operator: Hồ sơ cơ sở & Bật/tắt nhận yêu cầu
+      <small>Cơ sở đã Staff xác minh · tắt/bật cập nhật ngay sang Traveler</small>
+    </button>
+    <button class="dock-btn" data-sc="op-requests" onclick="runScenario('op-requests')">
+      Hotel Operator: Danh sách yêu cầu lưu trú
+      <small>Lọc theo Đã gửi / Cơ sở đã phản hồi / Đã từ chối</small>
+    </button>
+    <button class="dock-btn" data-sc="op-detail" onclick="runScenario('op-detail')">
+      Bước 4: Chi tiết yêu cầu → Gửi phản hồi / Từ chối
+      <small>Ngày ở dự kiến, số khách, liên hệ, ghi chú của khách</small>
+    </button>
+
+    <div class="dock-lbl">3. Traveler xem phản hồi & Dùng làm điểm xuất phát</div>
+    <button class="dock-btn" data-sc="t-result-responded" onclick="runScenario('t-result-responded')">
+      Bước 5: Trạng thái "Cơ sở đã phản hồi"
+      <small>Xem phản hồi từ cơ sở + nút Dùng làm điểm xuất phát</small>
+    </button>
+    <button class="dock-btn" data-sc="t-result-rejected" onclick="runScenario('t-result-rejected')">
+      Trạng thái "Đã từ chối"
+      <small>Xem lý do từ chối & chọn cơ sở khác</small>
+    </button>
+    <button class="dock-btn" data-sc="t-planner-hotel" onclick="runScenario('t-planner-hotel')">
+      Bước 6: Lập lịch trình (Khách sạn = Điểm xuất phát)
+      <small>Điền sẵn Điểm xuất phát · Địa điểm muốn ghé chỉ có tham quan</small>
+    </button>
+    <button class="dock-btn" data-sc="t-itinerary-final" onclick="runScenario('t-itinerary-final')">
+      Bước 7: Lịch trình đã tính từ khách sạn + Bản đồ
+      <small>Nhãn "Điểm xuất phát" trên bản đồ · Khối Lưu trú tách riêng</small>
+    </button>
+  </aside>
+
+  <script>
+    /* ==========================================================================
+       SHARED LIVE STATE — TRAVELER WEB & HOTEL OPERATOR (PROVIDER WEB)
+       ========================================================================== */
+    const ITINERARY_BASE = {
+      id: 1,
+      version: 2,
+      title: 'Hành trình khám phá Hội An 3 ngày',
+      destination: 'TP. Hội An, Quảng Nam',
+      tripRange: '28/11 – 30/11/2026',
+      transport: 'Xe máy',
+      days: [
+        {
+          key: '2026-11-28',
+          label: 'Ngày 1 · Thứ Bảy, 28/11/2026',
+          stops: [
+            { seq: 1, name: 'Phố cổ Hội An & Chùa Cầu', time: '08:30 – 11:30', category: 'Di sản văn hóa', address: 'Phường Minh An, TP. Hội An' },
+            { seq: 2, name: 'Hội quán Phúc Kiến & Nhà cổ Tấn Ký', time: '14:00 – 16:30', category: 'Kiến trúc cổ', address: '46 Trần Phú, Minh An, Hội An' },
+            { seq: 3, name: 'Phố đèn lồng & Sông Hoài về đêm', time: '18:00 – 20:30', category: 'Trải nghiệm văn hóa', address: 'Bạch Đằng, Minh An, Hội An' }
+          ]
+        },
+        {
+          key: '2026-11-29',
+          label: 'Ngày 2 · Chủ Nhật, 29/11/2026',
+          stops: [
+            { seq: 4, name: 'Rừng dừa Bảy Mẫu Cẩm Thanh', time: '08:30 – 11:00', category: 'Trải nghiệm sinh thái', address: 'Cẩm Thanh, TP. Hội An' },
+            { seq: 5, name: 'Làng rau Trà Quế', time: '14:00 – 16:00', category: 'Làng nghề truyền thống', address: 'Cẩm Hà, TP. Hội An' },
+            { seq: 6, name: 'Bãi biển An Bàng', time: '16:30 – 18:30', category: 'Cảnh quan thiên nhiên', address: 'Cẩm An, TP. Hội An' }
+          ]
+        },
+        {
+          key: '2026-11-30',
+          label: 'Ngày 3 · Thứ Hai, 30/11/2026',
+          stops: [
+            { seq: 7, name: 'Làng gốm Thanh Hà', time: '08:30 – 10:30', category: 'Làng nghề truyền thống', address: 'Phạm Phán, Thanh Hà, Hội An' },
+            { seq: 8, name: 'Khu đền tháp Mỹ Sơn', time: '13:30 – 16:30', category: 'Di sản UNESCO', address: 'Duy Phú, Duy Xuyên, Quảng Nam' }
+          ]
+        }
+      ]
+    };
+
+    const SIGHTSEEING_POIS = [
+      { id: 's-1', name: 'Phố cổ Hội An & Chùa Cầu', category: 'Di sản văn hóa', area: 'Hội An', distKm: 1.4 },
+      { id: 's-2', name: 'Rừng dừa Bảy Mẫu Cẩm Thanh', category: 'Trải nghiệm sinh thái', area: 'Hội An', distKm: 3.1 },
+      { id: 's-3', name: 'Làng gốm Thanh Hà', category: 'Làng nghề truyền thống', area: 'Hội An', distKm: 4.0 },
+      { id: 's-4', name: 'Làng rau Trà Quế', category: 'Làng nghề truyền thống', area: 'Hội An', distKm: 3.5 },
+      { id: 's-5', name: 'Bãi biển An Bàng', category: 'Cảnh quan thiên nhiên', area: 'Hội An', distKm: 4.6 },
+      { id: 's-6', name: 'Hội quán Phúc Kiến', category: 'Kiến trúc cổ', area: 'Hội An', distKm: 1.3 },
+      { id: 's-7', name: 'Khu đền tháp Mỹ Sơn', category: 'Di sản UNESCO', area: 'Quảng Nam', distKm: 37.2 }
+    ];
+
+    function initialProperties() {
+      return [
+        {
+          id: 'poi-367',
+          code: 'POI #367',
+          name: 'Phố Cổ Riverside Homestay',
+          type: 'Homestay',
+          area: 'Hội An',
+          address: '188 Cửa Đại, Cẩm Châu, TP. Hội An, Quảng Nam',
+          distanceHint: 'Cách Phố cổ Hội An 1,4 km',
+          verifiedByStaff: true,
+          acceptingRequests: true,
+          checkInNote: 'Nhận phòng từ 14:00 · Trả phòng trước 12:00',
+          hotline: '0235 3922 888',
+          contactEmail: 'letan@phocoriverside.vn',
+          photos: [
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80',
+            'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=600&q=80'
+          ],
+          summary: 'Homestay ven sông Thu Bồn với sân vườn đèn lồng yên tĩnh, xe đạp miễn phí vào phố cổ và chỗ đậu xe máy thuận tiện cho khách đi theo lịch trình Hội An.',
+          amenities: ['Ven sông Thu Bồn', 'Xe đạp miễn phí', 'Hồ bơi sân vườn', 'Wi-Fi tốc độ cao', 'Chỗ đậu xe máy']
+        },
+        {
+          id: 'poi-382',
+          code: 'POI #382',
+          name: 'Hội An Lantern Boutique Hotel',
+          type: 'Khách sạn',
+          area: 'Hội An',
+          address: '72 Nguyễn Duy Hiệu, Cẩm Châu, TP. Hội An',
+          distanceHint: 'Đi bộ 8 phút vào Phố cổ',
+          verifiedByStaff: true,
+          acceptingRequests: true,
+          checkInNote: 'Nhận phòng từ 14:00 · Trả phòng trước 12:00',
+          hotline: '0235 3864 219',
+          contactEmail: 'booking@hoianlantern.vn',
+          photos: [
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80',
+            'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=600&q=80'
+          ],
+          summary: 'Khách sạn boutique trên trục đường yên tĩnh gần trung tâm phố cổ Hội An, lễ tân trực 24/7 và hỗ trợ tư vấn phòng gia đình.',
+          amenities: ['Gần Phố cổ', 'Hồ bơi ngoài trời', 'Lễ tân 24/7', 'Đậu xe miễn phí']
+        },
+        {
+          id: 'poi-385',
+          code: 'POI #385',
+          name: 'An Bàng Coastal Heritage Resort',
+          type: 'Resort',
+          area: 'Hội An',
+          address: 'Biển An Bàng, Cẩm An, TP. Hội An, Quảng Nam',
+          distanceHint: 'Sát bãi biển An Bàng',
+          verifiedByStaff: true,
+          acceptingRequests: true,
+          checkInNote: 'Nhận phòng từ 15:00 · Trả phòng trước 12:00',
+          hotline: '0235 3939 555',
+          contactEmail: 'hello@anbangheritage.vn',
+          photos: [
+            'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=900&q=80',
+            'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=600&q=80'
+          ],
+          summary: 'Khu nghỉ dưỡng ven biển An Bàng với không gian xanh mát, bãi biển riêng và xe trung chuyển vào trung tâm Hội An.',
+          amenities: ['Bãi biển riêng', 'Hồ bơi vô cực', 'Xe đưa đón phố cổ', 'Spa thảo mộc']
+        },
+        {
+          id: 'poi-352',
+          code: 'POI #352',
+          name: 'Khách sạn Biển Xanh',
+          type: 'Khách sạn',
+          area: 'Đà Nẵng',
+          address: '126 Võ Nguyên Giáp, Mỹ Khê, Sơn Trà, Đà Nẵng',
+          distanceHint: 'Cách bãi biển Mỹ Khê 250m',
+          verifiedByStaff: true,
+          acceptingRequests: true,
+          checkInNote: 'Nhận phòng từ 14:00 · Trả phòng trước 12:00',
+          hotline: '0236 3941 268',
+          contactEmail: 'contact@bienxanhdanang.vn',
+          photos: [
+            'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=900&q=80',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=600&q=80'
+          ],
+          summary: 'Khách sạn ven biển Mỹ Khê, thuận tiện kết nối từ sân bay Đà Nẵng đi bán đảo Sơn Trà và Hội An.',
+          amenities: ['Gần biển Mỹ Khê', 'Hồ bơi tầng thượng', 'Bãi đậu xe', 'Wi-Fi tốc độ cao']
+        },
+        {
+          id: 'poi-377',
+          code: 'POI #377',
+          name: 'Khách sạn Cố Đô Huế',
+          type: 'Khách sạn',
+          area: 'Huế',
+          address: '24 Lê Lợi, Vĩnh Ninh, TP. Huế, Thừa Thiên Huế',
+          distanceHint: 'Bên bờ nam sông Hương',
+          verifiedByStaff: true,
+          acceptingRequests: false,
+          checkInNote: 'Nhận phòng từ 14:00 · Trả phòng trước 12:00',
+          hotline: '0234 3823 288',
+          contactEmail: 'info@codohuehotel.vn',
+          photos: [
+            'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=900&q=80',
+            'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=80'
+          ],
+          summary: 'Khách sạn kiến trúc Đông Dương cổ điển dọc đường Lê Lợi bên bờ sông Hương. Cơ sở hiện tạm đóng nhận yêu cầu trực tuyến trên TripMate.',
+          amenities: ['Gần sông Hương', 'Kiến trúc di sản', 'Nhà hàng ẩm thực Huế', 'Lễ tân 24/7']
+        },
+        {
+          id: 'poi-390',
+          code: 'POI #390',
+          name: 'Nhà nghỉ Vườn Cau Cẩm Thanh',
+          type: 'Homestay',
+          area: 'Hội An',
+          address: 'Tổ 4, Thôn Vạn Lăng, Cẩm Thanh, TP. Hội An',
+          distanceHint: 'Gần Rừng dừa Bảy Mẫu',
+          verifiedByStaff: true,
+          acceptingRequests: false,
+          checkInNote: 'Nhận phòng linh hoạt từ 13:00',
+          hotline: '0235 3914 602',
+          contactEmail: 'vuoncau@hoianstay.vn',
+          photos: [], // Intentionally tests "ảnh nếu có" graceful fallback!
+          summary: 'Cơ sở lưu trú gia đình gần rừng dừa Bảy Mẫu, không gian thoáng đãng. Hiện đang bảo trì và tạm đóng nhận yêu cầu qua TripMate.',
+          amenities: ['Sân vườn thoáng mát', 'Gần rừng dừa', 'Chỗ đậu xe']
+        }
+      ];
+    }
+
+    function initialRequests() {
+      return [
+        {
+          id: 'req-mai-0148',
+          code: 'STAY-20261126-0148',
+          propertyId: 'poi-367',
+          propertyName: 'Phố Cổ Riverside Homestay',
+          propertyAddress: '188 Cửa Đại, Cẩm Châu, TP. Hội An, Quảng Nam',
+          propertyHotline: '0235 3922 888',
+          checkIn: '2026-11-27',
+          checkOut: '2026-12-01',
+          guests: 4,
+          travelerName: 'Trần Ngọc Mai',
+          travelerPhone: '0905 678 234',
+          travelerEmail: 'mai.tran@tripmate.vn',
+          notes: 'Nhóm 4 người dự kiến đến sớm chiều 27/11 và ở đến trưa 01/12. Nhờ cơ sở tư vấn 2 phòng gần nhau và báo giá giúp.',
+          itineraryId: 1,
+          itineraryTitle: ITINERARY_BASE.title,
+          itineraryRange: '28/11 – 30/11/2026',
+          status: 'sent', // 'sent' | 'responded' | 'rejected'
+          submittedAt: '26/11/2026 · 20:15',
+          respondedAt: null,
+          operatorResponse: '',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-op-0145',
+          code: 'STAY-20261125-0145',
+          propertyId: 'poi-367',
+          propertyName: 'Phố Cổ Riverside Homestay',
+          propertyAddress: '188 Cửa Đại, Cẩm Châu, TP. Hội An, Quảng Nam',
+          propertyHotline: '0235 3922 888',
+          checkIn: '2026-12-04',
+          checkOut: '2026-12-06',
+          guests: 2,
+          travelerName: 'Lê Hoàng Nam',
+          travelerPhone: '0913 442 890',
+          travelerEmail: 'nam.le@example.com',
+          notes: 'Cần phòng yên tĩnh gần vườn, nhận phòng khoảng 15:00.',
+          itineraryId: null,
+          itineraryTitle: null,
+          itineraryRange: null,
+          status: 'responded',
+          submittedAt: '25/11/2026 · 14:20',
+          respondedAt: '25/11/2026 · 15:05',
+          operatorResponse: 'Chào anh Nam, homestay còn phòng hướng vườn cho ngày 04–06/12 (2 khách). Mời anh liên hệ lễ tân 0235 3922 888 hoặc phản hồi email letan@phocoriverside.vn để trao đổi mức giá và xác nhận giữ phòng trực tiếp.',
+          rejectionReason: ''
+        },
+        {
+          id: 'req-mai-rejected',
+          code: 'STAY-20261124-0112',
+          propertyId: 'poi-382',
+          propertyName: 'Hội An Lantern Boutique Hotel',
+          propertyAddress: '72 Nguyễn Duy Hiệu, Cẩm Châu, TP. Hội An',
+          propertyHotline: '0235 3864 219',
+          checkIn: '2026-11-28',
+          checkOut: '2026-11-30',
+          guests: 4,
+          travelerName: 'Trần Ngọc Mai',
+          travelerPhone: '0905 678 234',
+          travelerEmail: 'mai.tran@tripmate.vn',
+          notes: 'Cần phòng tầng cao gần phố cổ.',
+          itineraryId: 1,
+          itineraryTitle: ITINERARY_BASE.title,
+          itineraryRange: '28/11 – 30/11/2026',
+          status: 'rejected',
+          submittedAt: '24/11/2026 · 09:40',
+          respondedAt: '24/11/2026 · 11:10',
+          operatorResponse: '',
+          rejectionReason: 'Cơ sở đã kín toàn bộ phòng cho đoàn khách sự kiện dịp cuối tuần 28–30/11. Rất mong được phục vụ chị Mai trong chuyến đi khác.'
+        }
+      ];
+    }
+
+    let state = {
+      actor: 'traveler', // 'traveler' | 'operator'
+      screen: 't-itinerary', // Traveler: 't-itinerary' | 't-stays' | 't-detail' | 't-result' | 't-planner'
+                             // Operator: 'op-profile' | 'op-requests' | 'op-detail'
+      activeScenario: 't-itinerary-empty',
+
+      properties: initialProperties(),
+      requests: initialRequests(),
+      activeRequestId: 'req-mai-0148',
+
+      // Traveler itinerary state (/itinerary/1)
+      itineraryLinkedHotelStart: null, // null | { id, name, address }
+      itineraryDayFilter: 'all',
+      hasSentInSession: false,
+
+      // Traveler stays filter
+      search: '',
+      area: 'Tất cả',
+      statusFilter: 'all',
+      selectedPropertyId: 'poi-367',
+      linkedItinerary: { id: 1, title: ITINERARY_BASE.title, range: ITINERARY_BASE.tripRange },
+
+      // Traveler inquiry form (UC-31 simplified: dates, guests, name, phone/email, optional notes)
+      formCheckIn: '2026-11-27',
+      formCheckOut: '2026-12-01',
+      formGuests: 4,
+      formName: 'Trần Ngọc Mai',
+      formPhone: '0905 678 234',
+      formEmail: 'mai.tran@tripmate.vn',
+      formNotes: 'Nhóm 4 người dự kiến đến sớm chiều 27/11 và ở đến trưa 01/12. Nhờ cơ sở tư vấn 2 phòng gần nhau và báo giá giúp.',
+      formErrors: {},
+
+      // Traveler Planner state
+      plannerStartLabel: 'Sân bay Quốc tế Đà Nẵng',
+      plannerStartHotel: null, // { id, name, address } when "Dùng làm điểm xuất phát" is clicked!
+      plannerExploreArea: 'Phố cổ Hội An',
+      plannerStartDate: '2026-11-28',
+      plannerStartTime: '08:00',
+      plannerDuration: '3 ngày',
+      plannerTransport: 'Xe máy',
+      plannerRadiusKm: 18,
+      mandatoryPoiIds: ['s-1', 's-2'],
+      pickerQuery: '',
+
+      // Hotel Operator (Provider Web) state — manages Phố Cổ Riverside Homestay (poi-367)
+      operatorPropertyId: 'poi-367',
+      opStatusFilter: 'all',
+      opSearch: '',
+      opDraftReply: 'Chào chị Mai, Phố Cổ Riverside Homestay hiện còn 2 phòng gần nhau cho ngày 27/11–01/12 (4 khách). Giá tham khảo 650.000 ₫/phòng/đêm (gồm ăn sáng). Chị vui lòng gọi lễ tân 0235 3922 888 hoặc nhắn Zalo để chốt giữ phòng và thanh toán trực tiếp khi nhận phòng.',
+      opDraftReject: '',
+      opModalError: '',
+      opProfileSaved: false,
+      mobileDrawerOpen: false
+    };
+
+    const fmtFull = iso => iso ? `${iso.slice(8,10)}/${iso.slice(5,7)}/${iso.slice(0,4)}` : '—';
+    const fmtShort = iso => iso ? `${iso.slice(8,10)}/${iso.slice(5,7)}` : '—';
+    const diffDays = (a, b) => (!a || !b) ? 0 : Math.round((new Date(b) - new Date(a)) / 86400000);
+    const getProp = id => state.properties.find(p => p.id === id) || state.properties[0];
+
+    /* ==========================================================================
+       SHARED CROSS-ACTOR ACTIONS
+       ========================================================================== */
+    function go(actor, screen, extra = {}) {
+      closeModal();
+      state.actor = actor;
+      state.screen = screen;
+      state.mobileDrawerOpen = false;
+      Object.assign(state, extra);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      render();
+    }
+
+    function openHotelDetail(propId, keepLink = true) {
+      state.selectedPropertyId = propId;
+      if (!keepLink) state.linkedItinerary = null;
+      state.formErrors = {};
+      go('traveler', 't-detail');
+    }
+
+    function useHotelAsStartPoint(propId) {
+      const prop = getProp(propId);
+      state.plannerStartHotel = { id: prop.id, name: prop.name, address: prop.address };
+      state.plannerStartLabel = `${prop.name} — ${prop.address}`;
+      state.plannerExploreArea = prop.area === 'Hội An' ? 'Phố cổ Hội An' : prop.area;
+      go('traveler', 't-planner');
+      showToast(`Đã điền "${prop.name}" vào Điểm xuất phát. Bấm "Tạo lịch trình gợi ý" để tính tuyến.`);
+    }
+
+    function submitPlannerWithStartPoint() {
+      if (state.plannerStartHotel) {
+        state.itineraryLinkedHotelStart = { ...state.plannerStartHotel };
+      } else {
+        state.itineraryLinkedHotelStart = null;
+      }
+      go('traveler', 't-itinerary');
+      showToast(state.itineraryLinkedHotelStart
+        ? `Đã tính tuyến tham quan Hội An (28–30/11) xuất phát từ ${state.itineraryLinkedHotelStart.name}.`
+        : 'Đã cập nhật lịch trình tham quan Hội An (28–30/11).');
+    }
+
+    function submitStayInquiry() {
+      const prop = getProp(state.selectedPropertyId);
+      if (!prop.acceptingRequests) return;
+
+      const errs = {};
+      if (!state.formCheckIn) errs.checkIn = 'Vui lòng chọn ngày nhận dự kiến.';
+      if (!state.formCheckOut || state.formCheckOut <= state.formCheckIn) errs.checkOut = 'Ngày trả dự kiến phải sau ngày nhận.';
+      if (!state.formName.trim()) errs.name = 'Vui lòng nhập họ và tên.';
+      const hasPhone = state.formPhone.trim().length >= 9;
+      const hasEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.formEmail.trim());
+      if (!hasPhone && !hasEmail) errs.contact = 'Vui lòng nhập ít nhất email hoặc số điện thoại liên hệ.';
+
+      state.formErrors = errs;
+      if (Object.keys(errs).length > 0) { render(); return; }
+
+      const code = `STAY-20261126-${String(148 + state.requests.length).padStart(4, '0')}`;
+      const newReq = {
+        id: 'req-' + Date.now(),
+        code,
+        propertyId: prop.id,
+        propertyName: prop.name,
+        propertyAddress: prop.address,
+        propertyHotline: prop.hotline,
+        checkIn: state.formCheckIn,
+        checkOut: state.formCheckOut,
+        guests: state.formGuests,
+        travelerName: state.formName.trim(),
+        travelerPhone: state.formPhone.trim(),
+        travelerEmail: state.formEmail.trim(),
+        notes: state.formNotes.trim(),
+        itineraryId: state.linkedItinerary ? state.linkedItinerary.id : null,
+        itineraryTitle: state.linkedItinerary ? state.linkedItinerary.title : null,
+        itineraryRange: state.linkedItinerary ? state.linkedItinerary.range : null,
+        status: 'sent',
+        submittedAt: '26/11/2026 · 20:58',
+        respondedAt: null,
+        operatorResponse: '',
+        rejectionReason: ''
+      };
+
+      state.requests.unshift(newReq);
+      state.activeRequestId = newReq.id;
+      state.hasSentInSession = true;
+      go('traveler', 't-result', { activeScenario: 't-result-sent' });
+      showToast(`Đã gửi yêu cầu lưu trú ${code}. Chuyển sang Hotel Operator để phản hồi thử.`);
+    }
+
+    /* --- Hotel Operator Actions (LIVE sync with Traveler Web!) --- */
+    function toggleOperatorAccepting() {
+      const prop = getProp(state.operatorPropertyId);
+      prop.acceptingRequests = !prop.acceptingRequests;
+      showToast(prop.acceptingRequests
+        ? `Đã bật nhận yêu cầu lưu trú cho ${prop.name}.`
+        : `Đã tắt nhận yêu cầu — Traveler sẽ thấy trạng thái "Chưa mở nhận yêu cầu".`);
+      render();
+    }
+
+    function saveOperatorProfile(e) {
+      e.preventDefault();
+      const prop = getProp(state.operatorPropertyId);
+      prop.summary = document.getElementById('op-summary-input').value.trim() || prop.summary;
+      prop.hotline = document.getElementById('op-hotline-input').value.trim() || prop.hotline;
+      prop.checkInNote = document.getElementById('op-checkin-input').value.trim() || prop.checkInNote;
+      state.opProfileSaved = true;
+      showToast('Đã lưu cập nhật bài cơ sở lưu trú (đồng bộ ngay với Traveler Web).');
+      render();
+    }
+
+    function openOperatorReplyModal(reqId) {
+      const req = state.requests.find(r => r.id === reqId);
+      if (!req) return;
+      state.opModalError = '';
+      openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Gửi phản hồi cho khách hàng</h3>
+            <p style="font-size:12.5px; color:var(--ch-secondary); margin-top:2px;">Mã yêu cầu <span class="mono">${req.code}</span> · ${req.travelerName} (${req.guests} khách)</p>
+          </div>
+          <button class="modal-close" onclick="closeModal()" aria-label="Đóng"><span class="ms sm">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div style="background:var(--ch-surface-warm); border:1px solid var(--ch-border); border-radius:11px; padding:10px 12px; font-size:12.5px; color:var(--ch-secondary); line-height:1.5;">
+            <div><strong>Ngày ở dự kiến:</strong> ${fmtFull(req.checkIn)} – ${fmtFull(req.checkOut)} · <strong>${req.guests} khách</strong></div>
+            <div><strong>Liên hệ khách:</strong> ${req.travelerPhone || '—'} · ${req.travelerEmail || '—'}</div>
+          </div>
+          <div>
+            <label class="field-lbl">Nội dung phản hồi tới Traveler <span style="color:var(--st-rejected-accent);">*</span></label>
+            <textarea class="text-area" id="op-reply-textarea" style="min-height:110px;">${state.opDraftReply}</textarea>
+            <span class="field-err" id="op-reply-err" style="display:none;">Vui lòng nhập nội dung phản hồi cho khách.</span>
+          </div>
+          <div class="direct-notice">
+            <span class="ms sm">forum</span>
+            <div>Trạng thái yêu cầu sẽ chuyển thành <strong>Cơ sở đã phản hồi</strong>. Khách và cơ sở tiếp tục trao đổi trực tiếp về phòng trống, giá, giữ chỗ và thanh toán.</div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:9px;">
+            <button class="btn btn-secondary btn-sm" onclick="closeModal()">Quay lại</button>
+            <button class="btn btn-primary btn-sm" onclick="confirmOperatorReply('${req.id}')">
+              <span class="ms sm">send</span> Xác nhận gửi phản hồi
+            </button>
+          </div>
+        </div>
+      `);
+    }
+
+    function confirmOperatorReply(reqId) {
+      const txt = (document.getElementById('op-reply-textarea')?.value || '').trim();
+      if (!txt) {
+        const err = document.getElementById('op-reply-err');
+        if (err) err.style.display = 'block';
+        return;
+      }
+      const req = state.requests.find(r => r.id === reqId);
+      if (req) {
+        req.status = 'responded';
+        req.respondedAt = '26/11/2026 · 21:02';
+        req.operatorResponse = txt;
+        req.rejectionReason = '';
+        state.opDraftReply = txt;
+        state.activeRequestId = req.id;
+      }
+      closeModal();
+      showToast(`Đã gửi phản hồi cho ${req.code} (Trạng thái: Cơ sở đã phản hồi).`);
+      render();
+    }
+
+    function openOperatorRejectModal(reqId) {
+      const req = state.requests.find(r => r.id === reqId);
+      if (!req) return;
+      openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Từ chối yêu cầu lưu trú</h3>
+            <p style="font-size:12.5px; color:var(--ch-secondary); margin-top:2px;">Mã yêu cầu <span class="mono">${req.code}</span> · ${req.travelerName}</p>
+          </div>
+          <button class="modal-close" onclick="closeModal()" aria-label="Đóng"><span class="ms sm">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <label class="field-lbl">Lý do từ chối <span style="color:var(--st-rejected-accent);">*</span></label>
+            <textarea class="text-area" id="op-reject-textarea" placeholder="Ví dụ: Cơ sở đã kín phòng trong khoảng ngày 27/11–01/12...">${state.opDraftReject}</textarea>
+            <span class="field-err" id="op-reject-err" style="display:none;">Vui lòng nhập lý do từ chối để thông báo tới khách.</span>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:9px;">
+            <button class="btn btn-secondary btn-sm" onclick="closeModal()">Quay lại</button>
+            <button class="btn btn-danger-outline btn-sm" style="background:var(--st-rejected-bg); font-weight:800;" onclick="confirmOperatorReject('${req.id}')">
+              Xác nhận từ chối
+            </button>
+          </div>
+        </div>
+      `);
+    }
+
+    function confirmOperatorReject(reqId) {
+      const txt = (document.getElementById('op-reject-textarea')?.value || '').trim();
+      if (!txt) {
+        const err = document.getElementById('op-reject-err');
+        if (err) err.style.display = 'block';
+        return;
+      }
+      const req = state.requests.find(r => r.id === reqId);
+      if (req) {
+        req.status = 'rejected';
+        req.respondedAt = '26/11/2026 · 21:03';
+        req.rejectionReason = txt;
+        req.operatorResponse = '';
+        state.opDraftReject = txt;
+        state.activeRequestId = req.id;
+      }
+      closeModal();
+      showToast(`Đã từ chối yêu cầu ${req.code}.`);
+      render();
+    }
+
+    /* --- Planner Sightseeing-Only Modal --- */
+    function openSightseeingPickerModal(initialQ = '') {
+      state.pickerQuery = initialQ;
+      renderSightseeingPicker();
+      document.getElementById('modal-backdrop').classList.add('open');
+    }
+
+    function renderSightseeingPicker() {
+      const q = state.pickerQuery.trim().toLowerCase();
+      const isLodging = /(khách sạn|khach san|hotel|homestay|resort|lưu trú|luu tru|nhà nghỉ)/i.test(q);
+      const matches = SIGHTSEEING_POIS.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+      document.getElementById('modal-content').innerHTML = `
+        <div class="modal-head">
+          <div>
+            <h3>Chọn địa điểm muốn ghé</h3>
+            <p style="font-size:12px; color:var(--ch-secondary); margin-top:2px;">Chỉ hiển thị các điểm tham quan trong bán kính ${state.plannerRadiusKm} km.</p>
+          </div>
+          <button class="modal-close" onclick="closeModal()" aria-label="Đóng"><span class="ms sm">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span class="pill pill-teal"><span class="ms xs">attractions</span> Chỉ điểm tham quan · Không gồm khách sạn</span>
+            <span style="font-size:12px; font-weight:700; color:var(--ch-secondary);">Đã chọn ${state.mandatoryPoiIds.length}/6</span>
+          </div>
+          <div class="search-wrap">
+            <span class="ms sm">search</span>
+            <input class="text-input with-icon" id="sight-search" type="text" value="${state.pickerQuery}" placeholder="Tìm di sản, bãi biển, làng nghề..." oninput="state.pickerQuery=this.value; renderSightseeingPicker();" />
+          </div>
+          ${isLodging ? `
+            <div class="direct-notice" style="background:var(--ch-soft-accent); border-color:var(--ch-teal-border);">
+              <span class="ms" style="color:var(--ch-primary);">hotel</span>
+              <div style="flex:1;">
+                <strong style="color:var(--ch-primary);">Khách sạn không thuộc Địa điểm muốn ghé.</strong>
+                <div style="font-size:12px; margin-top:2px;">Nếu muốn chọn khách sạn làm điểm xuất phát hoặc gửi yêu cầu lưu trú, hãy mở trang Lưu trú riêng.</div>
+                <button class="btn btn-primary btn-xs" style="margin-top:7px;" onclick="closeModal(); go('traveler','t-stays');">Mở trang Lưu trú</button>
+              </div>
+            </div>
+          ` : ''}
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${(matches.length ? matches : SIGHTSEEING_POIS.slice(2,5)).map(p => {
+              const sel = state.mandatoryPoiIds.includes(p.id);
+              return `
+                <div class="picker-item">
+                  <div>
+                    <div style="font-size:13.5px; font-weight:800;">${p.name}</div>
+                    <div style="font-size:12px; color:var(--ch-secondary); margin-top:2px;">${p.category} · ${p.area} · cách ${p.distKm} km</div>
+                  </div>
+                  <button class="btn btn-xs ${sel ? 'btn-teal-soft' : 'btn-secondary'}" onclick="toggleMandatory('${p.id}')">
+                    ${sel ? 'Đã chọn' : '+ Thêm'}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div style="display:flex; justify-content:flex-end;">
+            <button class="btn btn-primary btn-sm" onclick="closeModal()">Xong</button>
+          </div>
+        </div>
+      `;
+      const inp = document.getElementById('sight-search');
+      if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    }
+
+    function toggleMandatory(id) {
+      state.mandatoryPoiIds = state.mandatoryPoiIds.includes(id)
+        ? state.mandatoryPoiIds.filter(x => x !== id)
+        : (state.mandatoryPoiIds.length < 6 ? [...state.mandatoryPoiIds, id] : state.mandatoryPoiIds);
+      render();
+      if (document.getElementById('modal-backdrop').classList.contains('open')) renderSightseeingPicker();
+    }
+
+    function openModal(html) { document.getElementById('modal-content').innerHTML = html; document.getElementById('modal-backdrop').classList.add('open'); }
+    function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
+    function toggleDock() { document.getElementById('review-dock').classList.toggle('open'); }
+    let toastTimer = null;
+    function showToast(msg) {
+      const b = document.getElementById('toast-bar');
+      document.getElementById('toast-text').textContent = msg;
+      b.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => b.classList.remove('show'), 3800);
+    }
+
+    /* ==========================================================================
+       TRAVELER SHELL & 5 SCREENS
+       ========================================================================== */
+    function statusBadgeHtml(st) {
+      if (st === 'responded') return `<span class="pill pill-responded"><span class="ms xs filled">mark_chat_read</span> Cơ sở đã phản hồi</span>`;
+      if (st === 'rejected') return `<span class="pill pill-rejected"><span class="ms xs filled">cancel</span> Đã từ chối</span>`;
+      return `<span class="pill pill-sent"><span class="ms xs">schedule</span> Đã gửi</span>`;
+    }
+
+    function renderTravelerShell(innerHtml) {
+      const activeCount = state.requests.filter(r => r.travelerName === 'Trần Ngọc Mai').length;
+      const isStays = state.screen === 't-stays' || state.screen === 't-detail';
+
+      return `
+        <header class="tm-header">
+          <div class="tm-header-inner">
+            <div class="tm-brand" onclick="go('traveler','t-itinerary')">
+              <div class="tm-brand-mark">TM</div>
+              <span class="tm-brand-name">TripMate</span>
+            </div>
+
+            <nav class="tm-nav" aria-label="Điều hướng công khai">
+              <button class="tm-nav-link" onclick="showToast('Trang Khám phá điểm tham quan giữ nguyên giao diện hiện tại')">Khám phá</button>
+              <button class="tm-nav-link ${isStays ? 'active' : ''}" id="nav-stays" onclick="go('traveler','t-stays')">Lưu trú</button>
+              <button class="tm-nav-link ${state.screen==='t-result' ? 'active' : ''}" id="nav-result" onclick="go('traveler','t-result')">
+                <span>Yêu cầu lưu trú</span>
+                ${activeCount > 0 ? `<span class="nav-badge">${activeCount}</span>` : ''}
+              </button>
+              <button class="tm-nav-link ${state.screen==='t-itinerary' ? 'active' : ''}" id="nav-itinerary" onclick="go('traveler','t-itinerary')">Lịch trình của tôi</button>
+              <button class="tm-nav-link ${state.screen==='t-planner' ? 'active' : ''}" id="nav-planner" onclick="go('traveler','t-planner')">Lập lịch trình</button>
+              <button class="tm-nav-link" onclick="showToast('Tour du lịch giữ nguyên giao diện hiện tại')">Tour du lịch</button>
+            </nav>
+
+            <div class="tm-header-actions">
+              <button class="btn btn-secondary btn-xs demo-only" onclick="go('operator','op-requests')" title="Chuyển sang cổng Hotel Operator">
+                <span class="ms xs">apartment</span> Hotel Operator
+              </button>
+              <button class="tm-icon-btn" onclick="go('traveler','t-result')" aria-label="Thông báo">
+                <span class="ms sm">notifications</span>
+                <span class="tm-dot"></span>
+              </button>
+              <button class="tm-profile-pill" onclick="showToast('Tài khoản Traveler: Trần Ngọc Mai')">
+                <span class="ms sm">account_circle</span>
+                <span class="name">Trần Ngọc Mai</span>
+              </button>
+              <button class="tm-burger" onclick="state.mobileDrawerOpen=!state.mobileDrawerOpen; render();" aria-label="Mở menu">
+                <span class="ms">menu</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="mobile-drawer ${state.mobileDrawerOpen ? 'open' : ''}">
+            <div class="mobile-drawer-links">
+              <button class="${isStays?'active':''}" onclick="go('traveler','t-stays')"><span>Trang Lưu trú riêng</span><span class="ms sm">hotel</span></button>
+              <button class="${state.screen==='t-result'?'active':''}" onclick="go('traveler','t-result')"><span>Yêu cầu lưu trú của tôi</span><span class="ms sm">receipt_long</span></button>
+              <button class="${state.screen==='t-itinerary'?'active':''}" onclick="go('traveler','t-itinerary')"><span>Chi tiết lịch trình (/itinerary/1)</span><span class="ms sm">map</span></button>
+              <button class="${state.screen==='t-planner'?'active':''}" onclick="go('traveler','t-planner')"><span>Lập lịch trình</span><span class="ms sm">edit_calendar</span></button>
+              <button onclick="go('operator','op-requests')"><span>Cổng Hotel Operator (Provider Web)</span><span class="ms sm">apartment</span></button>
+            </div>
+          </div>
+        </header>
+
+        <main class="page-container">${innerHtml}</main>
+      `;
+    }
+
+    /* --- TRAVELER SCREEN A: CHI TIẾT LỊCH TRÌNH (/itinerary/1) --- */
+    function renderTravelerItinerary() {
+      const it = ITINERARY_BASE;
+      const linkedReqs = state.requests.filter(r => r.itineraryId === it.id && r.travelerName === 'Trần Ngọc Mai');
+      const respondedReq = linkedReqs.find(r => r.status === 'responded');
+      const sentReq = linkedReqs.find(r => r.status === 'sent');
+      const activeStayReq = respondedReq || sentReq || null;
+      const visibleDays = state.itineraryDayFilter === 'all' ? it.days : it.days.filter(d => d.key === state.itineraryDayFilter);
+      const suggestions = state.properties.filter(p => p.area === 'Hội An').slice(0, 3);
+      const startHotel = state.itineraryLinkedHotelStart;
+
+      return `
+        <section class="card card-pad">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:7px;">
+                <span class="pill pill-open">Đang hoạt động</span>
+                <span class="pill pill-teal">Tạo bởi AI</span>
+                <span class="mono" style="font-size:12px; color:var(--ch-secondary);">/itinerary/${it.id} · v${it.version}</span>
+                ${startHotel ? `<span class="pill pill-copper"><span class="ms xs">trip_origin</span> Xuất phát từ ${startHotel.name}</span>` : ''}
+              </div>
+              <h1 class="page-h1">${it.title}</h1>
+              <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:6px; font-size:13.5px; color:var(--ch-secondary); font-weight:600;">
+                <span>${it.destination}</span>
+                <span>•</span>
+                <span style="color:var(--ch-ink); font-weight:800;">Lịch tham quan: ${it.tripRange} (3 ngày)</span>
+                <span>•</span>
+                <span>${it.transport}</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('Chỉnh sửa thứ tự chỉ áp dụng cho điểm tham quan')">Chỉnh sửa thứ tự</button>
+              <button class="btn btn-secondary btn-sm" onclick="go('traveler','t-planner')">Tùy chỉnh lại</button>
+              <button class="btn btn-secondary btn-sm" onclick="window.print?.()">In lịch trình</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="itin-metrics">
+          <div class="metric-box">
+            <div class="k">Lịch tham quan</div>
+            <div class="v tnum">28/11 – 30/11</div>
+            <div class="s">3 ngày · Tuyến giữ nguyên</div>
+          </div>
+          <div class="metric-box">
+            <div class="k">Điểm dừng tham quan</div>
+            <div class="v tnum">8 điểm tham quan</div>
+            <div class="s">Không gồm cơ sở lưu trú</div>
+          </div>
+          <div class="metric-box">
+            <div class="k">Điểm xuất phát tuyến</div>
+            <div class="v" style="font-size:14px; color:${startHotel ? 'var(--ch-accent-text)' : 'var(--ch-ink)'};">${startHotel ? startHotel.name : 'Sân bay Đà Nẵng'}</div>
+            <div class="s">${startHotel ? 'Đã chọn từ khách sạn lưu trú' : 'Có thể đổi sang khách sạn'}</div>
+          </div>
+          <div class="metric-box">
+            <div class="k">Trạng thái Lưu trú</div>
+            <div class="v" style="font-size:14.5px; color:${respondedReq ? 'var(--st-responded-text)' : (sentReq ? 'var(--st-sent-text)' : 'var(--ch-secondary)')};">
+              ${respondedReq ? 'Cơ sở đã phản hồi' : (sentReq ? 'Đã gửi yêu cầu' : 'Chưa gửi yêu cầu')}
+            </div>
+            <div class="s">${activeStayReq ? `${fmtShort(activeStayReq.checkIn)}–${fmtShort(activeStayReq.checkOut)} · ${activeStayReq.guests} khách` : 'Xem Gợi ý lưu trú bên cạnh'}</div>
+          </div>
+        </section>
+
+        <!-- Day tabs -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+          <span style="font-size:12.5px; font-weight:700; color:var(--ch-secondary);">Điểm tham quan theo ngày:</span>
+          <button class="chip-btn ${state.itineraryDayFilter==='all'?'active':''}" onclick="state.itineraryDayFilter='all'; render();">Tất cả (8 điểm)</button>
+          ${it.days.map((d, i) => `
+            <button class="chip-btn ${state.itineraryDayFilter===d.key?'active':''}" onclick="state.itineraryDayFilter='${d.key}'; render();">Ngày ${i+1} · ${d.key.slice(8)}/11 (${d.stops.length})</button>
+          `).join('')}
+        </div>
+
+        <div class="itin-two-col">
+          <!-- LEFT (60%): Tuyến tham quan (CHỈ ĐIỂM THAM QUAN) -->
+          <section class="card card-pad" aria-label="Tuyến tham quan chi tiết">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:15px; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="font-family:var(--font-display); font-size:18px; font-weight:700;">Lộ trình tham quan chi tiết</h2>
+                <p style="font-size:12.5px; color:var(--ch-secondary); margin-top:2px;">Các điểm dừng tham quan ngày 28–30/11 (tách biệt với khối Lưu trú).</p>
+              </div>
+              <span class="pill pill-neutral">Chỉ điểm tham quan</span>
+            </div>
+
+            ${startHotel ? `
+              <div style="margin-bottom:14px; padding:10px 13px; border-radius:12px; background:var(--ch-accent-soft); border:1px solid var(--ch-accent-border); display:flex; align-items:center; gap:9px; font-size:12.5px;">
+                <span class="ms sm" style="color:var(--ch-accent-text);">trip_origin</span>
+                <div><strong style="color:var(--ch-accent-text);">Điểm xuất phát:</strong> ${startHotel.name} (${startHotel.address}) — tuyến di chuyển tính từ vị trí này.</div>
+              </div>
+            ` : ''}
+
+            ${visibleDays.map(day => `
+              <div class="day-section">
+                <div class="day-heading">
+                  <h3>${day.label}</h3>
+                  <span style="font-size:12px; color:var(--ch-secondary); font-weight:600;">${day.stops.length} điểm tham quan</span>
+                </div>
+                ${day.stops.map(s => `
+                  <div class="timeline-stop">
+                    <div class="stop-seq">${s.seq}</div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex-wrap:wrap;">
+                        <div>
+                          <div style="font-size:14.5px; font-weight:800;">${s.name}</div>
+                          <div class="tnum" style="font-size:12px; font-weight:700; color:var(--ch-primary); margin-top:3px;">${s.time} · ${s.address}</div>
+                        </div>
+                        <span class="pill pill-neutral" style="font-size:11px;">${s.category}</span>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `).join('')}
+          </section>
+
+          <!-- RIGHT (40%): KHỐI LƯU TRÚ RIÊNG + BẢN ĐỒ LỘ TRÌNH -->
+          <aside class="sticky-side">
+            <section class="itin-stay-card" aria-label="Khối Lưu trú riêng">
+              <div class="itin-stay-head">
+                <div class="itin-stay-title">
+                  <span class="ms sm filled">hotel</span>
+                  <span>Lưu trú</span>
+                </div>
+                ${activeStayReq ? statusBadgeHtml(activeStayReq.status) : `<span class="pill pill-neutral" style="background:#FFFFFF;">Tách khỏi tuyến tham quan</span>`}
+              </div>
+
+              <div class="itin-stay-body">
+                ${activeStayReq ? `
+                  <div>
+                    <div style="font-family:var(--font-display); font-size:17.5px; font-weight:700;">${activeStayReq.propertyName}</div>
+                    <div style="font-size:12px; color:var(--ch-secondary); margin-top:2px;">Mã yêu cầu: <strong class="mono" style="color:var(--ch-ink);">${activeStayReq.code}</strong></div>
+                  </div>
+
+                  <div style="background:var(--ch-surface-warm); border:1px solid var(--ch-border); border-radius:11px; padding:11px 13px; display:grid; grid-template-columns:1fr auto; gap:8px; font-size:12.5px;">
+                    <div>
+                      <div style="font-size:11px; color:var(--ch-secondary); font-weight:600;">Ngày nhận / trả dự kiến</div>
+                      <div class="tnum" style="font-weight:800; margin-top:2px;">${fmtFull(activeStayReq.checkIn)} – ${fmtFull(activeStayReq.checkOut)}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-size:11px; color:var(--ch-secondary); font-weight:600;">Số khách</div>
+                      <div class="tnum" style="font-weight:800; margin-top:2px;">${activeStayReq.guests} khách</div>
+                    </div>
+                  </div>
+
+                  ${activeStayReq.status === 'responded' ? `
+                    <div class="reply-quote-box" style="padding:11px 13px;">
+                      <div style="font-size:11.5px; font-weight:800; color:var(--st-responded-text); display:flex; align-items:center; gap:5px;">
+                        <span class="ms xs filled">mark_chat_read</span> Phản hồi từ cơ sở (${activeStayReq.respondedAt})
+                      </div>
+                      <p style="font-size:12px; color:var(--ch-ink); line-height:1.45;">${activeStayReq.operatorResponse}</p>
+                    </div>
+                  ` : `
+                    <div class="direct-notice" style="padding:9px 11px;">
+                      <span class="ms xs">schedule</span>
+                      <div>Yêu cầu đã gửi tới cơ sở. Bạn sẽ trao đổi trực tiếp với cơ sở về phòng trống, giá, giữ chỗ và thanh toán.</div>
+                    </div>
+                  `}
+
+                  <div style="display:flex; flex-direction:column; gap:7px;">
+                    ${startHotel && startHotel.id === activeStayReq.propertyId ? `
+                      <div style="font-size:12px; font-weight:700; color:var(--ch-accent-text); background:var(--ch-accent-soft); border:1px solid var(--ch-accent-border); border-radius:10px; padding:8px 11px; display:flex; align-items:center; gap:6px;">
+                        <span class="ms sm">trip_origin</span> Đang dùng làm Điểm xuất phát trên bản đồ lộ trình
+                      </div>
+                    ` : `
+                      <button class="btn btn-copper-soft btn-sm btn-full" onclick="useHotelAsStartPoint('${activeStayReq.propertyId}')">
+                        <span class="ms sm">trip_origin</span> Dùng làm điểm xuất phát
+                      </button>
+                    `}
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+                      <button class="btn btn-secondary btn-sm" onclick="state.activeRequestId='${activeStayReq.id}'; go('traveler','t-result');">Chi tiết yêu cầu</button>
+                      <button class="btn btn-primary btn-sm" onclick="state.linkedItinerary={id:1,title:ITINERARY_BASE.title,range:ITINERARY_BASE.tripRange}; state.area='Hội An'; go('traveler','t-stays');">Tìm nơi ở khác</button>
+                    </div>
+                  </div>
+                ` : `
+                  <div>
+                    <div style="font-size:14px; font-weight:800;">Gợi ý lưu trú gần chuyến đi Hội An</div>
+                    <p style="font-size:12px; color:var(--ch-secondary); line-height:1.5; margin-top:3px;">
+                      Gửi yêu cầu lưu trú trực tiếp tới cơ sở hoặc chọn một khách sạn làm <strong>Điểm xuất phát</strong> cho tuyến tham quan.
+                    </p>
+                    <button class="btn btn-primary btn-sm btn-full" style="margin-top:10px;" onclick="state.linkedItinerary={id:1,title:ITINERARY_BASE.title,range:ITINERARY_BASE.tripRange}; state.area='Hội An'; go('traveler','t-stays');">
+                      <span class="ms sm">hotel</span> Tìm nơi ở
+                    </button>
+                  </div>
+
+                  <div style="display:flex; flex-direction:column; gap:9px; border-top:1px solid var(--ch-border); padding-top:12px;">
+                    ${suggestions.map(sp => `
+                      <div class="suggest-item">
+                        <div class="suggest-top" onclick="state.linkedItinerary={id:1,title:ITINERARY_BASE.title,range:ITINERARY_BASE.tripRange}; openHotelDetail('${sp.id}', true);">
+                          ${sp.photos[0]
+                            ? `<div class="suggest-thumb" style="background-image:url('${sp.photos[0]}');"></div>`
+                            : `<div class="suggest-thumb" style="background:var(--ch-soft-accent); display:flex; align-items:center; justify-content:center; color:var(--ch-primary);"><span class="ms">hotel</span></div>`
+                          }
+                          <div style="flex:1; min-width:0;">
+                            <div style="font-size:13.5px; font-weight:800; color:var(--ch-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sp.name}</div>
+                            <div style="font-size:11.5px; color:var(--ch-secondary); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sp.address}</div>
+                            <div style="margin-top:4px;">
+                              ${sp.acceptingRequests
+                                ? `<span class="pill pill-open" style="font-size:10px; padding:2px 7px;">Đang nhận yêu cầu</span>`
+                                : `<span class="pill pill-closed" style="font-size:10px; padding:2px 7px;">Chưa mở nhận yêu cầu</span>`
+                              }
+                            </div>
+                          </div>
+                        </div>
+                        <div class="suggest-btns">
+                          <button class="btn btn-teal-soft btn-xs" onclick="state.linkedItinerary={id:1,title:ITINERARY_BASE.title,range:ITINERARY_BASE.tripRange}; openHotelDetail('${sp.id}', true);">
+                            ${sp.acceptingRequests ? 'Gửi yêu cầu' : 'Xem thông tin'}
+                          </button>
+                          <button class="btn btn-secondary btn-xs" onclick="useHotelAsStartPoint('${sp.id}')">
+                            Dùng làm điểm xuất phát
+                          </button>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                `}
+              </div>
+            </section>
+
+            <!-- Bản đồ lộ trình (Khách sạn có thể xuất hiện với nhãn "Điểm xuất phát") -->
+            <section class="card card-pad" style="padding:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="font-size:14px; font-weight:800;">Bản đồ lộ trình</h3>
+                <span class="pill pill-teal" style="font-size:11px;">8 điểm tham quan</span>
+              </div>
+              <div class="coastal-map-box">
+                <svg viewBox="0 0 420 205" role="img" aria-label="Bản đồ lộ trình Hội An">
+                  <rect width="420" height="205" fill="#D9ECEB"/>
+                  <path d="M0,0 L308,0 C324,52 316,128 336,205 L0,205 Z" fill="#EFECE2"/>
+                  <path d="M22,146 C125,135 224,130 328,150" fill="none" stroke="#B7DCE0" stroke-width="9" stroke-linecap="round"/>
+                  <!-- Route line starting from Hotel Start Point (if chosen) or Airport -->
+                  ${startHotel
+                    ? `<path d="M232,126 L186,115 L256,124 L274,72 L134,104 L74,154" fill="none" stroke="#174B4A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`
+                    : `<path d="M84,38 L186,115 L256,124 L274,72 L134,104 L74,154" fill="none" stroke="#174B4A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`
+                  }
+                  <!-- Sightseeing Markers -->
+                  <g font-family="Manrope,sans-serif" font-weight="800" font-size="10">
+                    <circle cx="186" cy="115" r="10" fill="#174B4A" stroke="#FFF" stroke-width="2"/><text x="186" y="119" text-anchor="middle" fill="#FFF">1</text>
+                    <circle cx="256" cy="124" r="10" fill="#174B4A" stroke="#FFF" stroke-width="2"/><text x="256" y="128" text-anchor="middle" fill="#FFF">4</text>
+                    <circle cx="274" cy="72" r="10" fill="#174B4A" stroke="#FFF" stroke-width="2"/><text x="274" y="76" text-anchor="middle" fill="#FFF">6</text>
+                    <circle cx="134" cy="104" r="10" fill="#174B4A" stroke="#FFF" stroke-width="2"/><text x="134" y="108" text-anchor="middle" fill="#FFF">7</text>
+                    <circle cx="74" cy="154" r="10" fill="#174B4A" stroke="#FFF" stroke-width="2"/><text x="74" y="158" text-anchor="middle" fill="#FFF">8</text>
+                  </g>
+                  <!-- Start Point Marker (Hotel labeled "Điểm xuất phát" when selected!) -->
+                  ${startHotel ? `
+                    <g>
+                      <circle cx="232" cy="126" r="12" fill="#B96D4C" stroke="#FFFFFF" stroke-width="2.5"/>
+                      <text x="232" y="130" text-anchor="middle" fill="#FFFFFF" font-family="Manrope,sans-serif" font-weight="800" font-size="10">A</text>
+                      <rect x="172" y="144" width="122" height="22" rx="11" fill="#1C2928" opacity="0.92"/>
+                      <text x="233" y="158.5" text-anchor="middle" fill="#FFFFFF" font-family="Manrope,sans-serif" font-weight="700" font-size="10">Điểm xuất phát</text>
+                    </g>
+                  ` : `
+                    <g>
+                      <circle cx="84" cy="38" r="11" fill="#B96D4C" stroke="#FFFFFF" stroke-width="2.5"/>
+                      <text x="84" y="42" text-anchor="middle" fill="#FFFFFF" font-family="Manrope,sans-serif" font-weight="800" font-size="10">A</text>
+                      <rect x="100" y="27" width="96" height="21" rx="10" fill="#1C2928" opacity="0.88"/>
+                      <text x="148" y="41" text-anchor="middle" fill="#FFFFFF" font-family="Manrope,sans-serif" font-weight="700" font-size="9.5">Điểm xuất phát</text>
+                    </g>
+                  `}
+                  <text x="342" y="92" fill="#467574" font-family="Manrope,sans-serif" font-size="11" font-weight="700">Biển An Bàng</text>
+                </svg>
+              </div>
+              <div style="font-size:11.5px; color:var(--ch-secondary); margin-top:9px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+                <span><strong style="color:var(--ch-accent-text);">A · Điểm xuất phát:</strong> ${startHotel ? startHotel.name : 'Sân bay Đà Nẵng'}</span>
+                <span><strong style="color:var(--ch-primary);">1–8:</strong> Điểm tham quan</span>
+              </div>
+            </section>
+          </aside>
+        </div>
+      `;
+    }
+
+    /* --- TRAVELER SCREEN B: TRANG LƯU TRÚ RIÊNG (/stays) --- */
+    function renderTravelerStays() {
+      const q = state.search.trim().toLowerCase();
+      const filtered = state.properties.filter(p => {
+        if (state.area !== 'Tất cả' && p.area !== state.area) return false;
+        if (state.statusFilter === 'open' && !p.acceptingRequests) return false;
+        if (state.statusFilter === 'closed' && p.acceptingRequests) return false;
+        if (q && !p.name.toLowerCase().includes(q) && !p.address.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      return `
+        ${state.linkedItinerary ? `
+          <div class="context-strip">
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px;">
+              <span class="ms" style="color:var(--ch-primary);">event_note</span>
+              <div>
+                <strong>Đang tìm nơi ở cho chuyến đi: ${state.linkedItinerary.title} (${state.linkedItinerary.range})</strong>
+                <div style="font-size:12px; color:var(--ch-secondary);">Yêu cầu gửi sẽ tự động gắn với lịch trình này. Hoặc chọn cơ sở bất kỳ để <strong>Dùng làm điểm xuất phát</strong>.</div>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="go('traveler','t-itinerary')">
+              <span class="ms sm">arrow_back</span> Quay lại lịch trình
+            </button>
+          </div>
+        ` : ''}
+
+        <div>
+          <div class="eyebrow"><span class="ms xs">hotel</span> Lưu trú · TripMate Coastal Heritage</div>
+          <h1 class="page-h1">Tìm nơi ở và gửi yêu cầu lưu trú</h1>
+          <p class="page-sub">
+            Tìm khách sạn, homestay và resort theo khu vực. Gửi yêu cầu lưu trú trực tiếp tới cơ sở hoặc chọn khách sạn làm Điểm xuất phát cho hành trình.
+          </p>
+        </div>
+
+        <section class="filter-surface">
+          <div class="filter-top-row">
+            <div class="search-wrap">
+              <span class="ms sm">search</span>
+              <input class="text-input with-icon" type="text" value="${state.search}" placeholder="Tìm tên khách sạn, homestay, resort hoặc địa chỉ..." oninput="state.search=this.value; render();" />
+            </div>
+            <div class="segmented-group">
+              <span style="font-size:12px; font-weight:700; color:var(--ch-secondary);">Khu vực:</span>
+              ${['Tất cả', 'Hội An', 'Đà Nẵng', 'Huế'].map(a => `
+                <button class="chip-btn ${state.area===a?'active':''}" onclick="state.area='${a}'; render();">${a}</button>
+              `).join('')}
+            </div>
+            <button class="btn btn-secondary btn-sm filter-reset-btn" onclick="state.search=''; state.area='Tất cả'; state.statusFilter='all'; render();">Đặt lại</button>
+          </div>
+
+          <div class="filter-bottom-row">
+            <div class="segmented-group">
+              <span style="font-size:12px; font-weight:700; color:var(--ch-secondary);">Trạng thái nhận yêu cầu:</span>
+              ${[
+                ['all', 'Tất cả'],
+                ['open', 'Đang nhận yêu cầu'],
+                ['closed', 'Chưa mở nhận yêu cầu']
+              ].map(([k, l]) => `
+                <button class="chip-btn ${state.statusFilter===k?'soft-active':''}" onclick="state.statusFilter='${k}'; render();">${l}</button>
+              `).join('')}
+            </div>
+            <span style="font-size:12.5px; color:var(--ch-secondary);">Hiển thị <strong style="color:var(--ch-ink);">${filtered.length}</strong> cơ sở lưu trú</span>
+          </div>
+        </section>
+
+        <section class="stays-grid" aria-label="Danh sách cơ sở lưu trú">
+          ${filtered.map(p => `
+            <article class="stay-card ${p.acceptingRequests ? '' : 'closed-card'}">
+              ${p.photos[0] ? `
+                <div class="stay-media" style="background-image:url('${p.photos[0]}');" onclick="openHotelDetail('${p.id}', Boolean(state.linkedItinerary))">
+                  <div class="stay-media-row">
+                    <span class="media-type-tag">${p.type} · ${p.area}</span>
+                    ${p.verifiedByStaff ? `<span class="pill pill-teal" style="background:rgba(255,255,255,0.92); font-size:10.5px;">Đã xác minh</span>` : ''}
+                  </div>
+                  <div class="stay-media-row">
+                    ${p.acceptingRequests
+                      ? `<span class="pill pill-open"><span class="ms xs filled">check_circle</span> Đang nhận yêu cầu</span>`
+                      : `<span class="pill pill-closed"><span class="ms xs">event_busy</span> Chưa mở nhận yêu cầu</span>`
+                    }
+                  </div>
+                </div>
+              ` : `
+                <div class="stay-media no-photo" onclick="openHotelDetail('${p.id}', Boolean(state.linkedItinerary))">
+                  <div class="stay-media-row" style="position:absolute; top:12px; left:12px; right:12px; width:auto;">
+                    <span class="media-type-tag">${p.type} · ${p.area}</span>
+                    ${p.acceptingRequests
+                      ? `<span class="pill pill-open"><span class="ms xs filled">check_circle</span> Đang nhận yêu cầu</span>`
+                      : `<span class="pill pill-closed"><span class="ms xs">event_busy</span> Chưa mở nhận yêu cầu</span>`
+                    }
+                  </div>
+                  <div style="text-align:center; color:var(--ch-secondary); margin-top:16px;">
+                    <span class="ms lg" style="color:var(--ch-primary);">hotel</span>
+                    <div style="font-size:11.5px; font-weight:600; margin-top:4px;">Chưa có ảnh đại diện</div>
+                  </div>
+                </div>
+              `}
+              <div class="stay-body">
+                <div class="stay-title" onclick="openHotelDetail('${p.id}', Boolean(state.linkedItinerary))">${p.name}</div>
+                <div class="stay-addr"><span class="ms xs">location_on</span><span>${p.address}</span></div>
+                <p style="font-size:12px; color:var(--ch-secondary); line-height:1.45;">${p.summary}</p>
+                <div class="stay-card-actions">
+                  <button class="btn ${p.acceptingRequests ? 'btn-primary' : 'btn-secondary'} btn-sm btn-full" onclick="openHotelDetail('${p.id}', Boolean(state.linkedItinerary))">
+                    ${p.acceptingRequests ? '<span class="ms sm">mail</span> Xem & Gửi yêu cầu lưu trú' : 'Xem thông tin cơ sở'}
+                  </button>
+                  <button class="btn btn-teal-soft btn-sm btn-full" onclick="useHotelAsStartPoint('${p.id}')">
+                    <span class="ms sm">trip_origin</span> Dùng làm điểm xuất phát
+                  </button>
+                </div>
+              </div>
+            </article>
+          `).join('')}
+        </section>
+      `;
+    }
+
+    /* --- TRAVELER SCREEN C: CHI TIẾT KHÁCH SẠN & FORM "GỬI YÊU CẦU LƯU TRÚ" --- */
+    function renderTravelerHotelDetail() {
+      const p = getProp(state.selectedPropertyId);
+      const nights = diffDays(state.formCheckIn, state.formCheckOut);
+
+      return `
+        <nav class="breadcrumb">
+          <button onclick="go('traveler','t-stays')">Lưu trú</button>
+          <span>/</span>
+          <span>${p.area}</span>
+          <span>/</span>
+          <strong style="color:var(--ch-ink);">${p.name}</strong>
+        </nav>
+
+        <div class="detail-split">
+          <!-- LEFT: Hotel Information + Separate "Dùng làm điểm xuất phát" action -->
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            ${p.photos.length > 0 ? `
+              <div class="gallery-grid">
+                <div class="gallery-main" style="background-image:url('${p.photos[0]}');">
+                  ${p.acceptingRequests
+                    ? `<span class="pill pill-open"><span class="ms xs filled">check_circle</span> Đang nhận yêu cầu</span>`
+                    : `<span class="pill pill-closed"><span class="ms xs">event_busy</span> Chưa mở nhận yêu cầu</span>`
+                  }
+                  <span class="media-type-tag">${p.type} · ${p.area}</span>
+                </div>
+                <div class="gallery-sub" style="background-image:url('${p.photos[1] || p.photos[0]}');"></div>
+                <div class="gallery-sub" style="background-image:url('${p.photos[2] || p.photos[0]}');"></div>
+              </div>
+            ` : `
+              <div class="card card-pad" style="background:var(--ch-soft-accent); text-align:center; padding:34px 20px;">
+                <span class="ms lg" style="color:var(--ch-primary);">hotel</span>
+                <div style="font-size:13px; font-weight:700; color:var(--ch-secondary); margin-top:6px;">Cơ sở chưa cập nhật hình ảnh</div>
+              </div>
+            `}
+
+            <section class="card card-pad">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:7px;">
+                    <span class="pill pill-teal">${p.type}</span>
+                    <span class="pill pill-neutral">${p.area}</span>
+                    ${p.acceptingRequests
+                      ? `<span class="pill pill-open">Đang nhận yêu cầu</span>`
+                      : `<span class="pill pill-closed">Chưa mở nhận yêu cầu</span>`
+                    }
+                  </div>
+                  <h1 class="page-h1" style="font-size:24px;">${p.name}</h1>
+                </div>
+
+                <!-- Separate "Dùng làm điểm xuất phát" action -->
+                <button class="btn btn-copper-soft btn-sm" onclick="useHotelAsStartPoint('${p.id}')">
+                  <span class="ms sm">trip_origin</span> Dùng làm điểm xuất phát
+                </button>
+              </div>
+
+              <div style="display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:13px; color:var(--ch-secondary);">
+                <span style="display:inline-flex; align-items:center; gap:4px;"><span class="ms xs">location_on</span> ${p.address}</span>
+                <span style="display:inline-flex; align-items:center; gap:4px;"><span class="ms xs">schedule</span> ${p.checkInNote}</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:14px; margin-top:6px; font-size:13px; color:var(--ch-secondary);">
+                <span style="display:inline-flex; align-items:center; gap:4px;" class="mono"><span class="ms xs">call</span> ${p.hotline}</span>
+                <span style="display:inline-flex; align-items:center; gap:4px;"><span class="ms xs">mail</span> ${p.contactEmail}</span>
+              </div>
+
+              ${!p.acceptingRequests ? `
+                <div class="closed-notice" style="margin-top:15px;">
+                  <span class="ms">event_busy</span>
+                  <div>
+                    <h4 style="font-size:14px; font-weight:800;">Chưa mở nhận yêu cầu</h4>
+                    <p style="font-size:12.5px; color:var(--ch-secondary); line-height:1.5; margin-top:3px;">
+                      Cơ sở hiện tạm đóng nhận yêu cầu trực tuyến trên TripMate. Bạn vẫn có thể xem đầy đủ thông tin, liên hệ trực tiếp qua hotline hoặc dùng vị trí này làm <strong>Điểm xuất phát</strong> khi lập lịch trình.
+                    </p>
+                  </div>
+                </div>
+              ` : ''}
+
+              <p style="font-size:13.5px; color:var(--ch-secondary); line-height:1.6; margin-top:14px;">${p.summary}</p>
+              <div class="amenity-list">
+                ${p.amenities.map(a => `<span class="amenity-chip">${a}</span>`).join('')}
+              </div>
+            </section>
+          </div>
+
+          <!-- RIGHT: SIMPLE INQUIRY FORM ("Gửi yêu cầu lưu trú") — NO rooms/inventory/price/checkout/mobile handoff -->
+          <aside class="sticky-side">
+            ${p.acceptingRequests ? `
+              <section class="inquiry-panel" aria-label="Biểu mẫu gửi yêu cầu lưu trú">
+                <div class="inquiry-head">
+                  <h2>Gửi yêu cầu lưu trú</h2>
+                  ${state.linkedItinerary
+                    ? `<span class="pill pill-teal" style="background:#FFFFFF;">Gắn chuyến Hội An</span>`
+                    : `<span class="pill pill-neutral" style="background:#FFFFFF;">Độc lập</span>`
+                  }
+                </div>
+
+                <div class="inquiry-body">
+                  ${state.linkedItinerary ? `
+                    <div style="background:var(--ch-soft-accent); border:1px solid var(--ch-teal-border); border-radius:11px; padding:9px 12px; display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:12px;">
+                      <div>
+                        <strong style="color:var(--ch-primary);">Liên kết lịch trình:</strong> ${state.linkedItinerary.title} (${state.linkedItinerary.range})
+                      </div>
+                      <button type="button" style="border:none; background:none; font-size:11.5px; font-weight:700; color:var(--ch-secondary); cursor:pointer; text-decoration:underline; flex-shrink:0;" onclick="state.linkedItinerary=null; render();">Bỏ gắn</button>
+                    </div>
+                  ` : ''}
+
+                  <div class="form-2col">
+                    <div>
+                      <label class="field-lbl">Ngày nhận dự kiến <span style="color:var(--st-rejected-accent);">*</span></label>
+                      <input class="text-input tnum ${state.formErrors.checkIn?'invalid':''}" type="date" value="${state.formCheckIn}" onchange="state.formCheckIn=this.value; delete state.formErrors.checkIn; render();" />
+                      ${state.formErrors.checkIn ? `<span class="field-err">${state.formErrors.checkIn}</span>` : ''}
+                    </div>
+                    <div>
+                      <label class="field-lbl">Ngày trả dự kiến <span style="color:var(--st-rejected-accent);">*</span></label>
+                      <input class="text-input tnum ${state.formErrors.checkOut?'invalid':''}" type="date" value="${state.formCheckOut}" onchange="state.formCheckOut=this.value; delete state.formErrors.checkOut; render();" />
+                      ${state.formErrors.checkOut ? `<span class="field-err">${state.formErrors.checkOut}</span>` : ''}
+                    </div>
+                  </div>
+                  ${nights > 0 ? `
+                    <div style="font-size:12px; color:var(--ch-secondary); margin-top:-6px;">
+                      Khoảng lưu trú dự kiến: <strong class="tnum" style="color:var(--ch-ink);">${fmtFull(state.formCheckIn)} – ${fmtFull(state.formCheckOut)} (${nights} đêm)</strong>
+                    </div>
+                  ` : ''}
+
+                  <div class="stepper-row">
+                    <div>
+                      <div style="font-size:13px; font-weight:800;">Số khách</div>
+                      <div style="font-size:11.5px; color:var(--ch-secondary);">Tổng số khách dự kiến lưu trú</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <button type="button" class="step-btn" ${state.formGuests<=1?'disabled':''} onclick="state.formGuests=Math.max(1,state.formGuests-1); render();" aria-label="Giảm số khách">−</button>
+                      <span class="tnum" style="font-size:15px; font-weight:800; min-width:22px; text-align:center;">${state.formGuests}</span>
+                      <button type="button" class="step-btn" ${state.formGuests>=20?'disabled':''} onclick="state.formGuests=Math.min(20,state.formGuests+1); render();" aria-label="Tăng số khách">+</button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="field-lbl">Họ và tên <span style="color:var(--st-rejected-accent);">*</span></label>
+                    <input class="text-input ${state.formErrors.name?'invalid':''}" type="text" value="${state.formName}" oninput="state.formName=this.value; delete state.formErrors.name;" placeholder="Nhập tên của bạn" />
+                    ${state.formErrors.name ? `<span class="field-err">${state.formErrors.name}</span>` : ''}
+                  </div>
+
+                  <div style="display:flex; flex-direction:column; gap:9px;">
+                    <div style="font-size:11.5px; font-weight:700; color:var(--ch-secondary);">Email hoặc số điện thoại liên hệ <span style="color:var(--st-rejected-accent);">*</span> (nhập ít nhất 1 kênh)</div>
+                    <div class="form-2col">
+                      <div>
+                        <label class="field-lbl">Số điện thoại</label>
+                        <input class="text-input tnum ${state.formErrors.contact?'invalid':''}" type="tel" value="${state.formPhone}" oninput="state.formPhone=this.value; delete state.formErrors.contact;" placeholder="0905 678 234" />
+                      </div>
+                      <div>
+                        <label class="field-lbl">Email</label>
+                        <input class="text-input ${state.formErrors.contact?'invalid':''}" type="email" value="${state.formEmail}" oninput="state.formEmail=this.value; delete state.formErrors.contact;" placeholder="email@example.com" />
+                      </div>
+                    </div>
+                    ${state.formErrors.contact ? `<span class="field-err" style="margin-top:-4px;">${state.formErrors.contact}</span>` : ''}
+                  </div>
+
+                  <div>
+                    <label class="field-lbl">Ghi chú tùy chọn</label>
+                    <textarea class="text-area" oninput="state.formNotes=this.value;" placeholder="Ví dụ: Số phòng mong muốn, nhu cầu giường, giờ nhận phòng dự kiến...">${state.formNotes}</textarea>
+                  </div>
+
+                  <!-- Mandatory exact wording -->
+                  <div class="direct-notice">
+                    <span class="ms sm">forum</span>
+                    <div><strong>Bạn sẽ trao đổi trực tiếp với cơ sở về phòng trống, giá, giữ chỗ và thanh toán.</strong></div>
+                  </div>
+
+                  <button type="button" class="btn btn-primary btn-full" onclick="submitStayInquiry()">
+                    <span class="ms sm">send</span> Gửi yêu cầu lưu trú
+                  </button>
+                </div>
+              </section>
+            ` : `
+              <section class="card card-pad" style="background:#FCFCFA;">
+                <span class="pill pill-closed"><span class="ms xs">event_busy</span> Chưa mở nhận yêu cầu</span>
+                <h3 style="font-family:var(--font-display); font-size:18px; font-weight:700; margin-top:10px;">Cơ sở tạm đóng nhận yêu cầu</h3>
+                <p style="font-size:12.5px; color:var(--ch-secondary); line-height:1.55; margin-top:6px;">
+                  Hiện tại <strong>${p.name}</strong> chưa mở nhận yêu cầu lưu trú qua TripMate. Bạn có thể liên hệ trực tiếp số <strong class="mono" style="color:var(--ch-ink);">${p.hotline}</strong> hoặc xem các cơ sở đang mở khác.
+                </p>
+                <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="state.statusFilter='open'; go('traveler','t-stays');">
+                  Xem cơ sở đang nhận yêu cầu
+                </button>
+              </section>
+            `}
+          </aside>
+        </div>
+      `;
+    }
+
+    /* --- TRAVELER SCREEN D: KẾT QUẢ & THEO DÕI (Đã gửi / Cơ sở đã phản hồi / Đã từ chối) --- */
+    function renderTravelerResult() {
+      const myReqs = state.requests.filter(r => r.travelerName === 'Trần Ngọc Mai');
+      const req = myReqs.find(r => r.id === state.activeRequestId) || myReqs[0];
+      const meta = {
+        sent: {
+          icon: 'schedule', label: 'Đã gửi',
+          title: 'Đã gửi yêu cầu lưu trú tới cơ sở',
+          desc: 'Yêu cầu của bạn đã chuyển tới Hotel Operator của cơ sở. Bạn sẽ nhận được phản hồi ngay khi cơ sở xem yêu cầu.'
+        },
+        responded: {
+          icon: 'mark_chat_read', label: 'Cơ sở đã phản hồi',
+          title: 'Cơ sở đã phản hồi yêu cầu của bạn',
+          desc: 'Vui lòng xem nội dung phản hồi bên dưới để trao đổi trực tiếp với cơ sở về phòng trống, giá, giữ chỗ và thanh toán.'
+        },
+        rejected: {
+          icon: 'cancel', label: 'Đã từ chối',
+          title: 'Cơ sở đã từ chối yêu cầu lưu trú',
+          desc: 'Rất tiếc cơ sở hiện chưa thể tiếp nhận yêu cầu này. Bạn có thể xem lý do bên dưới và chọn cơ sở khác phù hợp hơn.'
+        }
+      }[req.status];
+
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-bottom:18px;">
+          <div>
+            <div class="eyebrow"><span class="ms xs">receipt_long</span> Theo dõi yêu cầu lưu trú</div>
+            <h1 class="page-h1">Kết quả & phản hồi từ cơ sở</h1>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            ${req.itineraryId ? `
+              <button class="btn btn-primary btn-sm" onclick="go('traveler','t-itinerary')">
+                <span class="ms sm">map</span> Quay lại chi tiết lịch trình
+              </button>
+            ` : ''}
+            <button class="btn btn-secondary btn-sm" onclick="go('traveler','t-stays')">
+              <span class="ms sm">hotel</span> Tìm nơi ở khác
+            </button>
+          </div>
+        </div>
+
+        <div class="result-split">
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <section class="status-banner ${req.status}">
+              <div class="status-icon"><span class="ms filled lg">${meta.icon}</span></div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span class="mono" style="font-size:13px; font-weight:700;">${req.code}</span>
+                  ${statusBadgeHtml(req.status)}
+                </div>
+                <h2 style="font-family:var(--font-display); font-size:20px; font-weight:700; margin-top:4px;">${meta.title}</h2>
+                <p style="font-size:13px; opacity:0.88; line-height:1.5; margin-top:5px;">${meta.desc}</p>
+              </div>
+            </section>
+
+            ${req.status === 'responded' ? `
+              <section class="reply-quote-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="font-size:13px; font-weight:800; color:var(--st-responded-text); display:inline-flex; align-items:center; gap:6px;">
+                    <span class="ms sm filled">forum</span> Phản hồi từ ${req.propertyName}
+                  </span>
+                  <span class="mono" style="font-size:11.5px; color:var(--ch-secondary);">${req.respondedAt || ''}</span>
+                </div>
+                <p style="font-size:13.5px; color:var(--ch-ink); line-height:1.55;">${req.operatorResponse}</p>
+                <div style="margin-top:4px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--ch-primary); font-weight:700;">
+                  <span class="mono">Hotline lễ tân: ${req.propertyHotline}</span>
+                  <span>·</span>
+                  <span>Trao đổi trực tiếp để chốt phòng & thanh toán</span>
+                </div>
+              </section>
+            ` : ''}
+
+            ${req.status === 'rejected' ? `
+              <section class="card card-pad" style="background:var(--st-rejected-bg); border-color:var(--st-rejected-border);">
+                <div style="font-size:13px; font-weight:800; color:var(--st-rejected-text); display:flex; align-items:center; gap:6px;">
+                  <span class="ms sm">info</span> Lý do từ chối từ cơ sở
+                </div>
+                <p style="font-size:13px; color:#7F1D1D; line-height:1.5; margin-top:5px;">${req.rejectionReason}</p>
+              </section>
+            ` : ''}
+
+            <section class="card card-pad">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="font-family:var(--font-display); font-size:17px; font-weight:700;">Chi tiết yêu cầu đã gửi</h3>
+                <span class="mono" style="font-size:12px; color:var(--ch-secondary);">${req.submittedAt}</span>
+              </div>
+              <div class="kv-table">
+                <div class="kv-row"><span class="k">Mã yêu cầu</span><span class="v mono">${req.code}</span></div>
+                <div class="kv-row"><span class="k">Cơ sở lưu trú</span><span class="v">${req.propertyName}<br/><span style="font-size:11.5px; font-weight:500; color:var(--ch-secondary);">${req.propertyAddress}</span></span></div>
+                <div class="kv-row"><span class="k">Ngày nhận / trả dự kiến</span><span class="v tnum">${fmtFull(req.checkIn)} – ${fmtFull(req.checkOut)} (${diffDays(req.checkIn, req.checkOut)} đêm)</span></div>
+                <div class="kv-row"><span class="k">Số khách</span><span class="v tnum">${req.guests} khách</span></div>
+                <div class="kv-row"><span class="k">Thông tin liên hệ</span><span class="v">${req.travelerName}<br/><span class="mono" style="font-size:12px; font-weight:600; color:var(--ch-secondary);">${[req.travelerPhone, req.travelerEmail].filter(Boolean).join(' · ')}</span></span></div>
+                ${req.notes ? `<div class="kv-row"><span class="k">Ghi chú</span><span class="v" style="font-weight:500;">${req.notes}</span></div>` : ''}
+                ${req.itineraryId ? `<div class="kv-row"><span class="k">Chuyến đi liên kết</span><span class="v">${req.itineraryTitle} (${req.itineraryRange})</span></div>` : ''}
+              </div>
+            </section>
+
+            <div class="direct-notice">
+              <span class="ms sm">forum</span>
+              <div>Bạn sẽ trao đổi trực tiếp với cơ sở về phòng trống, giá, giữ chỗ và thanh toán.</div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              ${req.status === 'responded' ? `
+                <button class="btn btn-copper-soft" onclick="useHotelAsStartPoint('${req.propertyId}')">
+                  <span class="ms sm">trip_origin</span> Dùng làm điểm xuất phát
+                </button>
+              ` : ''}
+              ${req.itineraryId ? `
+                <button class="btn btn-primary" onclick="go('traveler','t-itinerary')">
+                  <span class="ms sm">map</span> Quay lại chi tiết lịch trình
+                </button>
+              ` : ''}
+              ${req.status === 'sent' ? `
+                <button class="btn btn-teal-soft demo-only" onclick="state.activeRequestId='${req.id}'; go('operator','op-detail');">
+                  <span class="ms sm">apartment</span> Mở bên Hotel Operator để phản hồi
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <aside class="sticky-side">
+            <section class="card card-pad">
+              <h3 style="font-family:var(--font-display); font-size:16px; font-weight:700; margin-bottom:10px;">Yêu cầu lưu trú của bạn</h3>
+              <div style="display:flex; flex-direction:column; gap:9px;">
+                ${myReqs.map(r => `
+                  <div class="req-list-item ${r.id===req.id?'active':''}" onclick="state.activeRequestId='${r.id}'; render();">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                      <span class="mono" style="font-size:11.5px; font-weight:700; color:var(--ch-secondary);">${r.code}</span>
+                      ${statusBadgeHtml(r.status)}
+                    </div>
+                    <div style="font-size:13.5px; font-weight:800; margin-top:5px;">${r.propertyName}</div>
+                    <div class="tnum" style="font-size:12px; color:var(--ch-secondary); margin-top:2px;">
+                      ${fmtShort(r.checkIn)}–${fmtShort(r.checkOut)} · ${r.guests} khách
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </section>
+          </aside>
+        </div>
+      `;
+    }
+
+    /* --- TRAVELER SCREEN E: TRANG LẬP LỊCH (/plan — Điểm xuất phát điền từ khách sạn) --- */
+    function renderTravelerPlanner() {
+      const selectedPois = SIGHTSEEING_POIS.filter(p => state.mandatoryPoiIds.includes(p.id));
+      const startHotel = state.plannerStartHotel;
+      const hoiAnStays = state.properties.filter(p => p.area === 'Hội An' && p.acceptingRequests).slice(0, 2);
+
+      return `
+        <div style="margin-bottom:18px;">
+          <div class="eyebrow"><span class="ms xs">edit_calendar</span> Lập lịch trình thông minh</div>
+          <h1 class="page-h1">Tạo lịch trình tham quan</h1>
+          <p class="page-sub">
+            Thiết lập điểm xuất phát, thời gian và các điểm tham quan muốn ghé. Bạn có thể chọn một khách sạn làm <strong>Điểm xuất phát</strong> rồi chủ động bấm tạo lịch để tính tuyến.
+          </p>
+        </div>
+
+        <div class="planner-grid">
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            <section class="card card-pad">
+              <div class="form-section-head">
+                <div><h2>1. Điểm xuất phát & Khu vực khám phá</h2><p>Chọn nơi khởi hành và khu vực tham quan</p></div>
+                ${startHotel ? `<span class="pill pill-copper"><span class="ms xs">trip_origin</span> Đã điền từ khách sạn</span>` : ''}
+              </div>
+
+              <div class="route-pin-row">
+                <div class="pin-badge ${startHotel ? 'start-hotel' : 'start'}">A</div>
+                <div style="flex:1; min-width:0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <span class="field-lbl" style="margin:0;">Điểm xuất phát</span>
+                    ${startHotel
+                      ? `<button style="border:none;background:none;color:var(--ch-secondary);font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:underline;" onclick="state.plannerStartHotel=null; state.plannerStartLabel='Sân bay Quốc tế Đà Nẵng'; render();">Đổi về sân bay</button>`
+                      : `<span style="font-size:11.5px; color:var(--ch-secondary);">Hoặc chọn khách sạn ở mục Lưu trú</span>`
+                    }
+                  </div>
+                  <div class="picker-trigger ${startHotel ? 'hotel-prefilled' : ''}">
+                    <div style="min-width:0;">
+                      <div style="font-size:13.5px; font-weight:800; color:var(--ch-ink);">${startHotel ? startHotel.name : state.plannerStartLabel}</div>
+                      ${startHotel ? `<div style="font-size:11.5px; font-weight:500; color:var(--ch-secondary); margin-top:2px;">${startHotel.address}</div>` : ''}
+                    </div>
+                    <span style="font-size:12px; color:var(--ch-primary); flex-shrink:0;">${startHotel ? 'Khách sạn' : 'Thay đổi'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="route-pin-row" style="margin-bottom:0;">
+                <div class="pin-badge explore">★</div>
+                <div style="flex:1;">
+                  <span class="field-lbl" style="margin:0;">Khu vực khám phá</span>
+                  <div class="picker-trigger">
+                    <span>${state.plannerExploreArea}</span>
+                    <span style="font-size:12px; color:var(--ch-primary);">Thay đổi</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card card-pad">
+              <div class="form-section-head">
+                <div><h2>2. Thời gian & Phương tiện</h2><p>Chuyến đi Hội An 28/11 – 30/11/2026</p></div>
+              </div>
+              <div class="form-2col">
+                <div>
+                  <label class="field-lbl">Ngày bắt đầu</label>
+                  <input class="text-input tnum" type="date" value="${state.plannerStartDate}" onchange="state.plannerStartDate=this.value;" />
+                </div>
+                <div>
+                  <label class="field-lbl">Giờ xuất phát</label>
+                  <input class="text-input tnum" type="text" value="${state.plannerStartTime}" />
+                </div>
+              </div>
+              <div style="margin-top:12px;">
+                <span class="field-lbl">Thời lượng dự kiến</span>
+                <div class="segmented-group">
+                  ${['4 giờ', '1 ngày (8h)', '2 ngày', '3 ngày'].map(d => `
+                    <button class="chip-btn ${state.plannerDuration===d?'active':''}" onclick="state.plannerDuration='${d}'; render();">${d}</button>
+                  `).join('')}
+                </div>
+              </div>
+            </section>
+
+            <!-- Địa điểm muốn ghé: CHỈ ĐIỂM THAM QUAN -->
+            <section class="card card-pad" style="border-color:var(--ch-teal-border);">
+              <div class="form-section-head">
+                <div><h2>3. Tùy chọn thêm</h2><p>Các điểm tham quan bắt buộc đưa vào tuyến</p></div>
+                <span class="pill pill-teal">Chỉ điểm tham quan</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13.5px; font-weight:800;">Địa điểm muốn ghé</span>
+                <span class="pill pill-neutral tnum">${selectedPois.length} / 6 điểm</span>
+              </div>
+              <p style="font-size:12px; color:var(--ch-secondary); margin-top:4px; line-height:1.45;">
+                Chỉ hiển thị các điểm tham quan, di sản và cảnh quan. Khách sạn không thêm vào danh sách này.
+              </p>
+              <div class="must-see-chips">
+                ${selectedPois.map(p => `
+                  <span class="poi-chip"><span class="ms xs">attractions</span><span>${p.name}</span><button onclick="toggleMandatory('${p.id}')">×</button></span>
+                `).join('')}
+              </div>
+              <div style="margin-top:12px;">
+                <button class="btn btn-secondary btn-sm" style="border-style:dashed;" onclick="openSightseeingPickerModal('')">
+                  <span class="ms sm">add_location_alt</span> + Thêm địa điểm tham quan
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <aside class="sticky-side">
+            <!-- Map showing Hotel Start Point (A) -->
+            <section class="card card-pad" style="padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div>
+                  <h3 style="font-size:14.5px; font-weight:800;">Bản đồ điểm xuất phát & bán kính</h3>
+                  <p style="font-size:12px; color:var(--ch-secondary);">Xuất phát A: ${startHotel ? startHotel.name : state.plannerStartLabel}</p>
+                </div>
+                <span class="pill pill-teal tnum">${state.plannerRadiusKm} km</span>
+              </div>
+              <div class="coastal-map-box">
+                <svg viewBox="0 0 480 185">
+                  <rect width="480" height="185" fill="#D9ECEB"/>
+                  <path d="M0,0 L330,0 C346,45 322,115 352,185 L0,185 Z" fill="#EFECE2"/>
+                  <circle cx="242" cy="96" r="${Math.min(76, 30 + state.plannerRadiusKm * 1.8)}" fill="rgba(23,75,74,0.11)" stroke="#174B4A" stroke-width="2" stroke-dasharray="6 4"/>
+                  <circle cx="204" cy="74" r="6.5" fill="#174B4A" stroke="#FFF" stroke-width="2"/>
+                  <circle cx="272" cy="84" r="6.5" fill="#174B4A" stroke="#FFF" stroke-width="2"/>
+                  <circle cx="255" cy="134" r="6.5" fill="#174B4A" stroke="#FFF" stroke-width="2"/>
+                  <circle cx="242" cy="96" r="11" fill="#B96D4C" stroke="#FFF" stroke-width="2.5"/>
+                  <text x="242" y="100" text-anchor="middle" fill="#FFF" font-family="Manrope,sans-serif" font-weight="800" font-size="10.5">A</text>
+                  <rect x="182" y="114" width="120" height="21" rx="10" fill="#1C2928" opacity="0.9"/>
+                  <text x="242" y="128" text-anchor="middle" fill="#FFF" font-family="Manrope,sans-serif" font-weight="700" font-size="10">Điểm xuất phát</text>
+                </svg>
+              </div>
+            </section>
+
+            <!-- Khu vực Lưu trú riêng -->
+            <section class="itin-stay-card">
+              <div class="itin-stay-head">
+                <div class="itin-stay-title"><span class="ms sm filled">hotel</span><span>Lưu trú</span></div>
+                <span class="pill pill-neutral" style="background:#FFFFFF;">Khu vực riêng</span>
+              </div>
+              <div class="itin-stay-body" style="padding:15px 18px;">
+                <p style="font-size:12.5px; color:var(--ch-secondary); line-height:1.5;">
+                  Tìm nơi ở hoặc chọn khách sạn làm điểm xuất phát cho chuyến đi mà không thêm khách sạn vào danh sách điểm dừng tham quan.
+                </p>
+                ${hoiAnStays.map(sp => `
+                  <div class="suggest-item">
+                    <div class="suggest-top" onclick="openHotelDetail('${sp.id}', true)">
+                      <div class="suggest-thumb" style="background-image:url('${sp.photos[0]}');"></div>
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-size:13px; font-weight:800;">${sp.name}</div>
+                        <div style="font-size:11.5px; color:var(--ch-secondary); margin-top:2px;">${sp.address}</div>
+                      </div>
+                    </div>
+                    <button class="btn btn-copper-soft btn-xs btn-full" onclick="useHotelAsStartPoint('${sp.id}')">
+                      <span class="ms xs">trip_origin</span> Dùng làm điểm xuất phát
+                    </button>
+                  </div>
+                `).join('')}
+                <button class="btn btn-teal-soft btn-sm btn-full" onclick="go('traveler','t-stays')">
+                  <span class="ms sm">hotel</span> Tìm nơi ở
+                </button>
+              </div>
+            </section>
+
+            <!-- Traveler actively triggers itinerary generation -->
+            <section class="card card-pad" style="padding:16px 18px;">
+              <div style="font-size:12px; color:var(--ch-secondary); margin-bottom:10px; line-height:1.45;">
+                ${startHotel
+                  ? `Tuyến tham quan 28–30/11 sẽ được tính từ <strong>${startHotel.name}</strong> sau khi bạn bấm tạo lịch.`
+                  : `Tuyến tham quan 28–30/11 gồm ${selectedPois.length} điểm muốn ghé.`}
+              </div>
+              <button class="btn btn-primary btn-full" onclick="submitPlannerWithStartPoint()">
+                <span class="ms sm">auto_awesome</span> Tạo lịch trình gợi ý
+              </button>
+            </section>
+          </aside>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       HOTEL OPERATOR — PROVIDER WEB (Mirrors ProviderWorkspaceShell.tsx)
+       ========================================================================== */
+    function renderOperatorShell(pageTitle, breadcrumb, innerHtml) {
+      const prop = getProp(state.operatorPropertyId);
+      const opReqs = state.requests.filter(r => r.propertyId === prop.id);
+      const pendingCount = opReqs.filter(r => r.status === 'sent').length;
+
+      return `
+        <div class="pv-shell">
+          <aside class="pv-sidebar" aria-label="Điều hướng Hotel Operator">
+            <div class="pv-sb-brand">
+              <div style="display:flex; align-items:center; gap:9px; min-width:0;">
+                <div class="tm-brand-mark" style="width:30px;height:30px;font-size:13px;background:#1F615E;">TM</div>
+                <span style="font-family:var(--font-display); font-size:17px; font-weight:700; color:#FFFFFF;">TripMate</span>
+              </div>
+              <span class="pv-role-tag">Hotel Operator</span>
+            </div>
+
+            <nav class="pv-sb-nav">
+              <div>
+                <div class="pv-sb-section">Lưu trú · ${prop.area}</div>
+                <button class="pv-sb-link ${state.screen==='op-requests'||state.screen==='op-detail'?'active':''}" onclick="go('operator','op-requests')">
+                  <span class="ms sm">inbox</span>
+                  <span style="flex:1;">Yêu cầu lưu trú</span>
+                  ${pendingCount > 0 ? `<span class="nav-badge">${pendingCount}</span>` : ''}
+                </button>
+                <button class="pv-sb-link ${state.screen==='op-profile'?'active':''}" onclick="go('operator','op-profile')">
+                  <span class="ms sm">hotel</span>
+                  <span>Hồ sơ cơ sở lưu trú</span>
+                </button>
+              </div>
+
+              <div>
+                <div class="pv-sb-section">Cổng đối tác hiện có</div>
+                <button class="pv-sb-link" onclick="showToast('Mục Bảng kê hoa hồng giữ nguyên giao diện Provider Web hiện có')">
+                  <span class="ms sm">account_balance_wallet</span>
+                  <span>Bảng kê hoa hồng</span>
+                </button>
+              </div>
+            </nav>
+
+            <div class="pv-sb-foot">
+              <div class="pv-account-box">
+                <div style="display:flex; align-items:center; gap:7px;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#10B981;"></span>
+                  <strong style="font-size:12px; color:#FFFFFF; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${prop.name}</strong>
+                </div>
+                <div style="font-size:11px; color:#8FA9A3; margin-top:3px;">Hotel Operator · ServiceProvider</div>
+              </div>
+            </div>
+          </aside>
+
+          <div class="pv-main">
+            <!-- Narrow-screen Operator Dark Coastal Header & Tabs -->
+            <div class="pv-mobile-bar">
+              <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                <div class="tm-brand-mark" style="width:28px;height:28px;font-size:12px;background:#1F615E;">TM</div>
+                <span style="font-family:var(--font-display); font-size:15.5px; font-weight:700; color:#FFFFFF;">TripMate</span>
+                <span class="pv-role-tag">Hotel Operator</span>
+              </div>
+              <button class="btn btn-teal-soft btn-xs demo-only" onclick="go('traveler','t-result')">
+                <span class="ms xs">person</span> Traveler
+              </button>
+            </div>
+            <nav class="pv-mobile-tabs" aria-label="Điều hướng Hotel Operator di động">
+              <button class="pv-mobile-tab ${state.screen==='op-requests'||state.screen==='op-detail'?'active':''}" onclick="go('operator','op-requests')">
+                <span class="ms xs">inbox</span> Yêu cầu lưu trú ${pendingCount > 0 ? `<span class="nav-badge">${pendingCount}</span>` : ''}
+              </button>
+              <button class="pv-mobile-tab ${state.screen==='op-profile'?'active':''}" onclick="go('operator','op-profile')">
+                <span class="ms xs">hotel</span> Hồ sơ cơ sở lưu trú
+              </button>
+            </nav>
+
+            <header class="pv-topbar">
+              <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                <div style="min-width:0;">
+                  <div style="font-size:11.5px; color:var(--ch-secondary); font-weight:600;">${breadcrumb}</div>
+                  <div style="font-family:var(--font-display); font-size:17px; font-weight:700; color:var(--ch-ink);">${pageTitle}</div>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="pill ${prop.acceptingRequests ? 'pill-open' : 'pill-closed'}">
+                  <span class="ms xs filled">${prop.acceptingRequests ? 'check_circle' : 'event_busy'}</span>
+                  ${prop.acceptingRequests ? 'Đang nhận yêu cầu' : 'Chưa mở nhận yêu cầu'}
+                </span>
+                <button class="btn btn-teal-soft btn-xs demo-only" onclick="go('traveler','t-result')">
+                  <span class="ms xs">person</span> Xem phía Traveler
+                </button>
+              </div>
+            </header>
+
+            <div class="pv-content">${innerHtml}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* --- OPERATOR SCREEN 1: HỒ SƠ CƠ SỞ ĐÃ STAFF XÁC MINH & BẬT/TẮT NHẬN YÊU CẦU --- */
+    function renderOperatorProfile() {
+      const p = getProp(state.operatorPropertyId);
+      const html = `
+        <div class="pv-detail-grid">
+          <form class="card card-pad" onsubmit="saveOperatorProfile(event)" style="display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; padding-bottom:12px; border-bottom:1px solid #EEF1ED;">
+              <div>
+                <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+                  <span class="pill pill-open"><span class="ms xs filled">verified</span> Đã được Staff xác minh</span>
+                  <span class="mono" style="font-size:11.5px; color:var(--ch-secondary);">${p.code}</span>
+                </div>
+                <h2 style="font-family:var(--font-display); font-size:20px; font-weight:700; margin-top:6px;">${p.name}</h2>
+                <div style="font-size:12.5px; color:var(--ch-secondary); margin-top:2px;">${p.address}</div>
+              </div>
+            </div>
+
+            <!-- Bật / Tắt nhận yêu cầu -->
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 16px; border-radius:14px; background:${p.acceptingRequests ? 'var(--ch-soft-accent)' : 'var(--st-closed-bg)'}; border:1px solid ${p.acceptingRequests ? 'var(--ch-teal-border)' : 'var(--st-closed-border)'};">
+              <div>
+                <div style="font-size:14px; font-weight:800; color:var(--ch-ink);">Trạng thái nhận yêu cầu lưu trú</div>
+                <div style="font-size:12px; color:var(--ch-secondary); margin-top:2px;">
+                  ${p.acceptingRequests
+                    ? 'Đang bật — Traveler có thể gửi yêu cầu lưu trú trực tiếp từ trang chi tiết cơ sở.'
+                    : 'Đang tắt — Traveler vẫn xem được bài giới thiệu cơ sở với nhãn "Chưa mở nhận yêu cầu".'}
+                </div>
+              </div>
+              <button type="button" class="toggle-switch ${p.acceptingRequests ? 'on' : ''}" onclick="toggleOperatorAccepting()" aria-label="Bật hoặc tắt nhận yêu cầu"></button>
+            </div>
+
+            <div>
+              <label class="field-lbl">Giới thiệu cơ sở lưu trú</label>
+              <textarea class="text-area" id="op-summary-input" style="min-height:90px;">${p.summary}</textarea>
+            </div>
+
+            <div class="form-2col">
+              <div>
+                <label class="field-lbl">Hotline trao đổi trực tiếp</label>
+                <input class="text-input mono" id="op-hotline-input" type="text" value="${p.hotline}" />
+              </div>
+              <div>
+                <label class="field-lbl">Email liên hệ</label>
+                <input class="text-input" type="email" value="${p.contactEmail}" readonly style="background:var(--ch-surface-warm);" />
+              </div>
+            </div>
+
+            <div>
+              <label class="field-lbl">Giờ nhận / trả phòng tham khảo</label>
+              <input class="text-input" id="op-checkin-input" type="text" value="${p.checkInNote}" />
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; padding-top:6px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="go('operator','op-requests')">Xem yêu cầu lưu trú</button>
+              <button type="submit" class="btn btn-primary btn-sm"><span class="ms sm">save</span> Lưu thay đổi</button>
+            </div>
+          </form>
+
+          <aside class="sticky-side">
+            <section class="card card-pad">
+              <div style="font-size:13.5px; font-weight:800; margin-bottom:8px;">Quyền quản lý của Hotel Operator</div>
+              <ul style="font-size:12.5px; color:var(--ch-secondary); line-height:1.65; padding-left:18px;">
+                <li>Chỉ quản lý bài viết của cơ sở đã được <strong>Staff xác minh</strong> và gắn tài khoản.</li>
+                <li>Chủ động <strong>bật / tắt nhận yêu cầu</strong> bất cứ lúc nào khi tạm kín phòng hoặc bảo trì.</li>
+                <li>Nhận yêu cầu ngày ở dự kiến, số khách và trao đổi trực tiếp với khách về phòng trống, giá và thanh toán.</li>
+              </ul>
+            </section>
+            <section class="card card-pad" style="padding:14px;">
+              <div style="font-size:12px; font-weight:700; color:var(--ch-secondary); margin-bottom:8px;">Ảnh hiển thị trên Traveler Web</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                ${p.photos.slice(0,2).map(u => `<div style="height:86px; border-radius:10px; background:url('${u}') center/cover;"></div>`).join('')}
+              </div>
+            </section>
+          </aside>
+        </div>
+      `;
+      return renderOperatorShell('Hồ sơ cơ sở lưu trú', 'Hotel Operator › Lưu trú › Hồ sơ cơ sở', html);
+    }
+
+    /* --- OPERATOR SCREEN 2: DANH SÁCH YÊU CẦU LƯU TRÚ --- */
+    function renderOperatorRequests() {
+      const prop = getProp(state.operatorPropertyId);
+      const q = state.opSearch.trim().toLowerCase();
+      const list = state.requests.filter(r => {
+        if (r.propertyId !== prop.id) return false;
+        if (state.opStatusFilter !== 'all' && r.status !== state.opStatusFilter) return false;
+        if (q && !r.code.toLowerCase().includes(q) && !r.travelerName.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const html = `
+        <div class="card card-pad" style="margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            ${[
+              ['all', 'Tất cả'],
+              ['sent', 'Đã gửi (chờ phản hồi)'],
+              ['responded', 'Cơ sở đã phản hồi'],
+              ['rejected', 'Đã từ chối']
+            ].map(([k, l]) => `
+              <button class="chip-btn ${state.opStatusFilter===k?'active':''}" onclick="state.opStatusFilter='${k}'; render();">${l}</button>
+            `).join('')}
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div class="search-wrap" style="min-width:240px;">
+              <span class="ms sm">search</span>
+              <input class="text-input with-icon" style="height:36px;" type="text" value="${state.opSearch}" placeholder="Tìm mã yêu cầu, tên khách..." oninput="state.opSearch=this.value; render();" />
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="go('operator','op-profile')">
+              <span class="ms sm">tune</span> Bật/tắt nhận yêu cầu
+            </button>
+          </div>
+        </div>
+
+        <section class="card" style="overflow:hidden;">
+          <div class="pv-table-wrap">
+            <table class="pv-table">
+              <thead>
+                <tr>
+                  <th>Mã yêu cầu</th>
+                  <th>Khách hàng</th>
+                  <th>Ngày ở dự kiến</th>
+                  <th>Số khách</th>
+                  <th>Liên hệ</th>
+                  <th>Trạng thái</th>
+                  <th style="text-align:right;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${list.length === 0 ? `
+                  <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ch-secondary);">Chưa có yêu cầu nào khớp bộ lọc.</td></tr>
+                ` : list.map(r => `
+                  <tr>
+                    <td class="mono" style="font-weight:700; white-space:nowrap;">${r.code}</td>
+                    <td>
+                      <div style="font-weight:800; color:var(--ch-ink);">${r.travelerName}</div>
+                      <div style="font-size:11.5px; color:var(--ch-secondary);">${r.submittedAt}</div>
+                    </td>
+                    <td class="tnum" style="white-space:nowrap; font-weight:700;">
+                      ${fmtFull(r.checkIn)} – ${fmtFull(r.checkOut)}
+                      <div style="font-size:11px; font-weight:500; color:var(--ch-secondary);">${diffDays(r.checkIn, r.checkOut)} đêm dự kiến</div>
+                    </td>
+                    <td class="tnum" style="font-weight:700;">${r.guests} khách</td>
+                    <td style="font-size:12px;">
+                      <div class="mono" style="font-weight:600;">${r.travelerPhone || '—'}</div>
+                      <div style="color:var(--ch-secondary);">${r.travelerEmail || ''}</div>
+                    </td>
+                    <td>${statusBadgeHtml(r.status)}</td>
+                    <td style="text-align:right;">
+                      <button class="btn btn-teal-soft btn-xs" onclick="state.activeRequestId='${r.id}'; go('operator','op-detail');">
+                        Xem chi tiết
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      `;
+      return renderOperatorShell('Yêu cầu lưu trú', `Hotel Operator › Lưu trú › ${prop.name}`, html);
+    }
+
+    /* --- OPERATOR SCREEN 3: CHI TIẾT YÊU CẦU ("Gửi phản hồi" / "Từ chối yêu cầu") --- */
+    function renderOperatorDetail() {
+      const prop = getProp(state.operatorPropertyId);
+      const req = state.requests.find(r => r.id === state.activeRequestId && r.propertyId === prop.id)
+        || state.requests.find(r => r.propertyId === prop.id)
+        || state.requests[0];
+
+      const html = `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+          <button class="btn btn-secondary btn-sm" onclick="go('operator','op-requests')">
+            <span class="ms sm">arrow_back</span> Quay lại danh sách yêu cầu
+          </button>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="mono" style="font-size:13px; font-weight:700;">${req.code}</span>
+            ${statusBadgeHtml(req.status)}
+          </div>
+        </div>
+
+        <div class="pv-detail-grid">
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Request Specs: Expected Stay Dates, Guests, Notes -->
+            <section class="card card-pad">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h2 style="font-family:var(--font-display); font-size:17px; font-weight:700;">Thông tin yêu cầu lưu trú</h2>
+                <span class="mono" style="font-size:12px; color:var(--ch-secondary);">Gửi lúc ${req.submittedAt}</span>
+              </div>
+              <div class="kv-table">
+                <div class="kv-row"><span class="k">Cơ sở lưu trú</span><span class="v">${req.propertyName}</span></div>
+                <div class="kv-row"><span class="k">Ngày ở dự kiến</span><span class="v tnum">${fmtFull(req.checkIn)} – ${fmtFull(req.checkOut)} (${diffDays(req.checkIn, req.checkOut)} đêm)</span></div>
+                <div class="kv-row"><span class="k">Số khách</span><span class="v tnum">${req.guests} khách</span></div>
+                ${req.itineraryTitle ? `<div class="kv-row"><span class="k">Lịch trình tham khảo</span><span class="v">${req.itineraryTitle} (${req.itineraryRange})</span></div>` : ''}
+                <div class="kv-row"><span class="k">Ghi chú của khách</span><span class="v" style="font-weight:500;">${req.notes || 'Không có ghi chú'}</span></div>
+              </div>
+            </section>
+
+            <!-- Action Zone: "Gửi phản hồi" & "Từ chối yêu cầu" -->
+            <section class="card card-pad">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;">
+                <h3 style="font-family:var(--font-display); font-size:16.5px; font-weight:700;">Xử lý yêu cầu</h3>
+                ${req.status === 'sent' ? `<span class="pill pill-sent">Cần phản hồi</span>` : statusBadgeHtml(req.status)}
+              </div>
+
+              ${req.status === 'sent' ? `
+                <p style="font-size:13px; color:var(--ch-secondary); line-height:1.5; margin-bottom:14px;">
+                  Kiểm tra tình trạng phòng thực tế tại cơ sở rồi gửi phản hồi để trao đổi trực tiếp với khách về phòng trống, giá và cách giữ chỗ, hoặc từ chối kèm lý do.
+                </p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <button class="btn btn-primary" onclick="openOperatorReplyModal('${req.id}')">
+                    <span class="ms sm">send</span> Gửi phản hồi
+                  </button>
+                  <button class="btn btn-danger-outline" onclick="openOperatorRejectModal('${req.id}')">
+                    <span class="ms sm">cancel</span> Từ chối yêu cầu
+                  </button>
+                </div>
+              ` : req.status === 'responded' ? `
+                <div class="reply-quote-box">
+                  <div style="font-size:12px; font-weight:800; color:var(--st-responded-text);">Nội dung đã phản hồi (${req.respondedAt || ''})</div>
+                  <p style="font-size:13px; color:var(--ch-ink); line-height:1.5;">${req.operatorResponse}</p>
+                </div>
+                <div style="margin-top:12px;">
+                  <button class="btn btn-teal-soft btn-sm demo-only" onclick="state.activeRequestId='${req.id}'; go('traveler','t-result');">
+                    <span class="ms sm">arrow_forward</span> Xem kết quả phía Traveler Web
+                  </button>
+                </div>
+              ` : `
+                <div style="background:var(--st-rejected-bg); border:1px solid var(--st-rejected-border); border-radius:12px; padding:12px 14px; font-size:13px; color:#7F1D1D;">
+                  <strong>Đã từ chối (${req.respondedAt || ''}):</strong> ${req.rejectionReason}
+                </div>
+              `}
+            </section>
+          </div>
+
+          <!-- Right Column: Traveler Contact Card -->
+          <aside class="sticky-side">
+            <section class="card card-pad">
+              <div style="font-size:13.5px; font-weight:800; margin-bottom:12px;">Thông tin liên hệ của khách</div>
+              <div style="display:flex; align-items:center; gap:11px; margin-bottom:14px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:var(--ch-soft-accent); color:var(--ch-primary); font-weight:800; display:flex; align-items:center; justify-content:center;">
+                  ${req.travelerName.split(' ').slice(-1)[0][0]}
+                </div>
+                <div>
+                  <div style="font-size:14.5px; font-weight:800;">${req.travelerName}</div>
+                  <div style="font-size:12px; color:var(--ch-secondary);">Khách hàng TripMate</div>
+                </div>
+              </div>
+              <div class="kv-table">
+                <div class="kv-row"><span class="k">Số điện thoại</span><span class="v mono">${req.travelerPhone || '—'}</span></div>
+                <div class="kv-row"><span class="k">Email</span><span class="v">${req.travelerEmail || '—'}</span></div>
+              </div>
+              <div class="direct-notice" style="margin-top:14px;">
+                <span class="ms sm">forum</span>
+                <div>Cơ sở và khách trao đổi trực tiếp về phòng trống, giá, giữ chỗ và thanh toán.</div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      `;
+      return renderOperatorShell(`Chi tiết yêu cầu ${req.code}`, `Hotel Operator › Yêu cầu lưu trú › ${req.code}`, html);
+    }
+
+    /* ==========================================================================
+       SCENARIO RUNNER & MAIN RENDER
+       ========================================================================== */
+    function runScenario(sc) {
+      closeModal();
+      state.activeScenario = sc;
+      if (sc === 't-itinerary-empty') {
+        state.properties = initialProperties();
+        state.requests = initialRequests().filter(r => r.id !== 'req-mai-0148');
+        state.itineraryLinkedHotelStart = null;
+        state.itineraryDayFilter = 'all';
+        go('traveler', 't-itinerary');
+      } else if (sc === 't-stays') {
+        state.properties = initialProperties();
+        state.linkedItinerary = { id: 1, title: ITINERARY_BASE.title, range: ITINERARY_BASE.tripRange };
+        state.area = 'Tất cả';
+        state.statusFilter = 'all';
+        state.search = '';
+        go('traveler', 't-stays');
+      } else if (sc === 't-detail-open') {
+        state.properties = initialProperties();
+        state.linkedItinerary = { id: 1, title: ITINERARY_BASE.title, range: ITINERARY_BASE.tripRange };
+        state.selectedPropertyId = 'poi-367';
+        state.formErrors = {};
+        go('traveler', 't-detail');
+      } else if (sc === 't-detail-closed') {
+        state.properties = initialProperties();
+        state.selectedPropertyId = 'poi-377';
+        go('traveler', 't-detail');
+      } else if (sc === 't-result-sent') {
+        state.requests = initialRequests();
+        state.activeRequestId = 'req-mai-0148';
+        go('traveler', 't-result');
+      } else if (sc === 'op-profile') {
+        state.properties = initialProperties();
+        go('operator', 'op-profile');
+      } else if (sc === 'op-requests') {
+        state.requests = initialRequests();
+        state.opStatusFilter = 'all';
+        state.opSearch = '';
+        go('operator', 'op-requests');
+      } else if (sc === 'op-detail') {
+        state.requests = initialRequests();
+        state.activeRequestId = 'req-mai-0148';
+        go('operator', 'op-detail');
+      } else if (sc === 't-result-responded') {
+        state.requests = initialRequests();
+        state.requests[0].status = 'responded';
+        state.requests[0].respondedAt = '26/11/2026 · 21:02';
+        state.requests[0].operatorResponse = state.opDraftReply;
+        state.activeRequestId = 'req-mai-0148';
+        go('traveler', 't-result');
+      } else if (sc === 't-result-rejected') {
+        state.requests = initialRequests();
+        state.activeRequestId = 'req-mai-rejected';
+        go('traveler', 't-result');
+      } else if (sc === 't-planner-hotel') {
+        const p = getProp('poi-367');
+        state.plannerStartHotel = { id: p.id, name: p.name, address: p.address };
+        state.plannerStartLabel = `${p.name} — ${p.address}`;
+        go('traveler', 't-planner');
+      } else if (sc === 't-itinerary-final') {
+        state.requests = initialRequests();
+        state.requests[0].status = 'responded';
+        state.requests[0].respondedAt = '26/11/2026 · 21:02';
+        state.requests[0].operatorResponse = state.opDraftReply;
+        const p = getProp('poi-367');
+        state.itineraryLinkedHotelStart = { id: p.id, name: p.name, address: p.address };
+        state.itineraryDayFilter = 'all';
+        go('traveler', 't-itinerary');
+      }
+    }
+
+    function render() {
+      const root = document.getElementById('shell-root');
+      if (state.actor === 'traveler') {
+        let body = '';
+        if (state.screen === 't-itinerary') body = renderTravelerItinerary();
+        else if (state.screen === 't-stays') body = renderTravelerStays();
+        else if (state.screen === 't-detail') body = renderTravelerHotelDetail();
+        else if (state.screen === 't-result') body = renderTravelerResult();
+        else if (state.screen === 't-planner') body = renderTravelerPlanner();
+        root.innerHTML = renderTravelerShell(body);
+      } else {
+        if (state.screen === 'op-profile') root.innerHTML = renderOperatorProfile();
+        else if (state.screen === 'op-requests') root.innerHTML = renderOperatorRequests();
+        else root.innerHTML = renderOperatorDetail();
+      }
+      document.querySelectorAll('.dock-btn').forEach(b => b.classList.toggle('active', b.dataset.sc === state.activeScenario));
+    }
+
+    (function init() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'presentation') document.body.classList.add('presentation-mode');
+      const sc = params.get('scenario');
+      if (sc) runScenario(sc);
+      else runScenario('t-itinerary-empty');
+    })();
+  </script>
+</body>
+</html>
